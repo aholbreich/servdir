@@ -10,9 +10,17 @@ function parsePort(raw: string | undefined, fallback: number): number {
 }
 
 export function getConfig(): AppConfig {
+  const catalogPath = process.env.CATALOG_PATH ?? import.meta.env.CATALOG_PATH ?? './catalog';
+  const host = process.env.HOST ?? import.meta.env.HOST ?? '0.0.0.0';
+  const port = parsePort(process.env.PORT ?? import.meta.env.PORT, 4321);
+
+  console.info(`[config] resolved catalog path: ${catalogPath}`);
+  console.info(`[config] resolved host: ${host}`);
+  console.info(`[config] resolved port: ${port}`);
+
   return {
-    catalogPath: import.meta.env.CATALOG_PATH ?? './catalog',
-    host: import.meta.env.HOST ?? '0.0.0.0',
-    port: parsePort(import.meta.env.PORT, 4321),
+    catalogPath,
+    host,
+    port,
   };
 }

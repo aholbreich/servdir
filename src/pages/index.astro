@@ -4,6 +4,7 @@ import { getConfig } from '../lib/config';
 import { loadCatalog } from '../lib/catalog';
 
 const config = getConfig();
+console.info(`[page:/] rendering catalog index with catalog path ${config.catalogPath}`);
 const catalog = await loadCatalog(config.catalogPath);
 const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;

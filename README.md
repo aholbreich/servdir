@@ -23,6 +23,8 @@ docker run --rm \
   ghcr.io/aholbreich/servdir:main
 ```
 
+The application logs the resolved catalog path and discovered service files to stdout. This helps verify whether the container sees the mounted catalog directory.
+
 With Podman:
 ```bash
 podman run --rm \
@@ -44,6 +46,11 @@ Default local catalog path:
 
 Open:
 - `http://localhost:4321`
+
+If port `4321` is already in use, either stop the other process or run Astro on another port, for example:
+```bash
+pnpm astro dev --host 0.0.0.0 --port 4322
+```
 
 ## Test
 ```bash
