@@ -21,6 +21,8 @@ For the MVP, do not build:
 - automated repo discovery across the whole org
 - deep runtime integrations with Kubernetes, cloud providers, or incident tools
 - complicated RBAC
+- a full write-capable admin backend
+- a distributed job system
 
 ## Users
 Primary users:
@@ -141,6 +143,12 @@ The system has four parts:
 3. HTTP server: exposes catalog data and serves the UI
 4. Web UI: list, detail, search, filters
 
+Deployment/runtime model:
+- local development runs directly without Docker
+- production runs as a Docker container
+- catalog content is provided from an external path
+- configuration is provided through environment variables
+
 ## Technical Direction
 Recommended stack for MVP:
 - TypeScript end-to-end
@@ -156,8 +164,28 @@ Recommended stack for MVP:
 - The UI can remain mostly server-rendered and avoid SPA complexity early on.
 - You can still add React or Svelte islands later only where interactivity is needed.
 
+## Future Direction: Repository Scanning
+A likely next feature is periodic scanning of configured repositories for service definition files.
+
+This should be treated as an additive subsystem, not as the core of the MVP architecture.
+
+Likely shape:
+- configured repository list
+- periodic fetch / sync
+- scan for service definition files
+- validate and import into the in-memory catalog
+- persist minimal sync state and scan timestamps locally
+
+Design principles for that feature:
+- keep the primary data model file-based
+- keep runtime state minimal and well-bounded
+- prefer a simple internal scheduler over a distributed job system
+- make local development still work without container orchestration
+
 ## Open Questions
 - Should `provides` be part of the first-class schema in MVP or added in v1.1?
 - Should validation run only on startup, or also in watch mode during local development?
 - Should the app support multiple catalog roots from day one, or just one?
 - Do we want generated example files / templates for new services in the first release?
+- What is the smallest acceptable local state model for repository sync metadata?
+- Should repository scanning land in v1.1 or stay behind a feature flag initially?
