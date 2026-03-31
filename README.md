@@ -13,6 +13,25 @@ Git is the database. Markdown files are the source of truth.
 - Vitest
 - pnpm
 
+## Run as container
+
+```bash
+docker run --rm \
+  -p 4321:4321 \
+  -e CATALOG_PATH=/data/catalog \
+  -v $(pwd)/catalog:/data/catalog:ro \
+  ghcr.io/aholbreich/servdir:main
+```
+
+With Podman:
+```bash
+podman run --rm \
+  -p 4321:4321 \
+  -e CATALOG_PATH=/data/catalog \
+  -v $(pwd)/catalog:/data/catalog:ro \
+  ghcr.io/aholbreich/servdir:main
+```
+
 ## Run locally
 ```bash
 pnpm install
@@ -43,7 +62,7 @@ Build:
 docker build -t servdir .
 ```
 
-Run:
+Run local image:
 ```bash
 docker run --rm \
   -p 4321:4321 \
