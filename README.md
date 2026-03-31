@@ -30,9 +30,11 @@ With Podman:
 podman run --rm \
   -p 4321:4321 \
   -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro \
+  -v $(pwd)/catalog:/data/catalog:ro,Z \
   ghcr.io/aholbreich/servdir:main
 ```
+
+On Fedora or other SELinux-enabled systems, `:Z` on the bind mount may be required. If the container starts but the catalog shows zero services, check the bind mount labeling first.
 
 ## Run locally
 ```bash
