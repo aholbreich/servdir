@@ -10,12 +10,14 @@ Git is the database. Markdown files are the source of truth.
 - gray-matter
 - Zod
 - markdown-it
+- Vitest
+- pnpm
 
 ## Run locally
 ```bash
 pnpm install
 cp .env.example .env
-pnpm run dev
+pnpm dev
 ```
 
 Default local catalog path:
@@ -23,6 +25,11 @@ Default local catalog path:
 
 Open:
 - `http://localhost:4321`
+
+## Test
+```bash
+pnpm test
+```
 
 ## Build
 ```bash
@@ -44,6 +51,11 @@ docker run --rm \
   -v $(pwd)/catalog:/data/catalog:ro \
   servdir
 ```
+
+## CI / image publishing
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Registry target: `ghcr.io/<owner>/servdir`
+- Release strategy: `docs/release.md`
 
 ## Project structure
 ```text
@@ -67,4 +79,5 @@ docs/
 - `docs/prd.md`
 - `.adr/`
 - `docs/working-notes.md`
+- `docs/release.md`
 - `AGENTS.md`
