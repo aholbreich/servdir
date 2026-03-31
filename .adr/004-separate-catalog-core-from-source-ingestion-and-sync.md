@@ -3,7 +3,7 @@
 Status: Accepted
 Status Date: 2026-03-31 20:03
 Driver: Alexander
-Contributors: ...
+Contributors: Codex
 
 ## Context 
 The MVP service catalog reads service definition files from a local directory and builds an in-memory catalog. A likely next feature is periodic scanning of configured repositories for service definition files.

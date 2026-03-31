@@ -1,9 +1,9 @@
 # 3. deploy as stateless container with external catalog path
 
 Status: Accepted
-Status Date: 2026-03-31 20:00
+Status Date: 2026-03-31
 Driver: Alexander
-Contributors: ...
+Contributors: Codex
 
 ## Context 
 The product should be easy to run locally during development and easy to ship in production as a Docker image. Catalog content and operational configuration should live outside the built application artifact.

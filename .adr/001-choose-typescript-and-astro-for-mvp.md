@@ -1,9 +1,9 @@
 # 1. choose typescript and astro for mvp
 
 Status: Accepted
-Status Date: 2026-03-31 19:45
+Status Date: 2026-03-31 
 Driver: Alexander
-Contributors: ...
+Contributors: Codex
 
 ## Context 
 The product is a simple service catalog with Git-backed Markdown as source of truth. The first version should optimize for low complexity, strong readability, and fast iteration rather than maximum frontend sophistication.
@@ -37,6 +37,7 @@ Pros:
 Cons:
 - Less standard than React/Next for internal apps
 - Team may eventually want a more app-like frontend model
+- Main maintainer is familliar with it most
 
 ### Option 2: React or Next.js + TypeScript
 Pros:
@@ -59,4 +60,4 @@ Cons:
 - Adds learning overhead compared with Astro
 
 ## Advices
-Prefer simplicity over frontend fashion. If the catalog later needs advanced client-side graph views, live editing, or very rich interactions, revisit the framework decision with real product pressure rather than guessing now.
+* 2026-03-31 to my self: Prefer simplicity over frontend fashion. If the catalog later needs advanced client-side graph views, live editing, or very rich interactions, revisit the framework decision with real product pressure rather than guessing now.

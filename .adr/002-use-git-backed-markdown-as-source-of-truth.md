@@ -3,7 +3,7 @@
 Status: Accepted
 Status Date: 2026-03-31 19:45
 Driver: Alexander
-Contributors: ...
+Contributors: Codex
 
 ## Context 
 The catalog should beat handwritten Confluence pages by being easier to maintain, review, and trust. The team wants a real MVP quickly, without introducing a separate database, admin UI, or migration burden.
@@ -68,4 +68,4 @@ Cons:
 - Less friendly for service documentation pages
 
 ## Advices
-Treat the parser and validator as critical product features, not just plumbing. Trust in the catalog comes from making invalid data visible early.
+* To myself: Treat the parser and validator as critical product features, not just plumbing. Trust in the catalog comes from making invalid data visible early.
