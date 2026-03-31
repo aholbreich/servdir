@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getConfig } from '../../lib/config';
+import { loadCatalog } from '../../lib/catalog';
+
+const config = getConfig();
+const catalog = await loadCatalog(config.catalogPath);
+const id = Astro.params.id;
+const service = catalog.services.find((entry) => entry.slug === id || entry.data.id === id);
+
+if (!service) {
+  return Astro.rewrite('/404');
+}
+
+const dependencies = service.data.depends_on ?? [];
+const hasIssues = service.issues.length > 0;
+---
+
+<BaseLayout title={`${service.data.name} — servdir`}>
+  <p style="margin:0 0 16px;"><a href="/">← Back to catalog</a></p>
+
+  <section class="card" style="padding:26px;margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <div>
+        <p class="muted" style="margin:0 0 8px;letter-spacing:0.03em;text-transform:uppercase;font-size:0.82rem;">Service</p>
+        <h1 style="margin:0 0 12px;font-size:2.2rem;line-height:1.08;">{service.data.name}</h1>
+        <div class="muted" style="display:flex;gap:12px;flex-wrap:wrap;line-height:1.6;">
+          <span>ID: {service.data.id}</span>
+          <span>Owner: {service.data.owner}</span>
+          <span>Lifecycle: {service.data.lifecycle}</span>
+          {service.data.tier && <span>Tier: {service.data.tier}</span>}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+        <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
+          {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
+        </span>
+        {service.data.tags?.map((tag) => <span class="pill">#{tag}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);gap:20px;align-items:start;">
+    <article class="card" style="padding:26px;">
+      <h2 style="margin-top:0;margin-bottom:14px;">Documentation</h2>
+      <div style="line-height:1.75;" set:html={service.html} />
+    </article>
+
+    <aside class="grid" style="gap:18px;">
+      <section class="card">
+        <h2 style="margin-top:0;margin-bottom:14px;">Metadata</h2>
+        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:12px;line-height:1.55;">
+          <li><strong>Repository:</strong><br /><a href={service.data.repo} target="_blank" rel="noreferrer">{service.data.repo}</a></li>
+          {service.data.runbook && <li><strong>Runbook:</strong><br /><a href={service.data.runbook} target="_blank" rel="noreferrer">{service.data.runbook}</a></li>}
+          {service.data.system && <li><strong>System:</strong> {service.data.system}</li>}
+          {service.data.domain && <li><strong>Domain:</strong> {service.data.domain}</li>}
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 style="margin-top:0;margin-bottom:14px;">Dependencies</h2>
+        {dependencies.length > 0 ? (
+          <ul style="margin:0;padding-left:18px;display:grid;gap:8px;line-height:1.5;">
+            {dependencies.map((dependency) => <li>{dependency}</li>)}
+          </ul>
+        ) : (
+          <p class="muted" style="margin:0;line-height:1.6;">No dependencies declared.</p>
+        )}
+      </section>
+
+      <section class="card">
+        <h2 style="margin-top:0;margin-bottom:14px;">Validation</h2>
+        {hasIssues ? (
+          <ul style="margin:0;padding-left:18px;display:grid;gap:8px;line-height:1.5;">
+            {service.issues.map((issue) => (
+              <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
+            ))}
+          </ul>
+        ) : (
+          <p style="margin:0;color:var(--ok);line-height:1.6;">No validation issues.</p>
+        )}
+      </section>
+    </aside>
+  </section>
+</BaseLayout>

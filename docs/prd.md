@@ -11,8 +11,10 @@ Service information is often incomplete, stale, hard to discover, and spread acr
 - what depends on what
 - where to find operational links like runbooks
 
+Existion soulutions are often overkill (See Backstage) or solving not exactly this problem (port) or depend on ecosystem (Atlassian Compas)
+
 ## Goal
-Create an MVP that makes service metadata easy to maintain in Git and pleasant to browse in a web UI.
+Create an MVP that creates overview of the services in the organisation ore tea. Service Catalog allowing easy to maintain in Git and pleasant to browse in a web UI.
 
 ## Non-Goals
 For the MVP, do not build:
@@ -26,24 +28,26 @@ For the MVP, do not build:
 
 ## Users
 Primary users:
-- platform engineers
 - backend engineers
+- platform engineers
 - SRE / ops
 - tech leads
+- architects
 
 Secondary users:
-- onboarding engineers
-- architects
 - engineering managers
+- product people
 
 ## Jobs To Be Done
 - As an engineer, I want to quickly find a service and its owner.
-- As an engineer, I want to see repo, lifecycle, and tags in one place.
 - As an engineer, I want to read a human-friendly service description without leaving the catalog.
-- As an engineer, I want to understand dependencies between services.
+- As an engineer, I want to see repo, Ci/CD details, and tags in one place.
+- As an engineer, I want to understand dependencies between services (or other components)
+- As an engineer, I want quickly find relevant dashboard alertings or configuration detals to the particular service
 - As a maintainer, I want to update service metadata by editing a Markdown file in Git.
 
 ## MVP Scope
+
 ### Source model
 - Catalog lives in a Git repository or local directory.
 - Service entries are Markdown files, typically `catalog/services/<service-id>/service.md`.

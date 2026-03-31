@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getConfig } from '../lib/config';
+import { loadCatalog } from '../lib/catalog';
+
+const config = getConfig();
+const catalog = await loadCatalog(config.catalogPath);
+const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
+const servicesValid = catalog.services.length - servicesWithIssues;
+---
+
+<BaseLayout title="servdir — Service Catalog">
+  <section class="hero">
+    <div class="card" style="padding:28px;">
+      <p class="muted" style="margin:0 0 10px;letter-spacing:0.02em;text-transform:uppercase;font-size:0.82rem;">Simple service catalog for engineers</p>
+      <h1 class="headline">Service Catalog</h1>
+      <p class="muted" style="max-width:72ch;line-height:1.7;margin:0;">
+        Git is the database. Markdown files are the source of truth. This MVP reads service definitions,
+        validates them, and renders a browsable catalog with just enough structure to beat handwritten wiki pages.
+      </p>
+
+      <div class="subtle-divider"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <span class="pill pill-ok">{servicesValid} valid</span>
+        {servicesWithIssues > 0 ? <span class="pill pill-warn">{servicesWithIssues} with issues</span> : <span class="pill">No current warnings</span>}
+        <span class="pill">Catalog path: <code>{config.catalogPath}</code></span>
+      </div>
+    </div>
+
+    <aside class="card">
+      <h2 class="section-title">Catalog status</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Services</div>
+          <div class="stat-value">{catalog.services.length}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Generated</div>
+          <div class="stat-value" style="font-size:1rem;">{new Date(catalog.generatedAt).toLocaleString('en-GB')}</div>
+        </div>
+      </div>
+      <p class="muted" style="line-height:1.6;margin:16px 0 0;">
+        The catalog is built in memory at runtime from Markdown files in the configured catalog directory.
+      </p>
+    </aside>
+  </section>
+
+  {catalog.services.length > 0 ? (
+    <section class="grid" style="gap:18px;">
+      {catalog.services.map((service) => {
+        const summary = service.data.description
+          ?? service.body.split('\n').find((line) => line.trim() && !line.trim().startsWith('#'))
+          ?? 'No description provided.';
+        const hasIssues = service.issues.length > 0;
+
+        return (
+          <article class="card" style="padding:22px 22px 18px;">
+            <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+              <div style="min-width:0;">
+                <div class="muted" style="font-size:0.86rem;margin-bottom:8px;">{service.data.id}</div>
+                <h2 style="margin:0 0 10px;font-size:1.35rem;line-height:1.2;">
+                  <a href={`/services/${service.slug}`}>{service.data.name}</a>
+                </h2>
+                <div class="muted" style="display:flex;gap:12px;flex-wrap:wrap;line-height:1.5;">
+                  <span><strong style="color:var(--text);font-weight:600;">Owner:</strong> {service.data.owner}</span>
+                  <span><strong style="color:var(--text);font-weight:600;">Lifecycle:</strong> {service.data.lifecycle}</span>
+                  {service.data.tier && <span><strong style="color:var(--text);font-weight:600;">Tier:</strong> {service.data.tier}</span>}
+                </div>
+              </div>
+
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:100%;">
+                <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
+                  {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
+                </span>
+                {service.data.tags?.map((tag) => <span class="pill">#{tag}</span>)}
+              </div>
+            </div>
+
+            <p style="line-height:1.7;margin:18px 0 16px;color:#d9e4fb;max-width:80ch;">
+              {summary}
+            </p>
+
+            <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">
+              <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a>
+              <a href={`/services/${service.slug}`}>View details →</a>
+            </div>
+
+            {hasIssues && (
+              <ul style="margin:16px 0 0;padding-left:18px;display:grid;gap:6px;">
+                {service.issues.map((issue) => (
+                  <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        );
+      })}
+    </section>
+  ) : (
+    <section class="card empty-state">
+      <h2 style="margin:0 0 10px;">No services found</h2>
+      <p class="muted" style="margin:0 auto;max-width:60ch;line-height:1.7;">
+        No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
+        <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
+      </p>
+    </section>
+  )}
+</BaseLayout>
