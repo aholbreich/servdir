@@ -1,0 +1,23 @@
+---
+export interface Item {
+  label: string;
+  value?: string;
+  href?: string;
+}
+
+export interface Props {
+  items: Item[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+<ul class:list={['grid list-none gap-3 p-0 leading-6', className]}>
+  {items.filter((item) => item.value || item.href).map((item) => (
+    <li>
+      <strong class="font-semibold text-slate-950">{item.label}:</strong><br />
+      {item.href ? <a href={item.href} target="_blank" rel="noreferrer">{item.href}</a> : item.value}
+    </li>
+  ))}
+</ul>

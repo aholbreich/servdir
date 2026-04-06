@@ -1,0 +1,107 @@
+/*
+  Shared application-level component classes.
+  Keep only a small set of semantic primitives here.
+*/
+@layer components {
+  .app-shell {
+    @apply mx-auto max-w-7xl px-5 py-9 md:px-6 md:pb-18;
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-panel);
+    @apply rounded-2xl p-5 backdrop-blur;
+  }
+
+  .muted {
+    color: var(--color-muted);
+  }
+
+  .pill {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.85rem] leading-none whitespace-nowrap;
+  }
+
+  .pill-ok {
+    border-color: rgba(21, 128, 61, 0.18);
+    background: rgba(22, 163, 74, 0.1);
+    color: #166534;
+  }
+
+  .pill-warn {
+    border-color: rgba(180, 83, 9, 0.18);
+    background: rgba(245, 158, 11, 0.14);
+    color: #92400e;
+  }
+
+  .issue-error {
+    color: var(--color-err);
+  }
+
+  .issue-warning {
+    color: var(--color-warn);
+  }
+
+  .prose-catalog {
+    @apply max-w-none leading-7;
+  }
+
+  .prose-catalog h1,
+  .prose-catalog h2,
+  .prose-catalog h3 {
+    @apply mt-8 mb-3 font-semibold text-slate-950;
+  }
+
+  .prose-catalog h1 {
+    @apply text-3xl;
+  }
+
+  .prose-catalog h2 {
+    @apply text-2xl;
+  }
+
+  .prose-catalog h3 {
+    @apply text-xl;
+  }
+
+  .prose-catalog p,
+  .prose-catalog ul,
+  .prose-catalog ol {
+    @apply my-4 text-slate-700;
+  }
+
+  .prose-catalog ul,
+  .prose-catalog ol {
+    @apply pl-6;
+  }
+
+  .prose-catalog li {
+    @apply my-1;
+  }
+
+  .prose-catalog strong {
+    @apply font-semibold text-slate-950;
+  }
+
+  .prose-catalog code {
+    background: rgba(37, 99, 235, 0.08);
+    @apply rounded px-1.5 py-0.5 text-sm text-slate-900;
+  }
+
+  .prose-catalog pre {
+    background: #f8fbff;
+    border: 1px solid rgba(37, 99, 235, 0.12);
+    @apply my-5 overflow-x-auto rounded-xl p-4;
+  }
+
+  .prose-catalog pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-catalog blockquote {
+    border-left: 3px solid rgba(37, 99, 235, 0.24);
+    @apply my-5 pl-4 text-slate-600;
+  }
+}

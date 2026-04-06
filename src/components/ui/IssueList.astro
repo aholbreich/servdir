@@ -1,0 +1,16 @@
+---
+import type { ValidationIssue } from '../../lib/catalog';
+
+export interface Props {
+  issues: ValidationIssue[];
+  class?: string;
+}
+
+const { issues, class: className = '' } = Astro.props;
+---
+
+<ul class:list={['grid gap-2 pl-[18px] leading-6', className]}>
+  {issues.map((issue) => (
+    <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
+  ))}
+</ul>

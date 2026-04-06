@@ -1,4 +1,9 @@
 ---
+import Badge from '../../components/ui/Badge.astro';
+import Card from '../../components/ui/Card.astro';
+import IssueList from '../../components/ui/IssueList.astro';
+import KeyValueList from '../../components/ui/KeyValueList.astro';
+import SectionTitle from '../../components/ui/SectionTitle.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getConfig } from '../../lib/config';
 import { loadCatalog } from '../../lib/catalog';
@@ -21,16 +26,22 @@ if (!service) {
 
 const dependencies = service.data.depends_on ?? [];
 const hasIssues = service.issues.length > 0;
+const metadataItems = [
+  { label: 'Repository', href: service.data.repo },
+  { label: 'Runbook', href: service.data.runbook },
+  { label: 'System', value: service.data.system },
+  { label: 'Domain', value: service.data.domain },
+];
 ---
 
 <BaseLayout title={`${service.data.name} — servdir`}>
   <p class="mb-4"><a href="/">← Back to catalog</a></p>
 
-  <section class="card mb-5 p-[26px]">
+  <Card class="mb-5 p-[26px]">
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
-        <h1 class="mb-3 text-4xl leading-tight font-semibold text-slate-950">{service.data.name}</h1>
+        <SectionTitle level="h1" class="mb-3">{service.data.name}</SectionTitle>
         <div class="muted flex flex-wrap gap-3 leading-6">
           <span>ID: {service.data.id}</span>
           <span>Owner: {service.data.owner}</span>
@@ -39,33 +50,28 @@ const hasIssues = service.issues.length > 0;
         </div>
       </div>
       <div class="flex flex-wrap justify-end gap-2">
-        <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
+        <Badge tone={hasIssues ? 'warn' : 'ok'}>
           {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
-        </span>
-        {service.data.tags?.map((tag) => <span class="pill">#{tag}</span>)}
+        </Badge>
+        {service.data.tags?.map((tag) => <Badge>#{tag}</Badge>)}
       </div>
     </div>
-  </section>
+  </Card>
 
   <section class="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
-    <article class="card p-[26px]">
-      <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Documentation</h2>
+    <Card as="article" class="p-[26px]">
+      <SectionTitle class="mb-[14px]">Documentation</SectionTitle>
       <div class="prose-catalog" set:html={service.html} />
-    </article>
+    </Card>
 
     <aside class="grid gap-[18px]">
-      <section class="card">
-        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Metadata</h2>
-        <ul class="grid list-none gap-3 p-0 leading-6">
-          <li><strong class="font-semibold text-slate-950">Repository:</strong><br /><a href={service.data.repo} target="_blank" rel="noreferrer">{service.data.repo}</a></li>
-          {service.data.runbook && <li><strong class="font-semibold text-slate-950">Runbook:</strong><br /><a href={service.data.runbook} target="_blank" rel="noreferrer">{service.data.runbook}</a></li>}
-          {service.data.system && <li><strong class="font-semibold text-slate-950">System:</strong> {service.data.system}</li>}
-          {service.data.domain && <li><strong class="font-semibold text-slate-950">Domain:</strong> {service.data.domain}</li>}
-        </ul>
-      </section>
+      <Card>
+        <SectionTitle class="mb-[14px]">Metadata</SectionTitle>
+        <KeyValueList items={metadataItems} />
+      </Card>
 
-      <section class="card">
-        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Dependencies</h2>
+      <Card>
+        <SectionTitle class="mb-[14px]">Dependencies</SectionTitle>
         {dependencies.length > 0 ? (
           <ul class="grid gap-2 pl-[18px] leading-6">
             {dependencies.map((dependency) => <li>{dependency}</li>)}
@@ -73,20 +79,16 @@ const hasIssues = service.issues.length > 0;
         ) : (
           <p class="muted leading-6">No dependencies declared.</p>
         )}
-      </section>
+      </Card>
 
-      <section class="card">
-        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Validation</h2>
+      <Card>
+        <SectionTitle class="mb-[14px]">Validation</SectionTitle>
         {hasIssues ? (
-          <ul class="grid gap-2 pl-[18px] leading-6">
-            {service.issues.map((issue) => (
-              <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
-            ))}
-          </ul>
+          <IssueList issues={service.issues} />
         ) : (
           <p class="leading-6 text-[var(--color-ok)]">No validation issues.</p>
         )}
-      </section>
+      </Card>
     </aside>
   </section>
 </BaseLayout>

@@ -1,14 +1,16 @@
 ---
+import Card from '../components/ui/Card.astro';
+import SectionTitle from '../components/ui/SectionTitle.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Not found — servdir">
-  <section class="card mx-auto mt-16 max-w-[720px] px-6 py-14 text-center">
+  <Card class="mx-auto mt-16 max-w-[720px] px-6 py-14 text-center">
     <p class="muted mb-2.5 text-[0.82rem] uppercase tracking-[0.04em]">404</p>
-    <h1 class="mb-3 text-4xl font-semibold text-slate-950">Page not found</h1>
+    <SectionTitle level="h1" class="mb-3">Page not found</SectionTitle>
     <p class="muted mx-auto mb-[22px] max-w-3xl leading-7">
       The page you requested does not exist, or the referenced service could not be resolved.
     </p>
     <a class="pill inline-flex" href="/">Back to catalog</a>
-  </section>
+  </Card>
 </BaseLayout>

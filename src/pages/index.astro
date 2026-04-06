@@ -1,4 +1,8 @@
 ---
+import Badge from '../components/ui/Badge.astro';
+import Card from '../components/ui/Card.astro';
+import IssueList from '../components/ui/IssueList.astro';
+import SectionTitle from '../components/ui/SectionTitle.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getConfig } from '../lib/config';
 import { loadCatalog } from '../lib/catalog';
@@ -12,9 +16,9 @@ const servicesValid = catalog.services.length - servicesWithIssues;
 
 <BaseLayout title="servdir — Service Catalog">
   <section class="mb-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,0.9fr)]">
-    <div class="card p-7">
+    <Card class="p-7">
       <p class="muted mb-2.5 text-[0.82rem] uppercase tracking-[0.02em]">Simple service catalog for engineers</p>
-      <h1 class="mb-3 text-4xl leading-tight font-semibold tracking-[-0.03em] text-slate-950 md:text-5xl">Service Catalog</h1>
+      <SectionTitle level="h1" class="mb-3 tracking-[-0.03em]">Service Catalog</SectionTitle>
       <p class="muted max-w-5xl leading-7">
         Git is the database. Markdown files are the source of truth. This MVP reads service definitions,
         validates them, and renders a browsable catalog with just enough structure to beat handwritten wiki pages.
@@ -23,20 +27,20 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       <div class="my-5 h-px bg-linear-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
 
       <div class="flex flex-wrap gap-2.5">
-        <span class="pill pill-ok">{servicesValid} valid</span>
-        {servicesWithIssues > 0 ? <span class="pill pill-warn">{servicesWithIssues} with issues</span> : <span class="pill">No current warnings</span>}
-        <span class="pill">Catalog path: <code>{config.catalogPath}</code></span>
+        <Badge tone="ok">{servicesValid} valid</Badge>
+        {servicesWithIssues > 0 ? <Badge tone="warn">{servicesWithIssues} with issues</Badge> : <Badge>No current warnings</Badge>}
+        <Badge>Catalog path: <code>{config.catalogPath}</code></Badge>
       </div>
-    </div>
+    </Card>
 
-    <aside class="card">
-      <h2 class="mb-3 text-lg font-semibold text-slate-950">Catalog status</h2>
+    <Card as="aside">
+      <SectionTitle class="mb-3 text-lg">Catalog status</SectionTitle>
       <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-2xl border border-white/5 bg-white/2 p-3.5">
+        <div class="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-2)] p-3.5">
           <div class="muted mb-1 text-[0.85rem]">Services</div>
           <div class="text-xl font-semibold text-slate-950">{catalog.services.length}</div>
         </div>
-        <div class="rounded-2xl border border-white/5 bg-white/2 p-3.5">
+        <div class="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-2)] p-3.5">
           <div class="muted mb-1 text-[0.85rem]">Generated</div>
           <div class="text-base font-semibold text-slate-950">{new Date(catalog.generatedAt).toLocaleString('en-GB')}</div>
         </div>
@@ -44,7 +48,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       <p class="muted mt-4 leading-6">
         The catalog is built in memory at runtime from Markdown files in the configured catalog directory.
       </p>
-    </aside>
+    </Card>
   </section>
 
   {catalog.services.length > 0 ? (
@@ -56,7 +60,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
         const hasIssues = service.issues.length > 0;
 
         return (
-          <article class="card px-[22px] pt-[22px] pb-[18px]">
+          <Card as="article" class="px-[22px] pt-[22px] pb-[18px]">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div class="min-w-0">
                 <div class="muted mb-2 text-[0.86rem]">{service.data.id}</div>
@@ -71,10 +75,10 @@ const servicesValid = catalog.services.length - servicesWithIssues;
               </div>
 
               <div class="flex max-w-full flex-wrap justify-end gap-2">
-                <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
+                <Badge tone={hasIssues ? 'warn' : 'ok'}>
                   {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
-                </span>
-                {service.data.tags?.map((tag) => <span class="pill">#{tag}</span>)}
+                </Badge>
+                {service.data.tags?.map((tag) => <Badge>#{tag}</Badge>)}
               </div>
             </div>
 
@@ -82,29 +86,23 @@ const servicesValid = catalog.services.length - servicesWithIssues;
               {summary}
             </p>
 
-            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-white/6 pt-2">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-border)]/70 pt-2">
               <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a>
               <a href={`/services/${service.slug}`}>View details →</a>
             </div>
 
-            {hasIssues && (
-              <ul class="mt-4 grid gap-1.5 pl-[18px]">
-                {service.issues.map((issue) => (
-                  <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
-                ))}
-              </ul>
-            )}
-          </article>
+            {hasIssues && <IssueList issues={service.issues} class="mt-4 gap-1.5" />}
+          </Card>
         );
       })}
     </section>
   ) : (
-    <section class="card px-6 py-14 text-center">
-      <h2 class="mb-2.5 text-2xl font-semibold text-slate-950">No services found</h2>
+    <Card class="px-6 py-14 text-center">
+      <SectionTitle class="mb-2.5">No services found</SectionTitle>
       <p class="muted mx-auto max-w-3xl leading-7">
         No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
         <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
       </p>
-    </section>
+    </Card>
   )}
 </BaseLayout>

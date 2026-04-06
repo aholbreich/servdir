@@ -1,0 +1,13 @@
+---
+export interface Props {
+  tone?: 'default' | 'ok' | 'warn';
+  class?: string;
+}
+
+const { tone = 'default', class: className = '' } = Astro.props;
+const toneClass = tone === 'ok' ? 'pill-ok' : tone === 'warn' ? 'pill-warn' : '';
+---
+
+<span class:list={['pill', toneClass, className]}>
+  <slot />
+</span>
