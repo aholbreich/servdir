@@ -73,10 +73,11 @@ docker build -t servdir .
 
 Run local image:
 ```bash
-docker run --rm \
+# or docker
+podman run --rm -it \
   -p 4321:4321 \
   -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro \
+  -v $(pwd)/catalog:/data/catalog:ro,Z \
   servdir
 ```
 
