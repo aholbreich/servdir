@@ -24,21 +24,21 @@ const hasIssues = service.issues.length > 0;
 ---
 
 <BaseLayout title={`${service.data.name} — servdir`}>
-  <p style="margin:0 0 16px;"><a href="/">← Back to catalog</a></p>
+  <p class="mb-4"><a href="/">← Back to catalog</a></p>
 
-  <section class="card" style="padding:26px;margin-bottom:20px;">
-    <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+  <section class="card mb-5 p-[26px]">
+    <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <p class="muted" style="margin:0 0 8px;letter-spacing:0.03em;text-transform:uppercase;font-size:0.82rem;">Service</p>
-        <h1 style="margin:0 0 12px;font-size:2.2rem;line-height:1.08;">{service.data.name}</h1>
-        <div class="muted" style="display:flex;gap:12px;flex-wrap:wrap;line-height:1.6;">
+        <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
+        <h1 class="mb-3 text-4xl leading-tight font-semibold text-slate-950">{service.data.name}</h1>
+        <div class="muted flex flex-wrap gap-3 leading-6">
           <span>ID: {service.data.id}</span>
           <span>Owner: {service.data.owner}</span>
           <span>Lifecycle: {service.data.lifecycle}</span>
           {service.data.tier && <span>Tier: {service.data.tier}</span>}
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+      <div class="flex flex-wrap justify-end gap-2">
         <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
           {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
         </span>
@@ -47,44 +47,44 @@ const hasIssues = service.issues.length > 0;
     </div>
   </section>
 
-  <section style="display:grid;grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);gap:20px;align-items:start;">
-    <article class="card" style="padding:26px;">
-      <h2 style="margin-top:0;margin-bottom:14px;">Documentation</h2>
-      <div style="line-height:1.75;" set:html={service.html} />
+  <section class="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
+    <article class="card p-[26px]">
+      <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Documentation</h2>
+      <div class="prose-catalog" set:html={service.html} />
     </article>
 
-    <aside class="grid" style="gap:18px;">
+    <aside class="grid gap-[18px]">
       <section class="card">
-        <h2 style="margin-top:0;margin-bottom:14px;">Metadata</h2>
-        <ul style="list-style:none;padding:0;margin:0;display:grid;gap:12px;line-height:1.55;">
-          <li><strong>Repository:</strong><br /><a href={service.data.repo} target="_blank" rel="noreferrer">{service.data.repo}</a></li>
-          {service.data.runbook && <li><strong>Runbook:</strong><br /><a href={service.data.runbook} target="_blank" rel="noreferrer">{service.data.runbook}</a></li>}
-          {service.data.system && <li><strong>System:</strong> {service.data.system}</li>}
-          {service.data.domain && <li><strong>Domain:</strong> {service.data.domain}</li>}
+        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Metadata</h2>
+        <ul class="grid list-none gap-3 p-0 leading-6">
+          <li><strong class="font-semibold text-slate-950">Repository:</strong><br /><a href={service.data.repo} target="_blank" rel="noreferrer">{service.data.repo}</a></li>
+          {service.data.runbook && <li><strong class="font-semibold text-slate-950">Runbook:</strong><br /><a href={service.data.runbook} target="_blank" rel="noreferrer">{service.data.runbook}</a></li>}
+          {service.data.system && <li><strong class="font-semibold text-slate-950">System:</strong> {service.data.system}</li>}
+          {service.data.domain && <li><strong class="font-semibold text-slate-950">Domain:</strong> {service.data.domain}</li>}
         </ul>
       </section>
 
       <section class="card">
-        <h2 style="margin-top:0;margin-bottom:14px;">Dependencies</h2>
+        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Dependencies</h2>
         {dependencies.length > 0 ? (
-          <ul style="margin:0;padding-left:18px;display:grid;gap:8px;line-height:1.5;">
+          <ul class="grid gap-2 pl-[18px] leading-6">
             {dependencies.map((dependency) => <li>{dependency}</li>)}
           </ul>
         ) : (
-          <p class="muted" style="margin:0;line-height:1.6;">No dependencies declared.</p>
+          <p class="muted leading-6">No dependencies declared.</p>
         )}
       </section>
 
       <section class="card">
-        <h2 style="margin-top:0;margin-bottom:14px;">Validation</h2>
+        <h2 class="mb-[14px] text-xl font-semibold text-slate-950">Validation</h2>
         {hasIssues ? (
-          <ul style="margin:0;padding-left:18px;display:grid;gap:8px;line-height:1.5;">
+          <ul class="grid gap-2 pl-[18px] leading-6">
             {service.issues.map((issue) => (
               <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
             ))}
           </ul>
         ) : (
-          <p style="margin:0;color:var(--ok);line-height:1.6;">No validation issues.</p>
+          <p class="leading-6 text-[var(--color-ok)]">No validation issues.</p>
         )}
       </section>
     </aside>

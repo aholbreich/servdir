@@ -11,18 +11,18 @@ const servicesValid = catalog.services.length - servicesWithIssues;
 ---
 
 <BaseLayout title="servdir — Service Catalog">
-  <section class="hero">
-    <div class="card" style="padding:28px;">
-      <p class="muted" style="margin:0 0 10px;letter-spacing:0.02em;text-transform:uppercase;font-size:0.82rem;">Simple service catalog for engineers</p>
-      <h1 class="headline">Service Catalog</h1>
-      <p class="muted" style="max-width:72ch;line-height:1.7;margin:0;">
+  <section class="mb-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,0.9fr)]">
+    <div class="card p-7">
+      <p class="muted mb-2.5 text-[0.82rem] uppercase tracking-[0.02em]">Simple service catalog for engineers</p>
+      <h1 class="mb-3 text-4xl leading-tight font-semibold tracking-[-0.03em] text-slate-950 md:text-5xl">Service Catalog</h1>
+      <p class="muted max-w-5xl leading-7">
         Git is the database. Markdown files are the source of truth. This MVP reads service definitions,
         validates them, and renders a browsable catalog with just enough structure to beat handwritten wiki pages.
       </p>
 
-      <div class="subtle-divider"></div>
+      <div class="my-5 h-px bg-linear-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="flex flex-wrap gap-2.5">
         <span class="pill pill-ok">{servicesValid} valid</span>
         {servicesWithIssues > 0 ? <span class="pill pill-warn">{servicesWithIssues} with issues</span> : <span class="pill">No current warnings</span>}
         <span class="pill">Catalog path: <code>{config.catalogPath}</code></span>
@@ -30,25 +30,25 @@ const servicesValid = catalog.services.length - servicesWithIssues;
     </div>
 
     <aside class="card">
-      <h2 class="section-title">Catalog status</h2>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-label">Services</div>
-          <div class="stat-value">{catalog.services.length}</div>
+      <h2 class="mb-3 text-lg font-semibold text-slate-950">Catalog status</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl border border-white/5 bg-white/2 p-3.5">
+          <div class="muted mb-1 text-[0.85rem]">Services</div>
+          <div class="text-xl font-semibold text-slate-950">{catalog.services.length}</div>
         </div>
-        <div class="stat">
-          <div class="stat-label">Generated</div>
-          <div class="stat-value" style="font-size:1rem;">{new Date(catalog.generatedAt).toLocaleString('en-GB')}</div>
+        <div class="rounded-2xl border border-white/5 bg-white/2 p-3.5">
+          <div class="muted mb-1 text-[0.85rem]">Generated</div>
+          <div class="text-base font-semibold text-slate-950">{new Date(catalog.generatedAt).toLocaleString('en-GB')}</div>
         </div>
       </div>
-      <p class="muted" style="line-height:1.6;margin:16px 0 0;">
+      <p class="muted mt-4 leading-6">
         The catalog is built in memory at runtime from Markdown files in the configured catalog directory.
       </p>
     </aside>
   </section>
 
   {catalog.services.length > 0 ? (
-    <section class="grid" style="gap:18px;">
+    <section class="grid gap-[18px]">
       {catalog.services.map((service) => {
         const summary = service.data.description
           ?? service.body.split('\n').find((line) => line.trim() && !line.trim().startsWith('#'))
@@ -56,21 +56,21 @@ const servicesValid = catalog.services.length - servicesWithIssues;
         const hasIssues = service.issues.length > 0;
 
         return (
-          <article class="card" style="padding:22px 22px 18px;">
-            <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
-              <div style="min-width:0;">
-                <div class="muted" style="font-size:0.86rem;margin-bottom:8px;">{service.data.id}</div>
-                <h2 style="margin:0 0 10px;font-size:1.35rem;line-height:1.2;">
+          <article class="card px-[22px] pt-[22px] pb-[18px]">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="muted mb-2 text-[0.86rem]">{service.data.id}</div>
+                <h2 class="mb-2.5 text-[1.35rem] leading-tight font-semibold text-slate-950">
                   <a href={`/services/${service.slug}`}>{service.data.name}</a>
                 </h2>
-                <div class="muted" style="display:flex;gap:12px;flex-wrap:wrap;line-height:1.5;">
-                  <span><strong style="color:var(--text);font-weight:600;">Owner:</strong> {service.data.owner}</span>
-                  <span><strong style="color:var(--text);font-weight:600;">Lifecycle:</strong> {service.data.lifecycle}</span>
-                  {service.data.tier && <span><strong style="color:var(--text);font-weight:600;">Tier:</strong> {service.data.tier}</span>}
+                <div class="muted flex flex-wrap gap-3 leading-6">
+                  <span><strong class="font-semibold text-slate-950">Owner:</strong> {service.data.owner}</span>
+                  <span><strong class="font-semibold text-slate-950">Lifecycle:</strong> {service.data.lifecycle}</span>
+                  {service.data.tier && <span><strong class="font-semibold text-slate-950">Tier:</strong> {service.data.tier}</span>}
                 </div>
               </div>
 
-              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:100%;">
+              <div class="flex max-w-full flex-wrap justify-end gap-2">
                 <span class:list={['pill', hasIssues ? 'pill-warn' : 'pill-ok']}>
                   {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
                 </span>
@@ -78,17 +78,17 @@ const servicesValid = catalog.services.length - servicesWithIssues;
               </div>
             </div>
 
-            <p style="line-height:1.7;margin:18px 0 16px;color:#d9e4fb;max-width:80ch;">
+            <p class="my-[18px] max-w-4xl leading-7 text-slate-700">
               {summary}
             </p>
 
-            <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-white/6 pt-2">
               <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a>
               <a href={`/services/${service.slug}`}>View details →</a>
             </div>
 
             {hasIssues && (
-              <ul style="margin:16px 0 0;padding-left:18px;display:grid;gap:6px;">
+              <ul class="mt-4 grid gap-1.5 pl-[18px]">
                 {service.issues.map((issue) => (
                   <li class={issue.level === 'error' ? 'issue-error' : 'issue-warning'}>{issue.message}</li>
                 ))}
@@ -99,9 +99,9 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       })}
     </section>
   ) : (
-    <section class="card empty-state">
-      <h2 style="margin:0 0 10px;">No services found</h2>
-      <p class="muted" style="margin:0 auto;max-width:60ch;line-height:1.7;">
+    <section class="card px-6 py-14 text-center">
+      <h2 class="mb-2.5 text-2xl font-semibold text-slate-950">No services found</h2>
+      <p class="muted mx-auto max-w-3xl leading-7">
         No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
         <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
       </p>
