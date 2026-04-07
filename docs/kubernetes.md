@@ -3,6 +3,7 @@
 This guide describes how to run `servdir` in Kubernetes with:
 - local catalog files
 - managed Git catalog sources
+- optional Basic Auth protection
 - SSH Access Key based Git access
 
 ## Runtime model
@@ -16,6 +17,8 @@ At startup the app:
 - clones or pulls configured Git repositories
 - scans configured subpaths in those checkouts
 - merges and validates all discovered service definitions
+
+If Basic Auth is enabled, all application routes are protected with HTTP Basic Auth.
 
 ## Requirements
 
@@ -59,6 +62,27 @@ Default:
 ```env
 PORT=4321
 ```
+
+### Basic Auth settings
+
+#### `BASIC_AUTH_ENABLED`
+Enable HTTP Basic Auth protection.
+
+Example:
+```env
+BASIC_AUTH_ENABLED=true
+```
+
+#### `BASIC_AUTH_USERNAME`
+Basic Auth username.
+
+#### `BASIC_AUTH_PASSWORD`
+Basic Auth password.
+
+Notes:
+- the Basic Auth realm is fixed to `servdir`
+- use Kubernetes Secret values for credentials
+- use HTTPS in front of the application
 
 ### Managed Git settings
 
@@ -186,6 +210,19 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: servdir-secrets
+type: Opaque
+stringData:
+  BASIC_AUTH_USERNAME: admin
+  BASIC_AUTH_PASSWORD: replace-me
+```
+
+### Example SSH Secret
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
   name: servdir-git-ssh
 stringData:
   id_ed25519: |
@@ -196,7 +233,7 @@ stringData:
     bitbucket.org ssh-ed25519 AAAA...
 ```
 
-For real deployments, generate this Secret from files instead of pasting key material into YAML stored in Git.
+For real deployments, generate these Secrets from files or secret tooling instead of storing credentials in Git.
 
 ## Example PersistentVolumeClaim
 
@@ -238,6 +275,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: servdir-config
+            - secretRef:
+                name: servdir-secrets
           volumeMounts:
             - name: servdir-data
               mountPath: /data
@@ -293,12 +332,15 @@ This is useful for:
 Current implementation pulls managed Git sources on startup/request path. This is fine for the first implementation, but it can slow page loads. If that becomes a problem, add a sync TTL or separate refresh loop later instead of pulling on every request.
 
 ### Security note
-Prefer repository-scoped access keys over personal credentials when possible.
+Prefer repository-scoped access keys over personal credentials when possible. Basic Auth should be used only behind HTTPS.
 
 ## Local testing with the same model
 You can test the same configuration outside Kubernetes by setting:
 
 ```env
+BASIC_AUTH_ENABLED=true
+BASIC_AUTH_USERNAME=admin
+BASIC_AUTH_PASSWORD=secret
 GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"./.cache/catalog-main","scanPaths":["services"]}]
 GIT_SSH_COMMAND=ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes
 ```

@@ -4,8 +4,9 @@ Simple service catalog for engineers. Git is the database. Markdown files are th
 
 # Features
 * Nice looking and comprehensive out of the box
-* Service Description is Markdown.
+* Service description is Markdown
 * Multiple git repos can be mixed in
+* Optional Basic Auth protection
 
 ## Current stack
 - Astro
@@ -46,7 +47,7 @@ pnpm build
 pnpm preview
 ```
 
-## Run localy with Docker / Podman
+## Run locally with Docker / Podman
 Build:
 ```bash
 docker build -t servdir .
@@ -59,6 +60,14 @@ Example of basic env vars:
 CATALOG_PATH=./catalog
 HOST=0.0.0.0
 PORT=4321
+```
+
+Optional Basic Auth:
+
+```env
+BASIC_AUTH_ENABLED=true
+BASIC_AUTH_USERNAME=admin
+BASIC_AUTH_PASSWORD=replace-me
 ```
 
 Optional managed Git sources:
@@ -81,7 +90,6 @@ docker run --rm \
 ## Kubernetes / operations
 See:
 - `docs/kubernetes.md`
-
 
 ## CI / image publishing
 - GitHub Actions workflow: `.github/workflows/ci.yml`

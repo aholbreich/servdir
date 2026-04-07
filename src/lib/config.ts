@@ -6,16 +6,31 @@ export type GitSourceConfig = {
   scanPaths: string[];
 };
 
+export type BasicAuthConfig = {
+  enabled: boolean;
+  username?: string;
+  password?: string;
+};
+
 export type AppConfig = {
   catalogPath: string;
   host: string;
   port: number;
   gitSources: GitSourceConfig[];
+  basicAuth: BasicAuthConfig;
 };
 
 function parsePort(raw: string | undefined, fallback: number): number {
   const parsed = Number(raw ?? fallback);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function parseBoolean(raw: string | undefined): boolean {
+  if (!raw) {
+    return false;
+  }
+
+  return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
 }
 
 function parseGitSources(raw: string | undefined): GitSourceConfig[] {
@@ -60,15 +75,23 @@ export function getConfig(): AppConfig {
   const port = parsePort(process.env.PORT ?? import.meta.env.PORT, 4321);
   const gitSources = parseGitSources(process.env.GIT_SOURCES ?? import.meta.env.GIT_SOURCES);
 
+  const basicAuth = {
+    enabled: parseBoolean(process.env.BASIC_AUTH_ENABLED ?? import.meta.env.BASIC_AUTH_ENABLED),
+    username: process.env.BASIC_AUTH_USERNAME ?? import.meta.env.BASIC_AUTH_USERNAME,
+    password: process.env.BASIC_AUTH_PASSWORD ?? import.meta.env.BASIC_AUTH_PASSWORD,
+  };
+
   console.info(`[config] resolved catalog path: ${catalogPath}`);
   console.info(`[config] resolved host: ${host}`);
   console.info(`[config] resolved port: ${port}`);
   console.info(`[config] configured git sources: ${gitSources.length}`);
+  console.info(`[config] basic auth: ${basicAuth.enabled ? 'enabled' : 'disabled'}`);
 
   return {
     catalogPath,
     host,
     port,
     gitSources,
+    basicAuth,
   };
 }
