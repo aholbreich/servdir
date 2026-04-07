@@ -88,8 +88,7 @@ docker run --rm \
 ```
 
 ## Kubernetes / operations
-See:
-- `docs/kubernetes.md`
+Please consult [Servdir kubernetes guide](./docs/kubernetes.md) if you want to run it on k8s.
 
 ## CI / image publishing
 - GitHub Actions workflow: `.github/workflows/ci.yml`
