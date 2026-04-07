@@ -31,6 +31,11 @@ const dependencies = (service.data.depends_on ?? []).map((dependencyId) => ({
   service: catalog.servicesById.get(dependencyId),
 }));
 const hasIssues = service.issues.length > 0;
+const openApiItems = (service.data.openapi ?? []).map((entry) => ({
+  label: entry.label,
+  href: entry.url,
+  text: 'OpenAPI spec ↗',
+}));
 const metadataItems = [
   { label: 'Repository', href: service.data.repo, text: 'Open repository ↗' },
   { label: 'Runbook', href: service.data.runbook, text: 'Open runbook ↗' },
@@ -90,6 +95,13 @@ const metadataItems = [
         <SectionTitle class="mb-[14px]">Metadata</SectionTitle>
         <KeyValueList items={metadataItems} />
       </Card>
+
+      {openApiItems.length > 0 && (
+        <Card>
+          <SectionTitle class="mb-[14px]">OpenAPI</SectionTitle>
+          <KeyValueList items={openApiItems} />
+        </Card>
+      )}
 
       <Card>
         <SectionTitle class="mb-[14px]">Dependencies</SectionTitle>

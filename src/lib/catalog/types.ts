@@ -17,6 +17,7 @@ export type ServiceFrontmatter = {
   depends_on?: string[];
   runbook?: string;
   links?: Array<{ label: string; url: string }>;
+  openapi?: Array<{ label: string; url: string }>;
   system?: string;
   domain?: string;
 };

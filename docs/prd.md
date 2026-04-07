@@ -69,6 +69,7 @@ Secondary users:
 - `depends_on`
 - `runbook`
 - `links`
+- `openapi`
 - `system`
 - `domain`
 - future: architecture diagram references, including Pulumi-generated views, Mermaid, PlantUML, and Structurizr/C4 artifacts

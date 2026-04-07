@@ -5,6 +5,11 @@ const linkSchema = z.object({
   url: z.string().url(),
 });
 
+const openApiSchema = z.object({
+  label: z.string().min(1),
+  url: z.string().url(),
+});
+
 export const serviceFrontmatterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -17,6 +22,7 @@ export const serviceFrontmatterSchema = z.object({
   depends_on: z.array(z.string().min(1)).optional(),
   runbook: z.string().url().optional(),
   links: z.array(linkSchema).optional(),
+  openapi: z.array(openApiSchema).optional(),
   system: z.string().optional(),
   domain: z.string().optional(),
 });

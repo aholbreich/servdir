@@ -45,6 +45,9 @@ links:
     url: https://grafana.example.com/d/billing-api
   - label: Alerts
     url: https://alerts.example.com/billing-api
+openapi:
+  - label: Public API
+    url: https://example.com/openapi/billing-api.yaml
 system: payments
 domain: finance
 ---
@@ -214,6 +217,24 @@ links:
     url: https://alerts.example.com/billing-api
 ```
 
+### `openapi`
+OpenAPI specification references for the service.
+
+Expected:
+- array of objects
+- each object must include:
+  - `label`: non-empty string
+  - `url`: valid absolute URL
+
+Example:
+```yaml
+openapi:
+  - label: Public API
+    url: https://example.com/openapi/billing-api.yaml
+```
+
+This field is intended for machine-readable API definitions that are important enough to model separately from generic links.
+
 ### `system`
 Optional larger system grouping.
 
@@ -331,6 +352,7 @@ Examples of validation problems:
 - invalid `repo` URL
 - `tier` is not a positive integer
 - `links[].url` is not a valid URL
+- `openapi[].url` is not a valid URL
 - duplicate `id`
 - unresolved `depends_on`
 
