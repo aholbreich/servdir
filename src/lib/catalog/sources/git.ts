@@ -7,6 +7,8 @@ import { parseServiceFile } from '../parse';
 import type { ServiceRecord } from '../types';
 
 const execFileAsync = promisify(execFile);
+const DEFAULT_SSH_KEY_PATH = '/etc/servdir/ssh/id_ed25519';
+const DEFAULT_KNOWN_HOSTS_PATH = '/etc/servdir/ssh/known_hosts';
 
 export type GitCatalogSource = {
   name: string;
@@ -25,8 +27,36 @@ async function pathExists(targetPath: string): Promise<boolean> {
   }
 }
 
+async function createGitEnv(): Promise<NodeJS.ProcessEnv> {
+  const env = { ...process.env };
+
+  if (env.GIT_SSH_COMMAND) {
+    return env;
+  }
+
+  const hasDefaultKey = await pathExists(DEFAULT_SSH_KEY_PATH);
+  const hasKnownHosts = await pathExists(DEFAULT_KNOWN_HOSTS_PATH);
+
+  if (hasDefaultKey) {
+    const sshParts = [
+      'ssh',
+      `-i ${DEFAULT_SSH_KEY_PATH}`,
+      '-o IdentitiesOnly=yes',
+    ];
+
+    if (hasKnownHosts) {
+      sshParts.push(`-o UserKnownHostsFile=${DEFAULT_KNOWN_HOSTS_PATH}`);
+    }
+
+    env.GIT_SSH_COMMAND = sshParts.join(' ');
+  }
+
+  return env;
+}
+
 async function runGit(args: string[], cwd?: string): Promise<void> {
-  await execFileAsync('git', args, cwd ? { cwd } : undefined);
+  const env = await createGitEnv();
+  await execFileAsync('git', args, cwd ? { cwd, env } : { env });
 }
 
 async function ensureCheckout(source: GitCatalogSource): Promise<void> {

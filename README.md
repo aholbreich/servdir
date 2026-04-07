@@ -76,6 +76,10 @@ Optional managed Git sources:
 GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
 ```
 
+Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
+- `/etc/servdir/ssh/id_ed25519`
+- `/etc/servdir/ssh/known_hosts`
+
 ## Container runtime
 Example:
 
@@ -88,7 +92,8 @@ docker run --rm \
 ```
 
 ## Kubernetes / operations
-Please consult [Servdir kubernetes guide](./docs/kubernetes.md) if you want to run it on k8s.
+See:
+- `docs/kubernetes.md`
 
 ## CI / image publishing
 - GitHub Actions workflow: `.github/workflows/ci.yml`

@@ -30,6 +30,16 @@ For managed Git sources in Kubernetes, you need:
 - repository URLs in SSH form, for example:
   - `git@bitbucket.org:your-org/service-catalog.git`
 
+## Default SSH behavior
+By default, `servdir` will make Git use these paths if they exist:
+
+- private key: `/etc/servdir/ssh/id_ed25519`
+- known_hosts: `/etc/servdir/ssh/known_hosts`
+
+That means you usually do **not** need to set `GIT_SSH_COMMAND` yourself.
+
+`GIT_SSH_COMMAND` is only needed as an advanced override when you want custom SSH behavior.
+
 ## Configuration reference
 
 ### Core settings
@@ -123,6 +133,13 @@ GIT_SOURCES=[
 ]
 ```
 
+#### `GIT_SSH_COMMAND`
+Optional advanced override for Git SSH behavior.
+
+In the common case, do not set this.
+
+Use it only if you need custom SSH options or non-standard key locations.
+
 ## Recommended repository layout
 
 For each scan path, `servdir` currently scans:
@@ -178,14 +195,12 @@ ssh-keyscan bitbucket.org > known_hosts
 
 Review the fingerprint before using it.
 
-### 3. Configure Git SSH command
-Use `GIT_SSH_COMMAND` so Git uses the mounted key and known_hosts file.
+### 3. Mount the SSH files at the default paths
+Mount the Secret at:
+- `/etc/servdir/ssh/id_ed25519`
+- `/etc/servdir/ssh/known_hosts`
 
-Example:
-
-```env
-GIT_SSH_COMMAND=ssh -i /etc/servdir/ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=/etc/servdir/ssh/known_hosts
-```
+If you follow those paths, no extra SSH config is needed.
 
 ## Example ConfigMap
 
@@ -200,8 +215,6 @@ data:
   CATALOG_PATH: "/data/catalog"
   GIT_SOURCES: >-
     [{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
-  GIT_SSH_COMMAND: >-
-    ssh -i /etc/servdir/ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=/etc/servdir/ssh/known_hosts
 ```
 
 ## Example Secret
@@ -334,6 +347,15 @@ Current implementation pulls managed Git sources on startup/request path. This i
 ### Security note
 Prefer repository-scoped access keys over personal credentials when possible. Basic Auth should be used only behind HTTPS.
 
+## Advanced SSH override
+If you need non-standard SSH behavior, you can still set:
+
+```env
+GIT_SSH_COMMAND=ssh -i /custom/path/key -o IdentitiesOnly=yes -o UserKnownHostsFile=/custom/path/known_hosts
+```
+
+But this should be the exception, not the default.
+
 ## Local testing with the same model
 You can test the same configuration outside Kubernetes by setting:
 
@@ -342,8 +364,9 @@ BASIC_AUTH_ENABLED=true
 BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=secret
 GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"./.cache/catalog-main","scanPaths":["services"]}]
-GIT_SSH_COMMAND=ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes
 ```
+
+If you use the default key path on your machine instead, set a custom `GIT_SSH_COMMAND` explicitly.
 
 Then run:
 
