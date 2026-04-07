@@ -2,7 +2,7 @@
 import Badge from '../components/ui/Badge.astro';
 import Card from '../components/ui/Card.astro';
 import SectionTitle from '../components/ui/SectionTitle.astro';
-import ServiceCard from '../components/ui/ServiceCard.astro';
+import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getConfig } from '../lib/config';
 import { loadCatalog } from '../lib/catalog';
@@ -17,11 +17,10 @@ const servicesValid = catalog.services.length - servicesWithIssues;
 <BaseLayout title="servdir — Service Catalog">
   <section class="mb-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,0.9fr)]">
     <Card class="p-7">
-      <p class="muted mb-2.5 text-[0.82rem] uppercase tracking-[0.02em]">Simple service catalog for engineers</p>
+      <p class="muted mb-2.5 text-[0.82rem] uppercase tracking-[0.02em]">Simple Service Catalog</p>
       <SectionTitle level="h1" class="mb-3 tracking-[-0.03em]">Service Catalog</SectionTitle>
       <p class="muted max-w-5xl leading-7">
-        Git is the database. Markdown files are the source of truth. This MVP reads service definitions,
-        validates them, and renders a browsable catalog with just enough structure to beat handwritten wiki pages.
+        Git is the database. Markdown files are the source of truth. 
       </p>
 
       <div class="my-5 h-px bg-linear-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
@@ -29,7 +28,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       <div class="flex flex-wrap gap-2.5">
         <Badge tone="ok">{servicesValid} valid</Badge>
         {servicesWithIssues > 0 ? <Badge tone="warn">{servicesWithIssues} with issues</Badge> : <Badge>No current warnings</Badge>}
-        {config.catalogPath && <Badge>Catalog path: <code>{config.catalogPath}</code></Badge>}
+        {config.localCatalogPath && <Badge>Catalog path: <code>{config.localCatalogPath}</code></Badge>}
       </div>
     </Card>
 
@@ -46,30 +45,10 @@ const servicesValid = catalog.services.length - servicesWithIssues;
         </div>
       </div>
       <p class="muted mt-4 leading-6">
-        The catalog is built in memory at runtime from Markdown files in the configured catalog directory.
+      
       </p>
     </Card>
   </section>
 
-  {catalog.services.length > 0 ? (
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {catalog.services.map((service) => <ServiceCard service={service} />)}
-    </section>
-  ) : (
-    <Card class="px-6 py-14 text-center">
-      <SectionTitle class="mb-2.5">No services found</SectionTitle>
-      <p class="muted mx-auto max-w-3xl leading-7">
-        {config.catalogPath ? (
-          <>
-            No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
-            <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
-          </>
-        ) : (
-          <>
-            No services were discovered from the configured sources yet.
-          </>
-        )}
-      </p>
-    </Card>
-  )}
+  <ServiceCatalogGrid services={catalog.services} />
 </BaseLayout>

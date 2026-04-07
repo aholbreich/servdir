@@ -1,0 +1,30 @@
+---
+import Card from "../ui/Card.astro";
+import SectionTitle from "../ui/SectionTitle.astro";
+import ServiceCard from "../ui/ServiceCard.astro";
+import type { ServiceRecord } from "../../lib/catalog";
+
+export interface Props {
+  services: ServiceRecord[];
+  catalogPath?: string;
+}
+
+const { services } = Astro.props;
+---
+
+{
+  services.length > 0 ? (
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {services.map((service) => (
+        <ServiceCard service={service} />
+      ))}
+    </section>
+  ) : (
+    <Card class="px-6 py-14 text-center">
+      <SectionTitle class="mb-2.5">No services found</SectionTitle>
+      <p class="muted mx-auto max-w-3xl leading-7">
+        No services were discovered from the configured sources yet.
+      </p>
+    </Card>
+  )
+}
