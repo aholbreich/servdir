@@ -9,16 +9,30 @@ type LoadCatalogOptions = {
   gitSources?: GitSourceConfig[];
 };
 
-const config = getConfig();
-const schedulerStartup = config.gitSources.length > 0
-  ? startGitSyncScheduler(config.gitSources, config.gitSyncIntervalMs)
-  : Promise.resolve();
+let schedulerStartup: Promise<void> | undefined;
 
-export async function loadCatalog(catalogRoot: string, options: LoadCatalogOptions = {}): Promise<Catalog> {
-  const sources = [loadLocalServices(catalogRoot)];
+function ensureGitSchedulerStarted(gitSources: GitSourceConfig[]): Promise<void> {
+  if (gitSources.length === 0) {
+    return Promise.resolve();
+  }
+
+  if (!schedulerStartup) {
+    const config = getConfig();
+    schedulerStartup = startGitSyncScheduler(config.gitSources, config.gitSyncIntervalMs);
+  }
+
+  return schedulerStartup;
+}
+
+export async function loadCatalog(catalogRoot: string | undefined, options: LoadCatalogOptions = {}): Promise<Catalog> {
+  const sources = [];
+
+  if (catalogRoot) {
+    sources.push(loadLocalServices(catalogRoot));
+  }
 
   if (options.gitSources && options.gitSources.length > 0) {
-    await schedulerStartup;
+    await ensureGitSchedulerStarted(options.gitSources);
     await waitForInitialGitSync();
     sources.push(loadGitServices(options.gitSources));
   }

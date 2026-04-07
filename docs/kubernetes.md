@@ -96,22 +96,6 @@ Expected structure:
 <catalog-path>/services/<service-id>/service.md
 ```
 
-#### `HOST`
-HTTP bind host.
-
-Default:
-```env
-HOST=0.0.0.0
-```
-
-#### `PORT`
-HTTP listen port.
-
-Default:
-```env
-PORT=4321
-```
-
 ### Basic Auth settings
 
 #### `BASIC_AUTH_ENABLED`

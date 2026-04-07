@@ -31,7 +31,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       <div class="flex flex-wrap gap-2.5">
         <Badge tone="ok">{servicesValid} valid</Badge>
         {servicesWithIssues > 0 ? <Badge tone="warn">{servicesWithIssues} with issues</Badge> : <Badge>No current warnings</Badge>}
-        <Badge>Catalog path: <code>{config.catalogPath}</code></Badge>
+        {config.catalogPath && <Badge>Catalog path: <code>{config.catalogPath}</code></Badge>}
       </div>
     </Card>
 
@@ -61,8 +61,16 @@ const servicesValid = catalog.services.length - servicesWithIssues;
     <Card class="px-6 py-14 text-center">
       <SectionTitle class="mb-2.5">No services found</SectionTitle>
       <p class="muted mx-auto max-w-3xl leading-7">
-        No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
-        <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
+        {config.catalogPath ? (
+          <>
+            No <code>service.md</code> files were discovered under <code>{config.catalogPath}</code>. Add entries below
+            <code>services/&lt;service-id&gt;/service.md</code> to populate the catalog.
+          </>
+        ) : (
+          <>
+            No services were discovered from the configured sources yet.
+          </>
+        )}
       </p>
     </Card>
   )}

@@ -13,9 +13,7 @@ export type BasicAuthConfig = {
 };
 
 export type AppConfig = {
-  catalogPath: string;
-  host: string;
-  port: number;
+  catalogPath?: string;
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
   basicAuth: BasicAuthConfig;
@@ -23,12 +21,15 @@ export type AppConfig = {
 
 let cachedConfig: AppConfig | undefined;
 
-function parsePort(raw: string | undefined, fallback: number): number {
-  const parsed = Number(raw ?? fallback);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+function readEnv(name: keyof ImportMetaEnv): string | undefined {
+  return process.env[name] ?? import.meta.env[name];
 }
 
-function parseNumber(raw: string | undefined, fallback: number): number {
+function readEnvOrDefault(name: keyof ImportMetaEnv, fallback: string): string {
+  return readEnv(name) ?? fallback;
+}
+
+function parsePositiveNumber(raw: string | undefined, fallback: number): number {
   const parsed = Number(raw ?? fallback);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
@@ -40,6 +41,7 @@ function parseBoolean(raw: string | undefined): boolean {
 
   return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
 }
+
 
 function parseGitSources(raw: string | undefined): GitSourceConfig[] {
   if (!raw) {
@@ -77,38 +79,51 @@ function parseGitSources(raw: string | undefined): GitSourceConfig[] {
   }
 }
 
+// Builds and returns the application configuration by reading environment variables and parsing them into an AppConfig object.
+function buildConfig(): AppConfig {
+  const catalogPath = readEnv('CATALOG_PATH');
+  const gitSources = parseGitSources(readEnv('GIT_SOURCES'));
+
+  if (!catalogPath && gitSources.length === 0) {
+    throw new Error('at least one catalog source must be configured: set CATALOG_PATH or GIT_SOURCES (must be a JSON array)');
+  }
+
+  const enabled = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));
+  const username = readEnv('BASIC_AUTH_USERNAME');
+  const password = readEnv('BASIC_AUTH_PASSWORD');
+
+  if (!enabled && (username || password)) {
+    console.warn('[config] BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD are set but BASIC_AUTH_ENABLED is not true; credentials will be ignored.');
+  }
+
+  return {
+    catalogPath,
+    gitSources,
+    gitSyncIntervalMs: parsePositiveNumber(readEnv('GIT_SYNC_INTERVAL_MS'), 60000),
+    basicAuth: {
+      enabled,
+      username: enabled ? username : undefined,
+      password: enabled ? password : undefined,
+    },
+  };
+  
+}
+
+function logConfig(config: AppConfig): void {
+  console.info(`[config] ==========================================`);
+  console.info(`[config] configured local catalog path: ${config.catalogPath ?? 'disabled'}`);
+  console.info(`[config] configured git sources: ${config.gitSources.length}`);
+  console.info(`[config] git sync interval: ${config.gitSyncIntervalMs}ms`);
+  console.info(`[config] basic auth: ${config.basicAuth.enabled ? 'enabled' : 'disabled'}`);
+  console.info(`[config] ==========================================`);
+}
+
 export function getConfig(): AppConfig {
   if (cachedConfig) {
     return cachedConfig;
   }
 
-  const catalogPath = process.env.CATALOG_PATH ?? import.meta.env.CATALOG_PATH ?? './catalog';
-  const host = process.env.HOST ?? import.meta.env.HOST ?? '0.0.0.0';
-  const port = parsePort(process.env.PORT ?? import.meta.env.PORT, 4321);
-  const gitSources = parseGitSources(process.env.GIT_SOURCES ?? import.meta.env.GIT_SOURCES);
-  const gitSyncIntervalMs = parseNumber(process.env.GIT_SYNC_INTERVAL_MS ?? import.meta.env.GIT_SYNC_INTERVAL_MS, 60000);
-
-  const basicAuth = {
-    enabled: parseBoolean(process.env.BASIC_AUTH_ENABLED ?? import.meta.env.BASIC_AUTH_ENABLED),
-    username: process.env.BASIC_AUTH_USERNAME ?? import.meta.env.BASIC_AUTH_USERNAME,
-    password: process.env.BASIC_AUTH_PASSWORD ?? import.meta.env.BASIC_AUTH_PASSWORD,
-  };
-
-  cachedConfig = {
-    catalogPath,
-    host,
-    port,
-    gitSources,
-    gitSyncIntervalMs,
-    basicAuth,
-  };
-
-  console.info(`[config] resolved catalog path: ${catalogPath}`);
-  console.info(`[config] resolved host: ${host}`);
-  console.info(`[config] resolved port: ${port}`);
-  console.info(`[config] configured git sources: ${gitSources.length}`);
-  console.info(`[config] git sync interval: ${gitSyncIntervalMs}ms`);
-  console.info(`[config] basic auth: ${basicAuth.enabled ? 'enabled' : 'disabled'}`);
-
+  cachedConfig = buildConfig();
+  logConfig(cachedConfig);
   return cachedConfig;
 }
