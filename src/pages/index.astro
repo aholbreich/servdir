@@ -72,6 +72,8 @@ const servicesValid = catalog.services.length - servicesWithIssues;
                 <div class="muted flex flex-wrap gap-3 leading-6">
                   <span><strong class="font-semibold text-slate-950">Owner:</strong> {service.data.owner}</span>
                   <span><strong class="font-semibold text-slate-950">Lifecycle:</strong> {service.data.lifecycle}</span>
+                  {service.data.system && <span><strong class="font-semibold text-slate-950">System:</strong> {service.data.system}</span>}
+                  {service.data.domain && <span><strong class="font-semibold text-slate-950">Domain:</strong> {service.data.domain}</span>}
                   {service.data.tier && <span><strong class="font-semibold text-slate-950">Tier:</strong> {service.data.tier}</span>}
                 </div>
               </div>
@@ -89,7 +91,13 @@ const servicesValid = catalog.services.length - servicesWithIssues;
             </p>
 
             <div class="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--color-border)]/70 pt-2">
-              <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a>
+              <div class="flex flex-wrap items-center gap-4">
+                <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a>
+                {service.data.runbook && <a href={service.data.runbook} target="_blank" rel="noreferrer">Runbook</a>}
+                {service.data.links?.slice(0, 2).map((link) => (
+                  <a href={link.url} target="_blank" rel="noreferrer">{link.label}</a>
+                ))}
+              </div>
               <a href={`/services/${service.slug}`}>View details →</a>
             </div>
 

@@ -3,6 +3,7 @@ export interface Item {
   label: string;
   value?: string;
   href?: string;
+  text?: string;
 }
 
 export interface Props {
@@ -17,7 +18,7 @@ const { items, class: className = '' } = Astro.props;
   {items.filter((item) => item.value || item.href).map((item) => (
     <li>
       <strong class="font-semibold text-slate-950">{item.label}:</strong><br />
-      {item.href ? <a href={item.href} target="_blank" rel="noreferrer">{item.href}</a> : item.value}
+      {item.href ? <a href={item.href} target="_blank" rel="noreferrer">{item.text ?? item.href}</a> : item.value}
     </li>
   ))}
 </ul>

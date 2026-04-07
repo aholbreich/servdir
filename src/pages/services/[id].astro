@@ -29,10 +29,15 @@ if (!service) {
 const dependencies = service.data.depends_on ?? [];
 const hasIssues = service.issues.length > 0;
 const metadataItems = [
-  { label: 'Repository', href: service.data.repo },
-  { label: 'Runbook', href: service.data.runbook },
+  { label: 'Repository', href: service.data.repo, text: 'Open repository ↗' },
+  { label: 'Runbook', href: service.data.runbook, text: 'Open runbook ↗' },
   { label: 'System', value: service.data.system },
   { label: 'Domain', value: service.data.domain },
+  ...(service.data.links ?? []).map((link) => ({
+    label: link.label,
+    href: link.url,
+    text: 'Visit ↗',
+  })),
 ];
 ---
 
@@ -48,6 +53,8 @@ const metadataItems = [
           <span>ID: {service.data.id}</span>
           <span>Owner: {service.data.owner}</span>
           <span>Lifecycle: {service.data.lifecycle}</span>
+          {service.data.system && <span>System: {service.data.system}</span>}
+          {service.data.domain && <span>Domain: {service.data.domain}</span>}
           {service.data.tier && <span>Tier: {service.data.tier}</span>}
         </div>
       </div>
