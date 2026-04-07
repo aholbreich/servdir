@@ -242,8 +242,6 @@ kind: ConfigMap
 metadata:
   name: servdir-config
 data:
-  HOST: "0.0.0.0"
-  PORT: "4321"
   CATALOG_PATH: "/data/catalog"
   GIT_SOURCES: >-
     [{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
@@ -302,6 +300,9 @@ spec:
           image: ghcr.io/aholbreich/servdir:main
           ports:
             - containerPort: 4321
+          env:
+            - name: BASIC_AUTH_ENABLED
+              value: "true"
           envFrom:
             - configMapRef:
                 name: servdir-config
