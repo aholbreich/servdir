@@ -162,6 +162,12 @@ In the common case, do not set this.
 
 Use it only if you need custom SSH options or non-standard key locations.
 
+## Service definition format
+`service.md` is a Markdown file with YAML front matter plus a Markdown body.
+
+For the full front matter field reference and discovery rules, see:
+- `docs/service-definition.md`
+
 ## Recommended repository layout
 
 For each scan path, `servdir` currently scans:

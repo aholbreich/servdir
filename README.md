@@ -127,6 +127,7 @@ docs/
 
 ## Docs
 - `docs/prd.md`
+- `docs/service-definition.md`
 - `.adr/`
 - `docs/working-notes.md`
 - `docs/release.md`
