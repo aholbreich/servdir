@@ -1,6 +1,6 @@
 # Servdir
 
-Servedir aims to be simple to use and operate service catalog for engineers. Where markdown files are basically the source of truth.
+Servdir aims to be a simple service catalog for engineers. Markdown files are the source of truth.
 
 ## Table of Contents
 - [Some features](#some-features)
@@ -16,8 +16,8 @@ Servedir aims to be simple to use and operate service catalog for engineers. Whe
 
 ## Some features
 * Nice looking and comprehensive out of the box
-* Service description is Markdown 
-* Git can be the source of truth and multiple git repos can be mixed in
+* Service descriptions are written in Markdown
+* Git can be the source of truth, and multiple Git repos can be mixed in
 * Basic Auth protection
 
 ## Current stack
@@ -39,15 +39,15 @@ cp .env.example .env
 pnpm dev
 ```
 
-Now open `http://localhost:4321` to so catalog working on your machine.
+Then open `http://localhost:4321` to see the catalog running on your machine.
 
-Default local catalog path is: `./catalog` . So if you start the servicel like shown above. You'll see some exampel services.
-
+The default local catalog path is `./catalog`, so if you start the service as shown above, you will see some example services.
 
 ### Test localy
 ```bash
 pnpm test
 ```
+
 ### Build localy
 ```bash
 pnpm build
@@ -55,23 +55,25 @@ pnpm preview
 ```
 
 ### Running locally, but closer to prod setup Docker / Podman
-Build the image with 
+Build the image with:
+
 ```bash
 docker build -t servdir .
 ```
 
-then run it 
+Then run it:
 
 ```bash
 docker run --rm -it \
   -p 4321:4321 \
   -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro,Z \
+  -v "$(pwd)/catalog:/data/catalog:ro,Z" \
   servdir
 ```
-but you can test more cases with proper environment configuration.  So create your copy of `.env` derived from `.env.example` and start the container using it:
 
-with the next you can moint your local ssh key. Can be usefullif you knwo what you do:
+You can test more cases with proper environment configuration. Create your own `.env` file based on `.env.example`, then start the container using it.
+
+The following example also mounts your local SSH files. This can be useful if you know what you are doing:
 
 ```bash
 docker run --rm -it \
@@ -82,7 +84,7 @@ docker run --rm -it \
   servdir
 ```
 
-## Managed Git behavior:
+## Managed Git behavior
 - sources are synced on startup
 - sources are refreshed periodically in-process
 - requests read from the local checkout cache and do not perform Git pulls
@@ -94,9 +96,7 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 
 
 ## Kubernetes
-See [Kubernetes Deployment Guide](./docs/kubernetes.md) to desing your k8s deployments
-
-
+See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
 
 ## Docs
 - `docs/prd.md`
