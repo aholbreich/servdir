@@ -3,8 +3,8 @@ import { glob } from 'glob';
 import { parseServiceFile } from '../parse';
 import type { ServiceRecord } from '../types';
 
-export async function loadLocalServices(catalogRoot: string): Promise<ServiceRecord[]> {
-  const pattern = path.join(catalogRoot, 'services', '*', 'service.md').replaceAll('\\', '/');
+export async function loadLocalServices(localCatalogRoot: string): Promise<ServiceRecord[]> {
+  const pattern = path.join(localCatalogRoot, 'services', '*', 'service.md').replaceAll('\\', '/');
   console.info(`[catalog:local] loading services from pattern: ${pattern}`);
 
   const filePaths = await glob(pattern);

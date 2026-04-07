@@ -9,9 +9,7 @@ import { loadCatalog } from '../lib/catalog';
 
 const config = getConfig();
 console.info('[page:/] rendering catalog index');
-const catalog = await loadCatalog(config.catalogPath, {
-  gitSources: config.gitSources,
-});
+const catalog = await loadCatalog(config.localCatalogPath, { gitSources: config.gitSources, });
 const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;
 ---

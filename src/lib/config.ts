@@ -13,7 +13,7 @@ export type BasicAuthConfig = {
 };
 
 export type AppConfig = {
-  catalogPath?: string;
+  localCatalogPath?: string;
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
   basicAuth: BasicAuthConfig;
@@ -81,10 +81,10 @@ function parseGitSources(raw: string | undefined): GitSourceConfig[] {
 
 // Builds and returns the application configuration by reading environment variables and parsing them into an AppConfig object.
 function buildConfig(): AppConfig {
-  const catalogPath = readEnv('CATALOG_PATH');
+  const localCatalogPath = readEnv('LOCAL_CATALOG_PATH');
   const gitSources = parseGitSources(readEnv('GIT_SOURCES'));
 
-  if (!catalogPath && gitSources.length === 0) {
+  if (!localCatalogPath && gitSources.length === 0) {
     throw new Error('at least one catalog source must be configured: set CATALOG_PATH or GIT_SOURCES (must be a JSON array)');
   }
 
@@ -97,7 +97,7 @@ function buildConfig(): AppConfig {
   }
 
   return {
-    catalogPath,
+    localCatalogPath,
     gitSources,
     gitSyncIntervalMs: parsePositiveNumber(readEnv('GIT_SYNC_INTERVAL_MS'), 60000),
     basicAuth: {
@@ -111,7 +111,7 @@ function buildConfig(): AppConfig {
 
 function logConfig(config: AppConfig): void {
   console.info(`[config] ==========================================`);
-  console.info(`[config] configured local catalog path: ${config.catalogPath ?? 'disabled'}`);
+  console.info(`[config] configured local catalog path: ${config.localCatalogPath ?? 'disabled'}`);
   console.info(`[config] configured git sources: ${config.gitSources.length}`);
   console.info(`[config] git sync interval: ${config.gitSyncIntervalMs}ms`);
   console.info(`[config] basic auth: ${config.basicAuth.enabled ? 'enabled' : 'disabled'}`);

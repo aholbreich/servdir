@@ -11,7 +11,7 @@ import { loadCatalog } from '../../lib/catalog';
 const config = getConfig();
 const id = Astro.params.id;
 console.info(`[page:/services/[id]] rendering service route for id=${id}`);
-const catalog = await loadCatalog(config.catalogPath, {
+const catalog = await loadCatalog(config.localCatalogPath, {
   gitSources: config.gitSources,
 });
 const service = catalog.services.find((entry) => entry.slug === id || entry.data.id === id);

@@ -18,17 +18,17 @@ function ensureGitSchedulerStarted(gitSources: GitSourceConfig[]): Promise<void>
 
   if (!schedulerStartup) {
     const config = getConfig();
-    schedulerStartup = startGitSyncScheduler(config.gitSources, config.gitSyncIntervalMs);
+    schedulerStartup = startGitSyncScheduler(gitSources, config.gitSyncIntervalMs);
   }
 
   return schedulerStartup;
 }
 
-export async function loadCatalog(catalogRoot: string | undefined, options: LoadCatalogOptions = {}): Promise<Catalog> {
+export async function loadCatalog(localCatalogRoot: string | undefined, options: LoadCatalogOptions = {}): Promise<Catalog> {
   const sources = [];
 
-  if (catalogRoot) {
-    sources.push(loadLocalServices(catalogRoot));
+  if (localCatalogRoot) {
+    sources.push(loadLocalServices(localCatalogRoot));
   }
 
   if (options.gitSources && options.gitSources.length > 0) {
