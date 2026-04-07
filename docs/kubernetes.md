@@ -1,5 +1,28 @@
 # Kubernetes Deployment Guide
 
+## Table of Contents
+- [Runtime model](#runtime-model)
+- [Recommended storage model](#recommended-storage-model)
+- [Requirements](#requirements)
+- [Default SSH behavior](#default-ssh-behavior)
+- [Configuration reference](#configuration-reference)
+  - [Core settings](#core-settings)
+  - [Basic Auth settings](#basic-auth-settings)
+  - [Managed Git settings](#managed-git-settings)
+- [Service definition format](#service-definition-format)
+- [Recommended repository layout](#recommended-repository-layout)
+- [SSH Access Key setup](#ssh-access-key-setup)
+- [Logging and failure behavior](#logging-and-failure-behavior)
+- [Example ConfigMap](#example-configmap)
+- [Example Secret](#example-secret)
+- [Example Deployment with `emptyDir` (recommended)](#example-deployment-with-emptydir-recommended)
+- [Optional PVC variant](#optional-pvc-variant)
+- [Common mistakes](#common-mistakes)
+- [Example Service](#example-service)
+- [Operational notes](#operational-notes)
+- [Advanced SSH override](#advanced-ssh-override)
+- [Local testing with the same model](#local-testing-with-the-same-model)
+
 This guide describes how to run `servdir` in Kubernetes with:
 - local catalog files
 - managed Git catalog sources

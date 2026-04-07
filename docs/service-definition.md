@@ -1,5 +1,18 @@
 # Service Definition Reference
 
+## Table of Contents
+- [File shape](#file-shape)
+- [Required front matter fields](#required-front-matter-fields)
+- [Optional front matter fields](#optional-front-matter-fields)
+- [Markdown body](#markdown-body)
+- [Discovery rules](#discovery-rules)
+  - [Local catalog discovery](#local-catalog-discovery)
+  - [Managed Git source discovery](#managed-git-source-discovery)
+- [Catalog merge behavior](#catalog-merge-behavior)
+- [Validation and error handling](#validation-and-error-handling)
+- [Practical authoring rules](#practical-authoring-rules)
+- [Minimal valid example](#minimal-valid-example)
+
 This document describes the `service.md` file format used by `servdir`.
 
 Each service entry is a Markdown file with:

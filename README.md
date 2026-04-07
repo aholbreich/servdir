@@ -11,9 +11,9 @@ Servdir aims to be a simple service catalog for engineers. Markdown files are th
   - [Build localy](#build-localy)
   - [Running locally, but closer to prod setup Docker / Podman](#running-locally-but-closer-to-prod-setup-docker--podman)
 - [Managed Git behavior](#managed-git-behavior)
-- [Service definition format](#service-definition-format)
-- [Kubernetes](#kubernetes)
-- [Docs](#docs)
+- [Service definition and Discovery](#service-definition-format)
+- [Kubernetes Guide](#kubernetes)
+- [Development docs](#development-docs)
 
 ## Features
 * Nice looking and comprehensive out of the box
@@ -96,16 +96,15 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 - `/etc/servdir/ssh/known_hosts`
 
 ## Service definition format
-See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, Markdown body behavior, validation, and discovery rules.
+See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, Markdown body behavior, validation, and [Disovery Rules](service-definition.md#discovery-rules).
 
 ## Kubernetes
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
 
-## Docs
+## Development docs
+Developer relevant docs in the project:
 - `docs/prd.md`
-- `docs/service-definition.md`
 - `.adr/`
 - `docs/working-notes.md`
 - `docs/release.md`
-- `docs/kubernetes.md`
 - `AGENTS.md`
