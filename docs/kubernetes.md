@@ -20,10 +20,21 @@ At startup the app:
 
 If Basic Auth is enabled, all application routes are protected with HTTP Basic Auth.
 
+## Recommended storage model
+For the first deployment, prefer **`emptyDir`** as the default.
+
+Why:
+- Git is the source of truth
+- checkout data is rebuildable cache
+- deployment is simpler
+- no StorageClass dependency is required
+
+Use a PersistentVolumeClaim only if you specifically want the git checkout cache to survive pod restarts.
+
 ## Requirements
 
 For managed Git sources in Kubernetes, you need:
-- a writable volume for checkout state
+- writable storage for checkout state, usually `emptyDir`
 - `git` and `openssh-client` in the container image
 - an SSH private key mounted from a Secret
 - `known_hosts` mounted from a Secret or ConfigMap
@@ -248,22 +259,7 @@ stringData:
 
 For real deployments, generate these Secrets from files or secret tooling instead of storing credentials in Git.
 
-## Example PersistentVolumeClaim
-
-```yaml
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: servdir-data
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-```
-
-## Example Deployment
+## Example Deployment with `emptyDir` (recommended)
 
 ```yaml
 apiVersion: apps/v1
@@ -298,12 +294,43 @@ spec:
               readOnly: true
       volumes:
         - name: servdir-data
-          persistentVolumeClaim:
-            claimName: servdir-data
+          emptyDir: {}
         - name: git-ssh
           secret:
             secretName: servdir-git-ssh
             defaultMode: 0400
+```
+
+## Optional PVC variant
+Use a PVC only if you want the checkout cache to survive pod restarts.
+
+Example PVC:
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: servdir-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 100Mi
+```
+
+Then replace the `emptyDir` volume in the Deployment with:
+
+```yaml
+volumes:
+  - name: servdir-data
+    persistentVolumeClaim:
+      claimName: servdir-data
+  - name: git-ssh
+    secret:
+      secretName: servdir-git-ssh
+      defaultMode: 0400
 ```
 
 ## Example Service
@@ -324,12 +351,16 @@ spec:
 
 ## Operational notes
 
-### Writable storage is required
-Managed Git sources need writable storage for checkout state.
+### `emptyDir` vs PVC
+Use `emptyDir` when:
+- cache can be rebuilt on restart
+- simpler deployment matters more than cache persistence
+- you do not want to depend on StorageClass setup
 
-Typical layout:
-- local catalog path: `/data/catalog`
-- managed git cache: `/data/catalog-cache/...`
+Use a PVC when:
+- you want checkout state to survive pod restarts
+- you want to reduce re-cloning
+- you accept storage provisioning complexity
 
 ### Local and Git sources can be mixed
 You can use both:
