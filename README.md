@@ -2,6 +2,18 @@
 
 Servedir aims to be simple to use and operate service catalog for engineers. Where markdown files are basically the source of truth.
 
+## Table of Contents
+- [Some features](#some-features)
+- [Current stack](#current-stack)
+- [Usage](#usage)
+  - [Running Localy](#running-localy)
+  - [Test localy](#test-localy)
+  - [Build localy](#build-localy)
+  - [Running locally, but closer to prod setup Docker / Podman](#running-locally-but-closer-to-prod-setup-docker--podman)
+- [Managed Git behavior](#managed-git-behavior)
+- [Kubernetes](#kubernetes)
+- [Docs](#docs)
+
 ## Some features
 * Nice looking and comprehensive out of the box
 * Service description is Markdown 
@@ -51,7 +63,7 @@ docker build -t servdir .
 then run it 
 
 ```bash
-docker run --rm \
+docker run --rm -it \
   -p 4321:4321 \
   -e CATALOG_PATH=/data/catalog \
   -v $(pwd)/catalog:/data/catalog:ro,Z \
@@ -59,12 +71,14 @@ docker run --rm \
 ```
 but you can test more cases with proper environment configuration.  So create your copy of `.env` derived from `.env.example` and start the container using it:
 
+with the next you can moint your local ssh key. Can be usefullif you knwo what you do:
+
 ```bash
-docker run --rm -it\
+docker run --rm -it \
   -p 4321:4321 \
   --env-file .env \
   -v "$(pwd)/catalog:/data/catalog:ro,Z" \
-  -v "$HOME~/.ssh:/etc/servdir/ssh:ro,Z" \
+  -v "$HOME/.ssh:/etc/servdir/ssh:ro,Z" \
   servdir
 ```
 
@@ -77,8 +91,6 @@ docker run --rm -it\
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
-
-By default, `servdir` points Git SSH at the mounted key path and known_hosts file if present, but does not force `IdentitiesOnly=yes`.
 
 
 ## Kubernetes
