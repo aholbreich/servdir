@@ -1,12 +1,12 @@
-# servdir
+# Servdir
 
-Simple service catalog for engineers. Git is the database. Markdown files are the source of truth.
+Servedir aims to be simple to use and operate service catalog for engineers. Where markdown files are basically the source of truth.
 
-# Features
+## Some features
 * Nice looking and comprehensive out of the box
-* Service description is Markdown
-* Multiple git repos can be mixed in
-* Optional Basic Auth protection
+* Service description is Markdown 
+* Git can be the source of truth and multiple git repos can be mixed in
+* Basic Auth protection
 
 ## Current stack
 - Astro
@@ -18,66 +18,57 @@ Simple service catalog for engineers. Git is the database. Markdown files are th
 - Vitest
 - pnpm
 
-## Run locally
+## Usage
+
+### Running Localy
 ```bash
 pnpm install
 cp .env.example .env
 pnpm dev
 ```
 
-Default local catalog path:
-- `./catalog`
+Now open `http://localhost:4321` to so catalog working on your machine.
 
-Open:
-- `http://localhost:4321`
+Default local catalog path is: `./catalog` . So if you start the servicel like shown above. You'll see some exampel services.
 
-If port `4321` is already in use, either stop the other process or run Astro on another port, for example:
-```bash
-pnpm astro dev --host 0.0.0.0 --port 4322
-```
 
-## Test
+### Test localy
 ```bash
 pnpm test
 ```
-
-## Build
+### Build localy
 ```bash
 pnpm build
 pnpm preview
 ```
 
-## Run locally with Docker / Podman
-Build:
+### Running locally, but closer to prod setup Docker / Podman
+Build the image with 
 ```bash
 docker build -t servdir .
 ```
 
-## Runtime configuration
-Example of basic env vars:
+then run it 
 
-```env
-CATALOG_PATH=./catalog
-HOST=0.0.0.0
-PORT=4321
+```bash
+docker run --rm \
+  -p 4321:4321 \
+  -e CATALOG_PATH=/data/catalog \
+  -v $(pwd)/catalog:/data/catalog:ro,Z \
+  servdir
+```
+but you can test more cases with proper environment configuration.  So create your copy of `.env` derived from `.env.example` and start the container using it:
+
+```bash
+docker run --rm \
+  -p 4321:4321 \
+  --env-file .env \
+  -v "$(pwd)/catalog:/data/catalog:ro,Z" \
+  servdir
 ```
 
-Optional Basic Auth:
 
-```env
-BASIC_AUTH_ENABLED=true
-BASIC_AUTH_USERNAME=admin
-BASIC_AUTH_PASSWORD=replace-me
-```
-
-Optional managed Git sources:
-
-```env
-GIT_SYNC_INTERVAL_MS=60000
-GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
-```
-
-Managed Git behavior:
+## Managed Git behavior:
 - sources are synced on startup
 - sources are refreshed periodically in-process
 - requests read from the local checkout cache and do not perform Git pulls
@@ -87,43 +78,11 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
 
-## Container runtime
-Example:
 
-```bash
-docker run --rm \
-  -p 4321:4321 \
-  -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro,Z \
-  ghcr.io/aholbreich/servdir:main
-```
+## Kubernetes
+See [Kubernetes Deployment Guide](./docs/kubernetes.md) to desing your k8s deployments
 
-## Kubernetes / operations
-See:
-- `docs/kubernetes.md`
 
-## CI / image publishing
-- GitHub Actions workflow: `.github/workflows/ci.yml`
-- Registry target: `ghcr.io/<owner>/servdir`
-- Release strategy: `docs/release.md`
-
-## Project structure
-```text
-catalog/
-  services/
-    billing-api/
-      service.md
-    auth-api/
-      service.md
-src/
-  lib/
-    config.ts
-    catalog/
-  layouts/
-  pages/
-docs/
-.adr/
-```
 
 ## Docs
 - `docs/prd.md`
