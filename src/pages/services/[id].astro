@@ -10,7 +10,7 @@ import { loadCatalog } from '../../lib/catalog';
 
 const config = getConfig();
 const id = Astro.params.id;
-console.info(`[page:/services/[id]] rendering service route for id=${id} with catalog path ${config.catalogPath}`);
+console.info(`[page:/services/[id]] rendering service route for id=${id}`);
 const catalog = await loadCatalog(config.catalogPath, {
   gitSources: config.gitSources,
 });

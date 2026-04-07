@@ -14,9 +14,12 @@ This guide describes how to run `servdir` in Kubernetes with:
 
 At startup the app:
 - scans local catalog files from `CATALOG_PATH`
-- clones or pulls configured Git repositories
+- syncs configured Git repositories into local checkout paths
 - scans configured subpaths in those checkouts
 - merges and validates all discovered service definitions
+
+After startup, managed Git sources are refreshed periodically by an in-process scheduler.
+Requests read from the local checkout cache and do not perform Git sync work.
 
 If Basic Auth is enabled, all application routes are protected with HTTP Basic Auth.
 
@@ -106,6 +109,14 @@ Notes:
 - use HTTPS in front of the application
 
 ### Managed Git settings
+
+#### `GIT_SYNC_INTERVAL_MS`
+Managed Git refresh interval in milliseconds.
+
+Default:
+```env
+GIT_SYNC_INTERVAL_MS=60000
+```
 
 #### `GIT_SOURCES`
 JSON array describing managed Git repositories.
@@ -213,6 +224,16 @@ Mount the Secret at:
 
 If you follow those paths, no extra SSH config is needed.
 
+## Logging and failure behavior
+Managed Git sync logs should now show:
+- scheduler startup
+- startup sync cycle start and finish
+- interval sync cycle start and finish
+- per-source sync start, success, or failure with duration
+- scan counts for each source
+
+If a source has no valid checkout yet, the app skips scanning that source until the scheduler has created one.
+
 ## Example ConfigMap
 
 ```yaml
@@ -303,6 +324,14 @@ spec:
 
 ## Optional PVC variant
 Use a PVC only if you want the checkout cache to survive pod restarts.
+
+## Common mistakes
+- wrong repository slug in `repoUrl`
+- SSH key attached to the wrong Bitbucket repository
+- missing or invalid `known_hosts`
+- read-only volume mounted at `checkoutPath`
+- multiple replicas causing more Git traffic than expected
+- setting the sync interval too low and hammering the remote Git host
 
 Example PVC:
 

@@ -2,15 +2,24 @@ import { loadGitServices, loadLocalServices } from './sources';
 import { validateCatalog } from './validate';
 import type { Catalog } from './types';
 import type { GitSourceConfig } from '../config';
+import { getConfig } from '../config';
+import { startGitSyncScheduler, waitForInitialGitSync } from '../git-sync';
 
 type LoadCatalogOptions = {
   gitSources?: GitSourceConfig[];
 };
 
+const config = getConfig();
+const schedulerStartup = config.gitSources.length > 0
+  ? startGitSyncScheduler(config.gitSources, config.gitSyncIntervalMs)
+  : Promise.resolve();
+
 export async function loadCatalog(catalogRoot: string, options: LoadCatalogOptions = {}): Promise<Catalog> {
   const sources = [loadLocalServices(catalogRoot)];
 
   if (options.gitSources && options.gitSources.length > 0) {
+    await schedulerStartup;
+    await waitForInitialGitSync();
     sources.push(loadGitServices(options.gitSources));
   }
 

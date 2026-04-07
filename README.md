@@ -73,8 +73,15 @@ BASIC_AUTH_PASSWORD=replace-me
 Optional managed Git sources:
 
 ```env
+GIT_SYNC_INTERVAL_MS=60000
 GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
 ```
+
+Managed Git behavior:
+- sources are synced on startup
+- sources are refreshed periodically in-process
+- requests read from the local checkout cache and do not perform Git pulls
+- sync is locked per source to avoid overlapping operations
 
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
 - `/etc/servdir/ssh/id_ed25519`
