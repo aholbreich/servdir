@@ -65,10 +65,12 @@ const servicesValid = catalog.services.length - servicesWithIssues;
           <Card as="article" class="px-[22px] pt-[22px] pb-[18px]">
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div class="min-w-0">
-                <div class="muted mb-2 text-[0.86rem]">{service.data.id}</div>
-                <h2 class="mb-2.5 text-[1.35rem] leading-tight font-semibold text-slate-950">
-                  <a href={`/services/${service.slug}`}>{service.data.name}</a>
-                </h2>
+                <div class="mb-2.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h2 class="text-[1.35rem] leading-tight font-semibold text-slate-950">
+                    <a href={`/services/${service.slug}`}>{service.data.name}</a>
+                  </h2>
+                  <span class="muted text-[0.86rem]">{service.data.id}</span>
+                </div>
                 <div class="muted flex flex-wrap gap-3 leading-6">
                   <span><strong class="font-semibold text-slate-950">Owner:</strong> {service.data.owner}</span>
                   <span><strong class="font-semibold text-slate-950">Lifecycle:</strong> {service.data.lifecycle}</span>

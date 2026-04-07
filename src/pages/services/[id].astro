@@ -26,7 +26,10 @@ if (!service) {
   });
 }
 
-const dependencies = service.data.depends_on ?? [];
+const dependencies = (service.data.depends_on ?? []).map((dependencyId) => ({
+  id: dependencyId,
+  service: catalog.servicesById.get(dependencyId),
+}));
 const hasIssues = service.issues.length > 0;
 const metadataItems = [
   { label: 'Repository', href: service.data.repo, text: 'Open repository ↗' },
@@ -83,7 +86,15 @@ const metadataItems = [
         <SectionTitle class="mb-[14px]">Dependencies</SectionTitle>
         {dependencies.length > 0 ? (
           <ul class="grid gap-2 pl-[18px] leading-6">
-            {dependencies.map((dependency) => <li>{dependency}</li>)}
+            {dependencies.map((dependency) => (
+              <li>
+                {dependency.service ? (
+                  <a href={`/services/${dependency.service.slug}`}>{dependency.id}</a>
+                ) : (
+                  dependency.id
+                )}
+              </li>
+            ))}
           </ul>
         ) : (
           <p class="muted leading-6">No dependencies declared.</p>
