@@ -278,7 +278,7 @@ Common uses:
 
 ### Local catalog discovery
 
-For the local catalog root from `CATALOG_PATH`, `servdir` scans:
+For the local catalog root from `LOCAL_CATALOG_PATH`, `servdir` scans:
 
 ```text
 <catalog-root>/services/*/service.md

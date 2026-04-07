@@ -32,11 +32,11 @@ This guide describes how to run `servdir` in Kubernetes with:
 ## Runtime model
 `servdir` can load service definitions from two kinds of sources:
 
-1. **Local catalog path** via `CATALOG_PATH`
+1. **Local catalog path** via `LOCAL_CATALOG_PATH`
 2. **Managed Git sources** via `GIT_SOURCES`
 
 At startup the app:
-- scans local catalog files from `CATALOG_PATH`
+- scans local catalog files from `LOCAL_CATALOG_PATH`
 - syncs configured Git repositories into local checkout paths
 - scans configured subpaths in those checkouts
 - merges and validates all discovered service definitions
@@ -83,12 +83,12 @@ That means you usually do **not** need to set `GIT_SSH_COMMAND` yourself.
 
 ### Core settings
 
-#### `CATALOG_PATH`
+#### `LOCAL_CATALOG_PATH`
 Local filesystem catalog root.
 
 Default:
 ```env
-CATALOG_PATH=./catalog
+LOCAL_CATALOG_PATH=./catalog
 ```
 
 Expected structure:
@@ -257,7 +257,7 @@ kind: ConfigMap
 metadata:
   name: servdir-config
 data:
-  CATALOG_PATH: "/data/catalog"
+  LOCAL_CATALOG_PATH: "/data/catalog"
   GIT_SOURCES: >-
     [{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
 ```
@@ -409,7 +409,7 @@ Use a PVC when:
 
 ### Local and Git sources can be mixed
 You can use both:
-- local mounted catalog files in `CATALOG_PATH`
+- local mounted catalog files in `LOCAL_CATALOG_PATH`
 - remote Git-backed catalog repositories in `GIT_SOURCES`
 
 This is useful for:

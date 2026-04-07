@@ -18,7 +18,7 @@ Keep catalog content outside the image and provide it through a mounted director
 Also support direct local execution without Docker for fast development loops.
 
 Initial runtime settings should include at least:
-- `CATALOG_PATH`
+- `LOCAL_CATALOG_PATH`
 - `PORT`
 - `HOST`
 

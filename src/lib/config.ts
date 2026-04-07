@@ -85,7 +85,7 @@ function buildConfig(): AppConfig {
   const gitSources = parseGitSources(readEnv('GIT_SOURCES'));
 
   if (!localCatalogPath && gitSources.length === 0) {
-    throw new Error('at least one catalog source must be configured: set CATALOG_PATH or GIT_SOURCES (must be a JSON array)');
+    throw new Error('at least one catalog source must be configured: set LOCAL_CATALOG_PATH or GIT_SOURCES (must be a JSON array)');
   }
 
   const enabled = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));

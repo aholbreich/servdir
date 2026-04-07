@@ -67,7 +67,7 @@ Then run it:
 ```bash
 docker run --rm -it \
   -p 4321:4321 \
-  -e CATALOG_PATH=/data/catalog \
+  -e LOCAL_CATALOG_PATH=/data/catalog \
   -v "$(pwd)/catalog:/data/catalog:ro,Z" \
   servdir
 ```
