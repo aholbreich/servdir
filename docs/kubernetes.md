@@ -52,6 +52,8 @@ By default, `servdir` will make Git use these paths if they exist:
 
 That means you usually do **not** need to set `GIT_SSH_COMMAND` yourself.
 
+`servdir` points Git SSH at the mounted key path and `known_hosts` file if present, but does not force `IdentitiesOnly=yes`.
+
 `GIT_SSH_COMMAND` is only needed as an advanced override when you want custom SSH behavior.
 
 ## Configuration reference

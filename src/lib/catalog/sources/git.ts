@@ -48,7 +48,6 @@ async function createGitEnv(): Promise<NodeJS.ProcessEnv> {
     const sshParts = [
       'ssh',
       `-i ${DEFAULT_SSH_KEY_PATH}`,
-      '-o IdentitiesOnly=yes',
     ];
 
     if (hasKnownHosts) {

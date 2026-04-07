@@ -60,13 +60,13 @@ docker run --rm \
 but you can test more cases with proper environment configuration.  So create your copy of `.env` derived from `.env.example` and start the container using it:
 
 ```bash
-docker run --rm \
+docker run --rm -it\
   -p 4321:4321 \
   --env-file .env \
   -v "$(pwd)/catalog:/data/catalog:ro,Z" \
+  -v "$HOME~/.ssh:/etc/servdir/ssh:ro,Z" \
   servdir
 ```
-
 
 ## Managed Git behavior:
 - sources are synced on startup
@@ -77,6 +77,8 @@ docker run --rm \
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
+
+By default, `servdir` points Git SSH at the mounted key path and known_hosts file if present, but does not force `IdentitiesOnly=yes`.
 
 
 ## Kubernetes
