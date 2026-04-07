@@ -4,13 +4,17 @@ import { serviceFrontmatterSchema } from './schema';
 import { renderMarkdown } from './markdown';
 import type { ServiceRecord, ValidationIssue } from './types';
 
+type ParseServiceInput = {
+  filePath: string;
+  raw: string;
+};
+
 function toSlug(id: string): string {
   return id.trim().toLowerCase();
 }
 
-export async function parseServiceFile(filePath: string): Promise<ServiceRecord> {
-  const raw = await fs.readFile(filePath, 'utf8');
-  const parsed = matter(raw);
+export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
+  const parsed = matter(input.raw);
   const result = serviceFrontmatterSchema.safeParse(parsed.data);
 
   const issues: ValidationIssue[] = [];
@@ -43,11 +47,16 @@ export async function parseServiceFile(filePath: string): Promise<ServiceRecord>
       };
 
   return {
-    filePath,
+    filePath: input.filePath,
     slug: toSlug(data.id),
     body: parsed.content.trim(),
     html: renderMarkdown(parsed.content),
     data,
     issues,
   };
+}
+
+export async function parseServiceFile(filePath: string): Promise<ServiceRecord> {
+  const raw = await fs.readFile(filePath, 'utf8');
+  return parseServiceContent({ filePath, raw });
 }

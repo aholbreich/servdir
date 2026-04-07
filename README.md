@@ -1,40 +1,21 @@
 # servdir
 
-Simple service catalog for engineers.
+Simple service catalog for engineers. Git is the database. Markdown files are the source of truth.
 
-Git is the database. Markdown files are the source of truth.
+# Features
+* Nice looking and comprehensive out of the box
+* Service Description is Markdown.
+* Multiple git repos can be mixed in
 
 ## Current stack
 - Astro
 - TypeScript
-- gray-matter
-- Zod
-- markdown-it
+  - gray-matter
+  - Zod
+  - markdown-it
+- Tailwind CSS v4
 - Vitest
 - pnpm
-
-## Run as container
-
-```bash
-docker run --rm \
-  -p 4321:4321 \
-  -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro \
-  ghcr.io/aholbreich/servdir:main
-```
-
-The application logs the resolved catalog path and discovered service files to stdout. This helps verify whether the container sees the mounted catalog directory.
-
-With Podman:
-```bash
-podman run --rm \
-  -p 4321:4321 \
-  -e CATALOG_PATH=/data/catalog \
-  -v $(pwd)/catalog:/data/catalog:ro,Z \
-  ghcr.io/aholbreich/servdir:main
-```
-
-On Fedora or other SELinux-enabled systems, `:Z` on the bind mount may be required. If the container starts but the catalog shows zero services, check the bind mount labeling first.
 
 ## Run locally
 ```bash
@@ -65,21 +46,42 @@ pnpm build
 pnpm preview
 ```
 
-## Docker
+## Run localy with Docker / Podman
 Build:
 ```bash
 docker build -t servdir .
 ```
 
-Run local image:
+## Runtime configuration
+Example of basic env vars:
+
+```env
+CATALOG_PATH=./catalog
+HOST=0.0.0.0
+PORT=4321
+```
+
+Optional managed Git sources:
+
+```env
+GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
+```
+
+## Container runtime
+Example:
+
 ```bash
-# or docker
-podman run --rm -it \
+docker run --rm \
   -p 4321:4321 \
   -e CATALOG_PATH=/data/catalog \
   -v $(pwd)/catalog:/data/catalog:ro,Z \
-  servdir
+  ghcr.io/aholbreich/servdir:main
 ```
+
+## Kubernetes / operations
+See:
+- `docs/kubernetes.md`
+
 
 ## CI / image publishing
 - GitHub Actions workflow: `.github/workflows/ci.yml`
@@ -109,4 +111,5 @@ docs/
 - `.adr/`
 - `docs/working-notes.md`
 - `docs/release.md`
+- `docs/kubernetes.md`
 - `AGENTS.md`

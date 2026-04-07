@@ -3,6 +3,9 @@ dist/
 # generated types
 .astro/
 
+# local git source cache
+.cache/
+
 # dependencies
 node_modules/
 

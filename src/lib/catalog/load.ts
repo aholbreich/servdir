@@ -1,21 +1,21 @@
-import path from 'node:path';
-import { glob } from 'glob';
-import { parseServiceFile } from './parse';
+import { loadGitServices, loadLocalServices } from './sources';
 import { validateCatalog } from './validate';
 import type { Catalog } from './types';
+import type { GitSourceConfig } from '../config';
 
-export async function loadCatalog(catalogRoot: string): Promise<Catalog> {
-  const pattern = path.join(catalogRoot, 'services', '*', 'service.md').replaceAll('\\', '/');
-  console.info(`[catalog] loading services from pattern: ${pattern}`);
+type LoadCatalogOptions = {
+  gitSources?: GitSourceConfig[];
+};
 
-  const filePaths = await glob(pattern);
-  console.info(`[catalog] discovered ${filePaths.length} service definition file(s)`);
+export async function loadCatalog(catalogRoot: string, options: LoadCatalogOptions = {}): Promise<Catalog> {
+  const sources = [loadLocalServices(catalogRoot)];
 
-  if (filePaths.length > 0) {
-    console.info(`[catalog] first discovered file: ${filePaths[0]}`);
+  if (options.gitSources && options.gitSources.length > 0) {
+    sources.push(loadGitServices(options.gitSources));
   }
 
-  const services = await Promise.all(filePaths.map((filePath) => parseServiceFile(filePath)));
+  const loaded = await Promise.all(sources);
+  const services = loaded.flat();
   const validated = validateCatalog(services).sort((a, b) => a.data.name.localeCompare(b.data.name));
 
   return {
