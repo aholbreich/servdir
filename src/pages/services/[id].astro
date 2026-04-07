@@ -52,13 +52,22 @@ const metadataItems = [
       <div>
         <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
         <SectionTitle level="h1" class="mb-3">{service.data.name}</SectionTitle>
-        <div class="muted flex flex-wrap gap-3 leading-6">
-          <span>ID: {service.data.id}</span>
-          <span>Owner: {service.data.owner}</span>
-          <span>Lifecycle: {service.data.lifecycle}</span>
-          {service.data.system && <span>System: {service.data.system}</span>}
-          {service.data.domain && <span>Domain: {service.data.domain}</span>}
-          {service.data.tier && <span>Tier: {service.data.tier}</span>}
+        <div class="mt-0.5 flex flex-wrap gap-2 text-[0.9rem] leading-5">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
+            <span aria-hidden="true">🆔</span>
+            <span>{service.data.id}</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
+            <span aria-hidden="true">👤</span>
+            <span>{service.data.owner}</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
+            <span aria-hidden="true">🔄</span>
+            <span>{service.data.lifecycle}</span>
+          </span>
+          {service.data.system && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">🧩</span><span>{service.data.system}</span></span>}
+          {service.data.domain && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">🌐</span><span>{service.data.domain}</span></span>}
+          {service.data.tier && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">⭐</span><span>tier {service.data.tier}</span></span>}
         </div>
       </div>
       <div class="flex flex-wrap justify-end gap-2">
