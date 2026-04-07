@@ -44,6 +44,7 @@ Secondary users:
 - As an engineer, I want to see repo, Ci/CD details, and tags in one place.
 - As an engineer, I want to understand dependencies between services (or other components)
 - As an engineer, I want quickly find relevant dashboard alertings or configuration detals to the particular service
+- As an engineer, I want to find service architecture context, such as Pulumi-generated infrastructure diagrams, Mermaid diagrams, PlantUML diagrams, or Structurizr/C4 views, from the same service page.
 - As a maintainer, I want to update service metadata by editing a Markdown file in Git.
 
 ## MVP Scope
@@ -70,6 +71,7 @@ Secondary users:
 - `links`
 - `system`
 - `domain`
+- future: architecture diagram references, including Pulumi-generated views, Mermaid, PlantUML, and Structurizr/C4 artifacts
 
 ### Example
 ```md
@@ -115,6 +117,7 @@ Show at least:
 - rendered Markdown
 - dependencies
 - links
+- room for future architecture context such as Pulumi diagrams, Mermaid, PlantUML, Structurizr/C4 views, or architecture links
 
 ### Search and filter
 Support:
@@ -193,3 +196,5 @@ Design principles for that feature:
 - Do we want generated example files / templates for new services in the first release?
 - What is the smallest acceptable local state model for repository sync metadata?
 - Should repository scanning land in v1.1 or stay behind a feature flag initially?
+- Should Pulumi, Mermaid, PlantUML, Structurizr/C4, or other architecture diagrams remain generic links at first, or get a first-class field later?
+- If architecture diagrams become first-class, should the app support remote URLs only, or also local repo-kept assets beside `service.md`?

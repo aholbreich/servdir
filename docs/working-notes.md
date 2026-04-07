@@ -94,6 +94,16 @@ See:
 - Added ToCs to `README.md`, `docs/kubernetes.md`, and `docs/service-definition.md`.
 - README now has a direct link to the service definition reference, similar to the Kubernetes guide link.
 
+### Future direction: architecture diagrams and Pulumi context
+- There is user interest in surfacing Pulumi-generated architecture drawings from the service catalog.
+- Current recommendation is to show architecture context on the same service detail page, not on a separate page.
+- Short-term pragmatic option: represent Pulumi drawings as links.
+- Likely future product direction: support a more explicit architecture/diagram field once the shape is clearer.
+- If this becomes first-class, likely questions are:
+  - remote URLs only vs local files stored beside `service.md`
+  - generic architecture references vs Pulumi-specific modeling
+  - how diagram previews should be rendered on the service page
+
 ## Open questions
 - Should `provides` become a first-class field in the initial schema?
 - Should validation status be stored only in memory, or exposed through a small explicit model?
@@ -119,6 +129,13 @@ Potential useful additions:
 - unresolved dependency view
 - duplicate id diagnostics
 
+### Architecture diagrams
+Potential useful additions:
+- support Pulumi-generated architecture diagrams on service detail pages
+- start with generic link-based support if needed
+- later consider first-class architecture metadata
+- evaluate whether diagram assets should be remote only or allowed inside the catalog repo next to `service.md`
+
 ### Authoring support
 Potential later additions:
 - example templates for new services
@@ -130,12 +147,12 @@ Potential later additions:
 2. Expose a small health or debug view for sync state, for example last sync time, last success, last error, and source status.
 3. Improve validation UX in the UI, especially duplicate id diagnostics, unresolved dependency visibility, and clearer warning vs error treatment.
 4. Decide whether `provides` should become a first-class field in the service definition schema.
-
-5. Tighten logging further, potentially with log levels or a quieter default mode for routine scans.
-6. Add more targeted tests around managed Git sync behavior, especially failed startup sync, invalid checkout recovery, and multi-source behavior.
-7. Decide whether runtime sync status should remain in memory only or get a small explicit model that can be exposed operationally.
-8. Consider a cleaner application startup hook for operational subsystems like the scheduler instead of relying on module initialization.
-9. If performance becomes an issue, consider precomputing and reusing a validated in-memory catalog snapshot after each successful refresh.
+5. Decide how Pulumi and other architecture diagrams should be modeled first: generic links, first-class metadata, or local assets beside `service.md`.
+6. Tighten logging further, potentially with log levels or a quieter default mode for routine scans.
+7. Add more targeted tests around managed Git sync behavior, especially failed startup sync, invalid checkout recovery, and multi-source behavior.
+8. Decide whether runtime sync status should remain in memory only or get a small explicit model that can be exposed operationally.
+9. Consider a cleaner application startup hook for operational subsystems like the scheduler instead of relying on module initialization.
+10. If performance becomes an issue, consider precomputing and reusing a validated in-memory catalog snapshot after each successful refresh.
 
 ## Working assumption
 The catalog is the product.
