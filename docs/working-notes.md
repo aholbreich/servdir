@@ -94,6 +94,22 @@ See:
 - Added ToCs to `README.md`, `docs/kubernetes.md`, and `docs/service-definition.md`.
 - README now has a direct link to the service definition reference, similar to the Kubernetes guide link.
 
+### Current UI component structure
+Reusable UI building blocks currently in use:
+- `src/components/ui/Badge.astro` — compact status/tag pills
+- `src/components/ui/Card.astro` — shared card shell
+- `src/components/ui/IssueList.astro` — validation issue rendering
+- `src/components/ui/KeyValueList.astro` — metadata key/value and link list rendering
+- `src/components/ui/SectionTitle.astro` — consistent section headings
+- `src/components/ui/ServiceCard.astro` — dense reusable service list card
+- `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
+- `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card
+
+Design reminder:
+- prefer extending these components or adding adjacent catalog-scoped components before pushing more layout logic back into page files
+- keep generic UI primitives in `src/components/ui/`
+- keep domain-aware catalog components in `src/components/catalog/`
+
 ### Future direction: architecture diagrams and Pulumi context
 - There is user interest in surfacing Pulumi-generated architecture drawings from the service catalog.
 - Current recommendation is to show architecture context on the same service detail page, not on a separate page.
