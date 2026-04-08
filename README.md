@@ -57,6 +57,13 @@ pnpm build
 pnpm preview
 ```
 
+### Create and push a release tag
+Use the interactive helper to inspect recent tags, create a new annotated tag, and optionally push it:
+
+```bash
+pnpm release:tag
+```
+
 ### Running locally, but closer to prod setup Docker / Podman
 Build the image with:
 
