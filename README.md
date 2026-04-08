@@ -64,6 +64,19 @@ Use the interactive helper to inspect recent tags, create a new annotated tag, a
 pnpm release:tag
 ```
 
+### Draft release notes since the latest tag
+Generate a markdown-style list of commit messages since the latest tag:
+
+```bash
+pnpm release:notes
+```
+
+You can also start from a specific tag:
+
+```bash
+pnpm release:notes -- v0.3.0
+```
+
 ### Running locally, but closer to prod setup Docker / Podman
 Build the image with:
 

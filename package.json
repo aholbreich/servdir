@@ -12,6 +12,7 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "release:notes": "bash scripts/release-notes.sh",
     "release:tag": "bash scripts/release-tag.sh",
     "astro": "astro"
   },
