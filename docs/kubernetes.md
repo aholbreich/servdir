@@ -301,7 +301,9 @@ kind: Deployment
 metadata:
   name: servdir
 spec:
-  replicas: 1
+  replicas: 1 # Adoppt replicas to your liking
+  progressDeadlineSeconds: 120 # Should be fine for this tiny service
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: servdir
