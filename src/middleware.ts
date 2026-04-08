@@ -1,8 +1,23 @@
 import { defineMiddleware } from 'astro:middleware';
-import { getConfig } from './lib/config';
+import { getConfig, tryGetConfig } from './lib/config';
 import { isAuthorized } from './lib/auth';
 
+function misconfiguredResponse(): Response {
+  return new Response('Servdir is misconfigured. Please check startup logs.', {
+    status: 500,
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  });
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
+  const configResolution = tryGetConfig();
+
+  if (!configResolution.ok) {
+    return misconfiguredResponse();
+  }
+
   const config = getConfig();
 
   if (!config.basicAuth.enabled) {

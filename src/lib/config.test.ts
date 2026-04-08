@@ -28,4 +28,20 @@ describe('getConfig', () => {
     const { getConfig } = await import('./config');
     expect(() => getConfig()).toThrow('at least one catalog source must be configured');
   });
+
+  it('fails when basic auth is enabled but credentials are missing', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.BASIC_AUTH_ENABLED = 'true';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow('Basic auth enabled, but username/password missing');
+  });
+
+  it('fails when encrypted secret placeholders reach runtime env', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.BASIC_AUTH_USERNAME = 'dev';
+    process.env.BASIC_AUTH_PASSWORD = 'ENC[AES256_GCM,data:example]';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow('Encrypted secret placeholder detected in runtime env');
+  });
 });
