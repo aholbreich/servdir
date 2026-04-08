@@ -83,10 +83,18 @@ That means you usually do **not** need to set `GIT_SSH_COMMAND` yourself.
 
 ### Core settings
 
-#### `LOCAL_CATALOG_PATH`
-Local filesystem catalog root.
+#### `CATALOG_TITLE`
+Optional catalog title shown in the UI.
 
 Default:
+```env
+CATALOG_TITLE=Service Catalog
+```
+
+#### `LOCAL_CATALOG_PATH`
+Optional local filesystem catalog root.
+
+Example:
 ```env
 LOCAL_CATALOG_PATH=./catalog
 ```

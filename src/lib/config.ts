@@ -13,6 +13,7 @@ export type BasicAuthConfig = {
 };
 
 export type AppConfig = {
+  catalogTitle: string;
   localCatalogPath?: string;
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
@@ -97,6 +98,7 @@ function buildConfig(): AppConfig {
   }
 
   return {
+    catalogTitle: readEnv('CATALOG_TITLE') ?? 'Service Catalog',
     localCatalogPath,
     gitSources,
     gitSyncIntervalMs: parsePositiveNumber(readEnv('GIT_SYNC_INTERVAL_MS'), 60000),
@@ -128,6 +130,7 @@ function validateConfig(config: AppConfig): AppConfig {
 
 function logConfig(config: AppConfig): void {
   console.info('[config] ==========================================');
+  console.info(`[config] catalog title: ${config.catalogTitle}`);
   console.info(`[config] configured local catalog path: ${config.localCatalogPath ?? 'disabled'}`);
   console.info(`[config] configured git sources: ${config.gitSources.length}`);
   console.info(`[config] git sync interval: ${config.gitSyncIntervalMs}ms`);

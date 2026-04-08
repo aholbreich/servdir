@@ -2,6 +2,8 @@
 
 Servdir aims to be a simple service catalog for engineers. Markdown files are the source of truth.
 
+The catalog title defaults to `Service Catalog`, but can be overridden with `CATALOG_TITLE`.
+
 ## Table of Contents
 - [Features](#features)
 - [Current stack](#current-stack)

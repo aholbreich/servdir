@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 describe('getConfig', () => {
   afterEach(() => {
     vi.resetModules();
+    delete process.env.CATALOG_TITLE;
     delete process.env.GIT_SYNC_INTERVAL_MS;
     delete process.env.GIT_SOURCES;
     delete process.env.LOCAL_CATALOG_PATH;
@@ -11,16 +12,19 @@ describe('getConfig', () => {
     delete process.env.BASIC_AUTH_PASSWORD;
   });
 
-  it('uses a default git sync interval', async () => {
+  it('uses a default catalog title and git sync interval', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
     const { getConfig } = await import('./config');
+    expect(getConfig().catalogTitle).toBe('Service Catalog');
     expect(getConfig().gitSyncIntervalMs).toBe(60000);
   });
 
-  it('parses a custom git sync interval', async () => {
+  it('parses a custom catalog title and git sync interval', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.CATALOG_TITLE = 'Platform Service Catalog';
     process.env.GIT_SYNC_INTERVAL_MS = '15000';
     const { getConfig } = await import('./config');
+    expect(getConfig().catalogTitle).toBe('Platform Service Catalog');
     expect(getConfig().gitSyncIntervalMs).toBe(15000);
   });
 
