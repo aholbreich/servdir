@@ -12,6 +12,7 @@
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "release:tag": "bash scripts/release-tag.sh",
     "astro": "astro"
   },
   "dependencies": {
