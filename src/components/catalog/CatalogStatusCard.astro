@@ -1,0 +1,56 @@
+---
+import Card from '../ui/Card.astro';
+import SectionTitle from '../ui/SectionTitle.astro';
+
+export interface Props {
+  servicesCount: number;
+  servicesValid: number;
+  servicesWithIssues: number;
+  generatedAt: string;
+  buildVersion: string;
+  localCatalogPath?: string;
+}
+
+const {
+  servicesCount,
+  servicesValid,
+  servicesWithIssues,
+  generatedAt,
+  buildVersion,
+  localCatalogPath,
+} = Astro.props;
+
+const statusItems = [
+  { label: 'Services', value: String(servicesCount) },
+  { label: 'Valid', value: String(servicesValid) },
+  { label: 'Warnings', value: servicesWithIssues > 0 ? String(servicesWithIssues) : '0' },
+  { label: 'Generated', value: new Date(generatedAt).toLocaleString('en-GB') },
+  { label: 'Build', value: buildVersion },
+];
+---
+
+<Card as="aside" class="p-6">
+  <SectionTitle class="mb-4 text-lg">Catalog status</SectionTitle>
+
+  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {statusItems.map((item) => (
+      <div class="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-2)] p-3.5">
+        <div class="muted mb-1 text-[0.85rem]">{item.label}</div>
+        <div class="text-base font-semibold text-slate-950 break-words">{item.value}</div>
+      </div>
+    ))}
+  </div>
+
+  <div class="mt-4 grid gap-2 text-[0.95rem] leading-6 text-slate-700">
+    <div>
+      <span class="muted font-medium">Catalog health:</span>{' '}
+      {servicesWithIssues > 0 ? `${servicesWithIssues} warning(s)` : 'No current warnings'}
+    </div>
+    {localCatalogPath && (
+      <div>
+        <span class="muted font-medium">Local catalog path:</span>{' '}
+        <code>{localCatalogPath}</code>
+      </div>
+    )}
+  </div>
+</Card>

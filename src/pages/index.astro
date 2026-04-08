@@ -1,7 +1,7 @@
 ---
-import Badge from '../components/ui/Badge.astro';
 import Card from '../components/ui/Card.astro';
 import SectionTitle from '../components/ui/SectionTitle.astro';
+import CatalogStatusCard from '../components/catalog/CatalogStatusCard.astro';
 import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getConfig } from '../lib/config';
@@ -23,31 +23,16 @@ const servicesValid = catalog.services.length - servicesWithIssues;
         Git is the database. Markdown files are the source of truth. 
       </p>
 
-      <div class="my-5 h-px bg-linear-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
-
-      <div class="flex flex-wrap gap-2.5">
-        <Badge tone="ok">{servicesValid} valid</Badge>
-        {servicesWithIssues > 0 ? <Badge tone="warn">{servicesWithIssues} with issues</Badge> : <Badge>No current warnings</Badge>}
-        {config.localCatalogPath && <Badge>Catalog path: <code>{config.localCatalogPath}</code></Badge>}
-      </div>
     </Card>
 
-    <Card as="aside">
-      <SectionTitle class="mb-3 text-lg">Catalog status</SectionTitle>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-2)] p-3.5">
-          <div class="muted mb-1 text-[0.85rem]">Services</div>
-          <div class="text-xl font-semibold text-slate-950">{catalog.services.length}</div>
-        </div>
-        <div class="rounded-2xl border border-[var(--color-border)]/50 bg-[var(--color-surface-2)] p-3.5">
-          <div class="muted mb-1 text-[0.85rem]">Generated</div>
-          <div class="text-base font-semibold text-slate-950">{new Date(catalog.generatedAt).toLocaleString('en-GB')}</div>
-        </div>
-      </div>
-      <p class="muted mt-4 leading-6">
-      
-      </p>
-    </Card>
+    <CatalogStatusCard
+      servicesCount={catalog.services.length}
+      servicesValid={servicesValid}
+      servicesWithIssues={servicesWithIssues}
+      generatedAt={catalog.generatedAt}
+      buildVersion={config.appBuildVersion}
+      localCatalogPath={config.localCatalogPath}
+    />
   </section>
 
   <ServiceCatalogGrid services={catalog.services} />

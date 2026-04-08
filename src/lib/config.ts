@@ -13,6 +13,7 @@ export type BasicAuthConfig = {
 };
 
 export type AppConfig = {
+  appBuildVersion: string;
   catalogTitle: string;
   localCatalogPath?: string;
   gitSources: GitSourceConfig[];
@@ -92,12 +93,14 @@ function buildConfig(): AppConfig {
   const basicAuthEnabled = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));
   const basicAuthUsername = readEnv('BASIC_AUTH_USERNAME');
   const basicAuthPassword = readEnv('BASIC_AUTH_PASSWORD');
+  const appBuildVersion = readEnv('APP_BUILD_VERSION') ?? 'v0.0.1 · sha-local';
 
   if (!basicAuthEnabled && (basicAuthUsername || basicAuthPassword)) {
     console.warn('[config] BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD are set but BASIC_AUTH_ENABLED is not true, credentials will be ignored.');
   }
 
   return {
+    appBuildVersion,
     catalogTitle: readEnv('CATALOG_TITLE') ?? 'Service Catalog',
     localCatalogPath,
     gitSources,
@@ -130,6 +133,7 @@ function validateConfig(config: AppConfig): AppConfig {
 
 function logConfig(config: AppConfig): void {
   console.info('[config] ==========================================');
+  console.info(`[config] app build version: ${config.appBuildVersion}`);
   console.info(`[config] catalog title: ${config.catalogTitle}`);
   console.info(`[config] configured local catalog path: ${config.localCatalogPath ?? 'disabled'}`);
   console.info(`[config] configured git sources: ${config.gitSources.length}`);

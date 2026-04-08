@@ -1,4 +1,6 @@
 FROM node:22-alpine AS builder
+ARG APP_BUILD_VERSION=v0.0.1-sha-local
+ENV APP_BUILD_VERSION=${APP_BUILD_VERSION}
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile

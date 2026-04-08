@@ -1,6 +1,7 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
+  readonly APP_BUILD_VERSION?: string;
   readonly CATALOG_TITLE?: string;
   readonly LOCAL_CATALOG_PATH?: string;
   readonly BASIC_AUTH_ENABLED?: string;

@@ -67,11 +67,25 @@ jobs:
             type=sha
             type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
 
+      - name: Compute build version
+        id: build_version
+        shell: bash
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            echo "value=${TAG_NAME}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
+          build-args: |
+            APP_BUILD_VERSION=${{ steps.build_version.outputs.value }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
