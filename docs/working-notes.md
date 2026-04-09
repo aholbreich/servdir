@@ -100,6 +100,7 @@ Reusable UI building blocks currently in use:
 - `src/components/ui/Card.astro` — shared card shell
 - `src/components/ui/IssueList.astro` — validation issue rendering
 - `src/components/ui/KeyValueList.astro` — metadata key/value and link list rendering
+- `src/components/ui/MetadataPill.astro` — compact icon-plus-label chip for service attributes
 - `src/components/ui/SectionTitle.astro` — consistent section headings
 - `src/components/ui/ServiceCard.astro` — dense reusable service list card
 - `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
