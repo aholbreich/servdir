@@ -5,6 +5,8 @@ dist/
 
 # local git source cache
 .cache/
+# local development cache
+catalog-cache/
 
 # dependencies
 node_modules/
