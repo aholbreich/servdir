@@ -69,8 +69,10 @@ See:
   - interval sync cycle start/finish
   - per-source sync start/success/failure with duration
   - scan patterns and discovered file counts
-- The system still scans local and Git-backed `service.md` files at request time. Sync is no longer on the request path, but scan/parse still is.
-- A future optimization could cache the parsed catalog between refreshes if request-time scan cost becomes noticeable.
+  - git-backed parse warnings with per-file validation details
+- The system now keeps a validated in-memory catalog snapshot and serves requests from that snapshot instead of rescanning and reparsing on each page render.
+- After sync cycles, servdir refreshes the snapshot in the background and keeps serving the last known good catalog if a refresh fails.
+- The cache/snapshot logic now lives as an explicit catalog cache subsystem instead of being hidden inside `load.ts`, to make later stats, debug views, and observability easier to extend.
 
 ### SSH behavior and local container testing
 - App-managed Git checkout/pull should prefer SSH repository access keys over provider API tokens.
@@ -166,16 +168,15 @@ Potential later additions:
 - CLI helper for generating a new service entry
 
 ## Suggested near-term improvements
-1. Cache the merged parsed catalog between sync cycles so requests do not rescan and reparses all `service.md` files on every page load.
-2. Expose a small health or debug view for sync state, for example last sync time, last success, last error, and source status.
-3. Improve validation UX in the UI, especially duplicate id diagnostics, unresolved dependency visibility, and clearer warning vs error treatment.
-4. Decide whether `provides` should become a first-class field in the service definition schema.
-5. Decide how Pulumi and other architecture diagrams should be modeled first: generic links, first-class metadata, or local assets beside `service.md`.
-6. Tighten logging further, potentially with log levels or a quieter default mode for routine scans.
-7. Add more targeted tests around managed Git sync behavior, especially failed startup sync, invalid checkout recovery, and multi-source behavior.
-8. Decide whether runtime sync status should remain in memory only or get a small explicit model that can be exposed operationally.
-9. Consider a cleaner application startup hook for operational subsystems like the scheduler instead of relying on module initialization.
-10. If performance becomes an issue, consider precomputing and reusing a validated in-memory catalog snapshot after each successful refresh.
+1. Expose a small health or debug view for sync state, for example last sync time, last success, last error, and source status.
+2. Improve validation UX in the UI, especially duplicate id diagnostics, unresolved dependency visibility, and clearer warning vs error treatment.
+3. Decide whether `provides` should become a first-class field in the service definition schema.
+4. Decide how Pulumi and other architecture diagrams should be modeled first: generic links, first-class metadata, or local assets beside `service.md`.
+5. Tighten logging further, potentially with log levels or a quieter default mode for routine scans.
+6. Add more targeted tests around managed Git sync behavior, especially failed startup sync, invalid checkout recovery, and multi-source behavior.
+7. Decide whether runtime sync status should remain in memory only or get a small explicit model that can be exposed operationally.
+8. Consider a cleaner application startup hook for operational subsystems like the scheduler instead of relying on module initialization.
+9. Extend the explicit catalog cache subsystem with stats/debug surfaces if operational visibility becomes important.
 
 ## Working assumption
 The catalog is the product.
