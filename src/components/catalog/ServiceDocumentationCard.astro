@@ -1,0 +1,15 @@
+---
+import Card from '../ui/Card.astro';
+import SectionTitle from '../ui/SectionTitle.astro';
+
+export interface Props {
+  html: string;
+}
+
+const { html } = Astro.props;
+---
+
+<Card as="article" class="p-[26px]">
+  <SectionTitle class="mb-[14px]">Documentation</SectionTitle>
+  <div class="prose-catalog" set:html={html} />
+</Card>

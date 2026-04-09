@@ -104,11 +104,17 @@ Reusable UI building blocks currently in use:
 - `src/components/ui/ServiceCard.astro` — dense reusable service list card
 - `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
 - `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card
+- `src/components/catalog/ServiceHeader.astro` — detail-page header with service identity, summary state, and tags
+- `src/components/catalog/ServiceDocumentationCard.astro` — detail-page documentation body card
+- `src/components/catalog/ServiceMetadataCard.astro` — detail-page metadata and OpenAPI sections
+- `src/components/catalog/ServiceDependenciesCard.astro` — detail-page dependency list
+- `src/components/catalog/ServiceValidationCard.astro` — detail-page validation state card
 
 Design reminder:
 - prefer extending these components or adding adjacent catalog-scoped components before pushing more layout logic back into page files
 - keep generic UI primitives in `src/components/ui/`
 - keep domain-aware catalog components in `src/components/catalog/`
+- keep page files mostly orchestration plus layout composition, not presentation-heavy mapping
 
 ### Future direction: architecture diagrams and Pulumi context
 - There is user interest in surfacing Pulumi-generated architecture drawings from the service catalog.

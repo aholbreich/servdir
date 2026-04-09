@@ -1,9 +1,9 @@
 ---
-import Badge from '../../components/ui/Badge.astro';
-import Card from '../../components/ui/Card.astro';
-import IssueList from '../../components/ui/IssueList.astro';
-import KeyValueList from '../../components/ui/KeyValueList.astro';
-import SectionTitle from '../../components/ui/SectionTitle.astro';
+import ServiceDependenciesCard from '../../components/catalog/ServiceDependenciesCard.astro';
+import ServiceDocumentationCard from '../../components/catalog/ServiceDocumentationCard.astro';
+import ServiceHeader from '../../components/catalog/ServiceHeader.astro';
+import ServiceMetadataCard from '../../components/catalog/ServiceMetadataCard.astro';
+import ServiceValidationCard from '../../components/catalog/ServiceValidationCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getConfig } from '../../lib/config';
 import { loadCatalog } from '../../lib/catalog';
@@ -30,106 +30,20 @@ const dependencies = (service.data.depends_on ?? []).map((dependencyId) => ({
   id: dependencyId,
   service: catalog.servicesById.get(dependencyId),
 }));
-const hasIssues = service.issues.length > 0;
-const openApiItems = (service.data.openapi ?? []).map((entry) => ({
-  label: entry.label,
-  href: entry.url,
-  text: 'OpenAPI spec ↗',
-}));
-const metadataItems = [
-  { label: 'Repository', href: service.data.repo, text: 'Open repository ↗' },
-  { label: 'Runbook', href: service.data.runbook, text: 'Open runbook ↗' },
-  { label: 'System', value: service.data.system },
-  { label: 'Domain', value: service.data.domain },
-  ...(service.data.links ?? []).map((link) => ({
-    label: link.label,
-    href: link.url,
-    text: 'Visit ↗',
-  })),
-];
 ---
 
 <BaseLayout title={`${service.data.name} — servdir`}>
   <p class="mb-4"><a href="/">← Back to catalog</a></p>
 
-  <Card class="mb-5 p-[26px]">
-    <div class="flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
-        <SectionTitle level="h1" class="mb-3">{service.data.name}</SectionTitle>
-        <div class="mt-0.5 flex flex-wrap gap-2 text-[0.9rem] leading-5">
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
-            <span aria-hidden="true">🆔</span>
-            <span>{service.data.id}</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
-            <span aria-hidden="true">👤</span>
-            <span>{service.data.owner}</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
-            <span aria-hidden="true">🔄</span>
-            <span>{service.data.lifecycle}</span>
-          </span>
-          {service.data.system && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">🧩</span><span>{service.data.system}</span></span>}
-          {service.data.domain && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">🌐</span><span>{service.data.domain}</span></span>}
-          {service.data.tier && <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700"><span aria-hidden="true">⭐</span><span>tier {service.data.tier}</span></span>}
-        </div>
-      </div>
-      <div class="flex flex-wrap justify-end gap-2">
-        <Badge tone={hasIssues ? 'warn' : 'ok'}>
-          {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
-        </Badge>
-        {service.data.tags?.map((tag) => <Badge>#{tag}</Badge>)}
-      </div>
-    </div>
-  </Card>
+  <ServiceHeader service={service} />
 
   <section class="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
-    <Card as="article" class="p-[26px]">
-      <SectionTitle class="mb-[14px]">Documentation</SectionTitle>
-      <div class="prose-catalog" set:html={service.html} />
-    </Card>
+    <ServiceDocumentationCard html={service.html} />
 
     <aside class="grid gap-[18px]">
-      <Card>
-        <SectionTitle class="mb-[14px]">Metadata</SectionTitle>
-        <KeyValueList items={metadataItems} />
-      </Card>
-
-      {openApiItems.length > 0 && (
-        <Card>
-          <SectionTitle class="mb-[14px]">OpenAPI</SectionTitle>
-          <KeyValueList items={openApiItems} />
-        </Card>
-      )}
-
-      <Card>
-        <SectionTitle class="mb-[14px]">Dependencies</SectionTitle>
-        {dependencies.length > 0 ? (
-          <ul class="grid gap-2 pl-[18px] leading-6">
-            {dependencies.map((dependency) => (
-              <li>
-                {dependency.service ? (
-                  <a href={`/services/${dependency.service.slug}`}>{dependency.id}</a>
-                ) : (
-                  dependency.id
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="muted leading-6">No dependencies declared.</p>
-        )}
-      </Card>
-
-      <Card>
-        <SectionTitle class="mb-[14px]">Validation</SectionTitle>
-        {hasIssues ? (
-          <IssueList issues={service.issues} />
-        ) : (
-          <p class="leading-6 text-[var(--color-ok)]">No validation issues.</p>
-        )}
-      </Card>
+      <ServiceMetadataCard service={service} />
+      <ServiceDependenciesCard dependencies={dependencies} />
+      <ServiceValidationCard service={service} />
     </aside>
   </section>
 </BaseLayout>

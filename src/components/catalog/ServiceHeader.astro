@@ -1,0 +1,46 @@
+---
+import Badge from '../ui/Badge.astro';
+import Card from '../ui/Card.astro';
+import SectionTitle from '../ui/SectionTitle.astro';
+import type { ServiceRecord } from '../../lib/catalog';
+
+export interface Props {
+  service: ServiceRecord;
+}
+
+const { service } = Astro.props;
+const hasIssues = service.issues.length > 0;
+
+const attributeItems = [
+  { icon: '🆔', value: service.data.id },
+  { icon: '👤', value: service.data.owner },
+  { icon: '🔄', value: service.data.lifecycle },
+  ...(service.data.system ? [{ icon: '🧩', value: service.data.system }] : []),
+  ...(service.data.domain ? [{ icon: '🌐', value: service.data.domain }] : []),
+  ...(service.data.tier ? [{ icon: '⭐', value: `tier ${service.data.tier}` }] : []),
+];
+---
+
+<Card class="mb-5 p-[26px]">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
+      <SectionTitle level="h1" class="mb-3">{service.data.name}</SectionTitle>
+      <div class="mt-0.5 flex flex-wrap gap-2 text-[0.9rem] leading-5">
+        {attributeItems.map((item) => (
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)]/70 bg-[var(--color-surface-2)] px-2.5 py-1 text-slate-700">
+            <span aria-hidden="true">{item.icon}</span>
+            <span>{item.value}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-2">
+      <Badge tone={hasIssues ? 'warn' : 'ok'}>
+        {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
+      </Badge>
+      {service.data.tags?.map((tag) => <Badge>#{tag}</Badge>)}
+    </div>
+  </div>
+</Card>
