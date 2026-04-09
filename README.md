@@ -112,6 +112,7 @@ docker run --rm -it \
 - sources are refreshed periodically in-process
 - requests read from the local checkout cache and do not perform Git pulls
 - sync is locked per source to avoid overlapping operations
+- if `checkoutPath` is omitted in `GIT_SOURCES`, servdir defaults to `./catalog-cache/<source-name>-<n>`
 
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
 - `/etc/servdir/ssh/id_ed25519`

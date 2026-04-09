@@ -32,6 +32,27 @@ describe('getConfig', () => {
     expect(getConfig().gitSyncIntervalMs).toBe(15000);
   });
 
+  it('assigns a default checkout path for git sources when checkoutPath is omitted', async () => {
+    process.env.GIT_SOURCES = JSON.stringify([
+      {
+        name: 'catalog-main',
+        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+        branch: 'main',
+        scanPaths: ['services'],
+      },
+    ]);
+    const { getConfig } = await import('./config');
+    expect(getConfig().gitSources).toEqual([
+      {
+        name: 'catalog-main',
+        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+        branch: 'main',
+        checkoutPath: 'catalog-cache/catalog-main-1',
+        scanPaths: ['services'],
+      },
+    ]);
+  });
+
   it('fails fast when no catalog source is configured', async () => {
     const { getConfig } = await import('./config');
     expect(() => getConfig()).toThrow('at least one catalog source must be configured');

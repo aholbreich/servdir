@@ -148,8 +148,16 @@ Each entry supports:
 - `name`: human-readable source name
 - `repoUrl`: Git clone URL
 - `branch`: branch to checkout and pull
-- `checkoutPath`: writable local checkout path inside the container
+- `checkoutPath`: writable local checkout path inside the container, optional when the default cache location is acceptable
 - `scanPaths`: array of relative paths to scan for `*/service.md`
+
+If `checkoutPath` is omitted, servdir defaults to:
+
+```text
+./catalog-cache/<sanitized-source-name>-<n>
+```
+
+In Kubernetes, it can still make sense to set `checkoutPath` explicitly so the cache location clearly matches your mounted writable volume, for example `/data/catalog-cache/catalog-main`.
 
 Example with multiple repositories:
 
@@ -449,7 +457,13 @@ You can test the same configuration outside Kubernetes by setting:
 BASIC_AUTH_ENABLED=true
 BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=secret
-GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"./.cache/catalog-main","scanPaths":["services"]}]
+GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","scanPaths":["services"]}]
+```
+
+This will default the checkout cache to a local path such as:
+
+```text
+./catalog-cache/catalog-main-1
 ```
 
 If you use the default key path on your machine instead, set a custom `GIT_SSH_COMMAND` explicitly.

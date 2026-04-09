@@ -103,7 +103,26 @@ async function scanCheckout(source: GitCatalogSource): Promise<ServiceRecord[]> 
   const filePaths = allFiles.flat();
   console.info(`[catalog:git] discovered ${filePaths.length} service definition file(s) in ${source.name}`);
 
-  return Promise.all(filePaths.map((filePath) => parseServiceFile(filePath)));
+  const parsedServices = await Promise.all(filePaths.map(async (filePath) => {
+    try {
+      const service = await parseServiceFile(filePath);
+
+      if (service.issues.length > 0) {
+        console.warn(`[catalog:git] parsed ${filePath} from ${source.name} with ${service.issues.length} validation issue(s)`);
+        for (const issue of service.issues) {
+          console.warn(`[catalog:git] ${filePath}: [${issue.level}] ${issue.message}`);
+        }
+      }
+
+      return service;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[catalog:git] failed to parse ${filePath} from ${source.name}: ${message}`);
+      throw error;
+    }
+  }));
+
+  return parsedServices;
 }
 
 const inFlightSyncs = new Map<string, Promise<void>>();

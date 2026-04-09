@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 export type GitSourceConfig = {
   name: string;
   repoUrl: string;
@@ -52,6 +54,20 @@ function parseBoolean(raw: string | undefined): boolean {
   return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
 }
 
+function toSafePathSegment(value: string): string {
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return normalized || 'source';
+}
+
+function defaultCheckoutPath(name: string, index: number): string {
+  return path.join('.', 'catalog-cache', `${toSafePathSegment(name)}-${index + 1}`);
+}
+
 function parseGitSources(raw: string | undefined): GitSourceConfig[] {
   if (!raw) {
     return [];
@@ -74,14 +90,19 @@ function parseGitSources(raw: string | undefined): GitSourceConfig[] {
         ? candidate.scanPaths.map(String)
         : ['services'];
 
+      const name = String(candidate.name ?? `source-${index + 1}`);
+      const checkoutPath = typeof candidate.checkoutPath === 'string' && candidate.checkoutPath.trim().length > 0
+        ? candidate.checkoutPath
+        : defaultCheckoutPath(name, index);
+
       return {
-        name: String(candidate.name ?? `source-${index + 1}`),
+        name,
         repoUrl: String(candidate.repoUrl ?? ''),
         branch: String(candidate.branch ?? 'main'),
-        checkoutPath: String(candidate.checkoutPath ?? ''),
+        checkoutPath,
         scanPaths,
       };
-    }).filter((source) => source.repoUrl && source.checkoutPath);
+    }).filter((source) => source.repoUrl);
   } catch (error) {
     throw new Error(`failed to parse GIT_SOURCES: ${toError(error).message}`);
   }

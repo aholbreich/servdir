@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { loadCatalog } from './load';
 
 let tempDir: string;
@@ -59,5 +59,42 @@ describe('loadCatalog', () => {
         }),
       ]),
     );
+  });
+
+  it('logs validation issues when parsing git-backed services', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    process.env.GIT_SOURCES = JSON.stringify([
+      {
+        name: 'catalog-main',
+        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+        branch: 'main',
+        checkoutPath: path.join(tempDir, 'git-checkout'),
+        scanPaths: ['services'],
+      },
+    ]);
+
+    await writeService(
+      'git-checkout/services/broken/service.md',
+      `---\nid: broken\nname: Broken Service\nowner: team-x\nlifecycle: production\nrepo: not-a-url\n---\n\n# Broken\n`,
+    );
+    await fs.mkdir(path.join(tempDir, 'git-checkout', '.git'), { recursive: true });
+
+    const catalog = await loadCatalog(undefined, {
+      gitSources: [
+        {
+          name: 'catalog-main',
+          repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+          branch: 'main',
+          checkoutPath: path.join(tempDir, 'git-checkout'),
+          scanPaths: ['services'],
+        },
+      ],
+    });
+
+    expect(catalog.services).toHaveLength(1);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('parsed'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[error] repo: Invalid URL'));
+
+    warnSpy.mockRestore();
   });
 });
