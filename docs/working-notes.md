@@ -106,6 +106,7 @@ Reusable UI building blocks currently in use:
 - `src/components/ui/SectionTitle.astro` — consistent section headings
 - `src/components/ui/ServiceCard.astro` — dense reusable service list card
 - `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
+- `src/components/catalog/CatalogHero.astro` — index-page hero section for catalog identity and intro text
 - `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card
 - `src/components/catalog/ServiceHeader.astro` — detail-page header with service identity, summary state, and tags
 - `src/components/catalog/ServiceDocumentationCard.astro` — detail-page documentation body card

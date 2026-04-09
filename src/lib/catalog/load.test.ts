@@ -38,6 +38,7 @@ describe('loadCatalog', () => {
 
     expect(catalog.services.map((service) => service.data.name)).toEqual(['Alpha Service', 'Zeta Service']);
     expect(catalog.servicesById.get('alpha')?.data.owner).toBe('team-a');
+    expect(catalog.snapshotStatus).toBe('fresh');
   });
 
   it('keeps invalid services in the catalog and records validation issues', async () => {
@@ -59,6 +60,7 @@ describe('loadCatalog', () => {
         }),
       ]),
     );
+    expect(catalog.snapshotStatus).toBe('fresh');
   });
 
   it('logs validation issues when parsing git-backed services', async () => {
@@ -92,9 +94,28 @@ describe('loadCatalog', () => {
     });
 
     expect(catalog.services).toHaveLength(1);
+    expect(catalog.snapshotStatus).toBe('fresh');
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('parsed'));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[error] repo: Invalid URL'));
 
     warnSpy.mockRestore();
+  });
+
+  it('reuses the in-memory snapshot between repeated loads', async () => {
+    const localLoadSpy = vi.spyOn(await import('./sources/local'), 'loadLocalServices');
+
+    await writeService(
+      'services/alpha/service.md',
+      `---\nid: alpha\nname: Alpha Service\nowner: team-a\nlifecycle: production\nrepo: https://example.com/alpha\n---\n\n# Alpha\n`,
+    );
+
+    const first = await loadCatalog(tempDir);
+    const second = await loadCatalog(tempDir);
+
+    expect(first.services).toHaveLength(1);
+    expect(second.services).toHaveLength(1);
+    expect(localLoadSpy).toHaveBeenCalledTimes(1);
+
+    localLoadSpy.mockRestore();
   });
 });

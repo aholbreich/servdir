@@ -1,6 +1,5 @@
 ---
-import Card from '../components/ui/Card.astro';
-import SectionTitle from '../components/ui/SectionTitle.astro';
+import CatalogHero from '../components/catalog/CatalogHero.astro';
 import CatalogStatusCard from '../components/catalog/CatalogStatusCard.astro';
 import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -16,14 +15,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
 
 <BaseLayout title="servdir — Service Catalog">
   <section class="mb-7 grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,0.9fr)]">
-    <Card class="p-7">
-      <p class="muted mb-2.5 text-[0.82rem] tracking-[0.02em]">Servdir - Simple Service Catalog</p>
-      <SectionTitle level="h1" class="mb-3 tracking-[-0.03em]">{config.catalogTitle}</SectionTitle>
-      <p class="muted max-w-5xl leading-7">
-        Git is the database. Markdown files are the source of truth. 
-      </p>
-
-    </Card>
+    <CatalogHero title={config.catalogTitle} />
 
     <CatalogStatusCard
       servicesCount={catalog.services.length}
@@ -31,6 +23,8 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       servicesWithIssues={servicesWithIssues}
       generatedAt={catalog.generatedAt}
       buildVersion={config.appBuildVersion}
+      snapshotStatus={catalog.snapshotStatus}
+      snapshotError={catalog.snapshotError}
       localCatalogPath={config.localCatalogPath}
     />
   </section>

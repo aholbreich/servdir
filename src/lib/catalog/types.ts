@@ -31,8 +31,12 @@ export type ServiceRecord = {
   issues: ValidationIssue[];
 };
 
+export type CatalogSnapshotStatus = 'fresh' | 'stale';
+
 export type Catalog = {
   generatedAt: string;
   services: ServiceRecord[];
   servicesById: Map<string, ServiceRecord>;
+  snapshotStatus: CatalogSnapshotStatus;
+  snapshotError?: string;
 };
