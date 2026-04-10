@@ -328,7 +328,7 @@ This discovers paths like:
 ## Catalog merge behavior
 
 `servdir` merges services from:
-- local catalog files
+- local catalog files when `LOCAL_CATALOG_PATH` is configured
 - all configured managed Git sources
 
 Then it validates the merged set together.

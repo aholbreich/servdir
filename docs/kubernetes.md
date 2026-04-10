@@ -36,13 +36,14 @@ This guide describes how to run `servdir` in Kubernetes with:
 2. **Managed Git sources** via `GIT_SOURCES`
 
 At startup the app:
-- scans local catalog files from `LOCAL_CATALOG_PATH`
+- scans local catalog files from `LOCAL_CATALOG_PATH` when configured
 - syncs configured Git repositories into local checkout paths
 - scans configured subpaths in those checkouts
-- merges and validates all discovered service definitions
+- merges and validates all discovered service definitions into an in-memory snapshot
 
 After startup, managed Git sources are refreshed periodically by an in-process scheduler.
-Requests read from the local checkout cache and do not perform Git sync work.
+Requests read from the in-memory catalog snapshot and do not perform Git sync work.
+If a refresh fails later, servdir keeps serving the last known good snapshot and marks the snapshot state as stale.
 
 If Basic Auth is enabled, all application routes are protected with HTTP Basic Auth.
 
@@ -317,7 +318,7 @@ kind: Deployment
 metadata:
   name: servdir
 spec:
-  replicas: 1 # Adoppt replicas to your liking
+  replicas: 1 # Adjust replicas to your liking
   progressDeadlineSeconds: 120 # Should be fine for this tiny service
   revisionHistoryLimit: 3
   selector:
@@ -436,7 +437,8 @@ This is useful for:
 - gradual migration from local-only to managed Git sources
 
 ### Performance note
-Current implementation pulls managed Git sources on startup/request path. This is fine for the first implementation, but it can slow page loads. If that becomes a problem, add a sync TTL or separate refresh loop later instead of pulling on every request.
+Current implementation keeps an in-memory catalog snapshot and refreshes it after managed Git sync cycles. Requests do not pull or rescan sources on every page render.
+If later scale or observability needs grow, extend the explicit cache subsystem rather than pushing sync work back onto the request path.
 
 ### Security note
 Prefer repository-scoped access keys over personal credentials when possible. Basic Auth should be used only behind HTTPS.
@@ -454,6 +456,7 @@ But this should be the exception, not the default.
 You can test the same configuration outside Kubernetes by setting:
 
 ```env
+LOCAL_CATALOG_PATH=./catalog
 BASIC_AUTH_ENABLED=true
 BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=secret

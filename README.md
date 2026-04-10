@@ -8,9 +8,9 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 - [Features](#features)
 - [Current stack](#current-stack)
 - [Usage](#usage)
-  - [Running Localy](#running-localy)
-  - [Test localy](#test-localy)
-  - [Build localy](#build-localy)
+  - [Running locally](#running-locally)
+  - [Test locally](#test-locally)
+  - [Build locally](#build-locally)
   - [Running locally, but closer to prod setup Docker / Podman](#running-locally-but-closer-to-prod-setup-docker--podman)
 - [Managed Git behavior](#managed-git-behavior)
 - [Service definition and Discovery](#service-definition-format)
@@ -35,7 +35,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 
 ## Usage
 
-### Running Localy
+### Running locally
 ```bash
 pnpm install
 cp .env.example .env
@@ -44,14 +44,15 @@ pnpm dev
 
 Then open `http://localhost:4321` to see the catalog running on your machine.
 
-The default local catalog path is `./catalog`, so if you start the service as shown above, you will see some example services.
+For local file-based catalog development, set `LOCAL_CATALOG_PATH=./catalog` in `.env`.
+The app requires at least one configured source, either `LOCAL_CATALOG_PATH` or `GIT_SOURCES`.
 
-### Test localy
+### Test locally
 ```bash
 pnpm test
 ```
 
-### Build localy
+### Build locally
 ```bash
 pnpm build
 pnpm preview
@@ -119,7 +120,7 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 - `/etc/servdir/ssh/known_hosts`
 
 ## Service definition format
-See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, Markdown body behavior, validation, and [Disovery Rules](service-definition.md#discovery-rules).
+See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
 
 ## Kubernetes
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.

@@ -11,10 +11,10 @@ Service information is often incomplete, stale, hard to discover, and spread acr
 - what depends on what
 - where to find operational links like runbooks
 
-Existion soulutions are often overkill (See Backstage) or solving not exactly this problem (port) or depend on ecosystem (Atlassian Compas)
+Existing solutions are often overkill (see Backstage), solve a somewhat different problem (Port), or depend heavily on a surrounding ecosystem (Atlassian Compass).
 
 ## Goal
-Create an MVP that creates overview of the services in the organisation ore tea. Service Catalog allowing easy to maintain in Git and pleasant to browse in a web UI.
+Create an MVP that gives an overview of services in an organisation or team. The service catalog should be easy to maintain in Git and pleasant to browse in a web UI.
 
 ## Non-Goals
 For the MVP, do not build:
@@ -43,7 +43,7 @@ Secondary users:
 - As an engineer, I want to read a human-friendly service description without leaving the catalog.
 - As an engineer, I want to see repo, Ci/CD details, and tags in one place.
 - As an engineer, I want to understand dependencies between services (or other components)
-- As an engineer, I want quickly find relevant dashboard alertings or configuration detals to the particular service
+- As an engineer, I want to quickly find relevant dashboards, alerting, or configuration details for a particular service.
 - As an engineer, I want to find service architecture context, such as Pulumi-generated infrastructure diagrams, Mermaid diagrams, PlantUML diagrams, or Structurizr/C4 views, from the same service page.
 - As a maintainer, I want to update service metadata by editing a Markdown file in Git.
 
