@@ -43,6 +43,7 @@ export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
         runbook: typeof parsed.data.runbook === 'string' ? parsed.data.runbook : undefined,
         links: Array.isArray(parsed.data.links) ? parsed.data.links as Array<{ label: string; url: string }> : undefined,
         openapi: Array.isArray(parsed.data.openapi) ? parsed.data.openapi as Array<{ label: string; url: string }> : undefined,
+        delivery: Array.isArray(parsed.data.delivery) ? parsed.data.delivery as Array<{ label: string; url?: string; text?: string }> : undefined,
         system: typeof parsed.data.system === 'string' ? parsed.data.system : undefined,
         domain: typeof parsed.data.domain === 'string' ? parsed.data.domain : undefined,
       };

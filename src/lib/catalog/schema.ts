@@ -10,6 +10,15 @@ const openApiSchema = z.object({
   url: z.string().url(),
 });
 
+const deliverySchema = z.object({
+  label: z.string().min(1),
+  url: z.string().url().optional(),
+  text: z.string().min(1).optional(),
+}).refine((value) => Boolean(value.url || value.text), {
+  message: 'delivery entry must include at least one of url or text',
+  path: ['url'],
+});
+
 export const serviceFrontmatterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -23,6 +32,7 @@ export const serviceFrontmatterSchema = z.object({
   runbook: z.string().url().optional(),
   links: z.array(linkSchema).optional(),
   openapi: z.array(openApiSchema).optional(),
+  delivery: z.array(deliverySchema).optional(),
   system: z.string().optional(),
   domain: z.string().optional(),
 });

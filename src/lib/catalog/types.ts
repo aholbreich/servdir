@@ -18,6 +18,7 @@ export type ServiceFrontmatter = {
   runbook?: string;
   links?: Array<{ label: string; url: string }>;
   openapi?: Array<{ label: string; url: string }>;
+  delivery?: Array<{ label: string; url?: string; text?: string }>;
   system?: string;
   domain?: string;
 };

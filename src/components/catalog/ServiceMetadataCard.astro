@@ -27,6 +27,13 @@ const openApiItems = (service.data.openapi ?? []).map((entry) => ({
   href: entry.url,
   text: 'OpenAPI spec ↗',
 }));
+
+const deliveryItems = (service.data.delivery ?? []).map((entry) => ({
+  label: entry.label,
+  value: entry.text,
+  href: entry.url,
+  text: entry.url ? 'Open pipeline ↗' : undefined,
+}));
 ---
 
 <>
@@ -39,6 +46,13 @@ const openApiItems = (service.data.openapi ?? []).map((entry) => ({
     <Card>
       <SectionTitle class="mb-[14px]">OpenAPI</SectionTitle>
       <KeyValueList items={openApiItems} />
+    </Card>
+  )}
+
+  {deliveryItems.length > 0 && (
+    <Card>
+      <SectionTitle class="mb-[14px]">Delivery</SectionTitle>
+      <KeyValueList items={deliveryItems} />
     </Card>
   )}
 </>

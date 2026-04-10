@@ -48,6 +48,11 @@ links:
 openapi:
   - label: Public API
     url: https://example.com/openapi/billing-api.yaml
+delivery:
+  - label: GitHub Actions
+    url: https://github.com/acme/billing-api/actions
+  - label: Deployment pipeline # CI & CD
+    text: Managed in platform-infra repository
 system: payments
 domain: finance
 ---
@@ -235,6 +240,29 @@ openapi:
 
 This field is intended for machine-readable API definitions that are important enough to model separately from generic links.
 
+### `delivery`
+Delivery or pipeline references for the service.
+
+Expected:
+- array of objects
+- each object must include:
+  - `label`: non-empty string
+- each object must also include at least one of:
+  - `url`: valid absolute URL
+  - `text`: non-empty string
+
+Example:
+```yaml
+# Your CI & CD details
+delivery:
+  - label: GitHub Actions
+    url: https://github.com/acme/billing-api/actions
+  - label: Deployment pipeline 
+    text: Managed in platform-infra repository
+```
+
+Use this field for CI/CD and delivery references that should be shown separately from generic links.
+
 ### `system`
 Optional larger system grouping.
 
@@ -353,6 +381,8 @@ Examples of validation problems:
 - `tier` is not a positive integer
 - `links[].url` is not a valid URL
 - `openapi[].url` is not a valid URL
+- `delivery[]` is missing both `url` and `text`
+- `delivery[].url` is not a valid URL
 - duplicate `id`
 - unresolved `depends_on`
 
