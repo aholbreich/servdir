@@ -22,6 +22,7 @@ const deliverySchema = z.object({
 export const serviceFrontmatterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
+  kind: z.string().min(1).default('service'),
   owner: z.string().min(1),
   lifecycle: z.string().min(1),
   repo: z.string().url(),

@@ -1,6 +1,7 @@
 ---
 id: billing-api
 name: Billing API
+kind: service
 owner: team-payments
 lifecycle: production
 repo: https://github.com/acme/billing-api

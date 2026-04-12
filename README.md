@@ -2,6 +2,8 @@
 
 Servdir aims to be a simple service catalog for engineers. Markdown files are the source of truth.
 
+Even though the product started service-first, entries can now declare a broader `kind` such as `service` or `application`. If `kind` is omitted, it defaults to `service`.
+
 The catalog title defaults to `Service Catalog`, but can be overridden with `CATALOG_TITLE`.
 
 ## Table of Contents
@@ -146,7 +148,7 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 - `/etc/servdir/ssh/known_hosts`
 
 ## Service definition format
-See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
+See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, including `kind`, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
 
 ## Kubernetes
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.

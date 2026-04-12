@@ -15,6 +15,7 @@ const hasIssues = service.issues.length > 0;
 
 const attributeItems = [
   { icon: '🆔', value: service.data.id },
+  { icon: '📦', value: service.data.kind },
   { icon: '👤', value: service.data.owner },
   { icon: '🔄', value: service.data.lifecycle },
   ...(service.data.system ? [{ icon: '🧩', value: service.data.system }] : []),
@@ -26,7 +27,7 @@ const attributeItems = [
 <Card class="mb-5 p-[26px]">
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
-      <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">Service</p>
+      <p class="muted mb-2 text-[0.82rem] uppercase tracking-[0.03em]">{service.data.kind}</p>
       <SectionTitle level="h1" class="mb-3">{service.data.name}</SectionTitle>
       <div class="mt-0.5 flex flex-wrap gap-2 text-[0.9rem] leading-5">
         {attributeItems.map((item) => (

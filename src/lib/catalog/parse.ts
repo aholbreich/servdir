@@ -33,6 +33,7 @@ export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
     : {
         id: String(parsed.data.id ?? 'unknown-service'),
         name: String(parsed.data.name ?? 'Unknown Service'),
+        kind: typeof parsed.data.kind === 'string' && parsed.data.kind.trim().length > 0 ? parsed.data.kind : 'service',
         owner: String(parsed.data.owner ?? 'unknown-owner'),
         lifecycle: String(parsed.data.lifecycle ?? 'unknown'),
         repo: String(parsed.data.repo ?? 'https://invalid.local'),

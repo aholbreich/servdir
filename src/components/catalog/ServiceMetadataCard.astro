@@ -11,6 +11,7 @@ export interface Props {
 const { service } = Astro.props;
 
 const metadataItems = [
+  { label: 'Kind', value: service.data.kind },
   { label: 'Repository', href: service.data.repo, text: 'Open repository ↗' },
   { label: 'Runbook', href: service.data.runbook, text: 'Open runbook ↗' },
   { label: 'System', value: service.data.system },

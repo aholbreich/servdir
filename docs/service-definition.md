@@ -32,6 +32,7 @@ name: Billing API
 owner: team-payments
 lifecycle: production
 repo: https://github.com/acme/billing-api
+kind: service
 description: Core billing service for invoice creation
 tier: 2
 tags:
@@ -78,6 +79,9 @@ Example:
 ```yaml
 id: billing-api
 ```
+
+Note:
+- `id` remains the stable primary identifier even when `kind` broadens the entry type beyond classic services
 
 Notes:
 - duplicate ids are reported as validation errors
@@ -134,6 +138,24 @@ repo: https://github.com/acme/billing-api
 ```
 
 ## Optional front matter fields
+
+### `kind`
+Optional catalog entry kind.
+
+Expected:
+- non-empty string
+
+Example:
+```yaml
+kind: service
+kind: application
+kind: frontend
+```
+
+Default behavior:
+- if omitted, `servdir` defaults this field to `service`
+
+Use this field when the catalog should include things broader than backend services, for example applications or other entry types.
 
 ### `description`
 Short summary of the service.

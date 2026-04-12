@@ -30,7 +30,7 @@ Notes:
 ### See service ownership and core metadata
 **Status:** `supported`
 
-As an engineer, I want to see owner, lifecycle, repo, tags, system, domain, and related metadata in one place.
+As an engineer, I want to see owner, lifecycle, kind, repo, tags, system, domain, and related metadata in one place.
 
 ### Read human-friendly service documentation
 **Status:** `supported`
@@ -107,6 +107,16 @@ Acceptance notes:
 - both views should render the same underlying service set
 - the active view should be obvious in the UI
 - the compact list should prioritize fast scanning over rich decoration
+
+### Classify entries beyond backend services
+**Status:** `supported`
+
+As a maintainer, I want catalog entries to declare a `kind` so the catalog can represent things like services, applications, or other engineering assets without renaming the whole product.
+
+Acceptance notes:
+- `kind` should be optional in front matter
+- omitted `kind` should default to `service`
+- `kind` should be visible in the UI and documented in the service definition reference
 
 ## Planned
 

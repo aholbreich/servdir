@@ -10,7 +10,17 @@ describe('parseServiceContent', () => {
 
     expect(service.filePath).toContain('/tmp/catalog-source');
     expect(service.data.id).toBe('billing-api');
+    expect(service.data.kind).toBe('service');
     expect(service.slug).toBe('billing-api');
     expect(service.issues).toEqual([]);
+  });
+
+  it('uses an explicitly provided kind when present', () => {
+    const service = parseServiceContent({
+      filePath: '/tmp/catalog-source/services/servdir/service.md',
+      raw: `---\nid: servdir\nname: Servdir\nkind: application\nowner: team-platform\nlifecycle: experimental\nrepo: https://example.com/servdir\n---\n\n# Servdir\n`,
+    });
+
+    expect(service.data.kind).toBe('application');
   });
 });

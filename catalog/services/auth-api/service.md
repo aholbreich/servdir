@@ -1,6 +1,7 @@
 ---
 id: auth-api
 name: Auth API
+kind: service
 owner: team-platform
 lifecycle: production
 repo: https://github.com/acme/auth-api

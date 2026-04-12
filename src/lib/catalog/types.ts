@@ -8,6 +8,7 @@ export type ValidationIssue = {
 export type ServiceFrontmatter = {
   id: string;
   name: string;
+  kind: string;
   owner: string;
   lifecycle: string;
   repo: string;

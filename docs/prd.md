@@ -14,7 +14,7 @@ Service information is often incomplete, stale, hard to discover, and spread acr
 Existing solutions are often overkill (see Backstage), solve a somewhat different problem (Port), or depend heavily on a surrounding ecosystem (Atlassian Compass).
 
 ## Goal
-Create an MVP that gives an overview of services in an organisation or team. The service catalog should be easy to maintain in Git and pleasant to browse in a web UI.
+Create an MVP that gives an overview of services and related engineering entries in an organisation or team. The catalog should be easy to maintain in Git and pleasant to browse in a web UI.
 
 ## Non-Goals
 For the MVP, do not build:
@@ -59,6 +59,7 @@ Keep this PRD focused on product scope, UX expectations, and constraints. Use th
 - `repo`
 
 ### Optional service fields
+- `kind` (defaults to `service` when omitted)
 - `description`
 - `tier`
 - `tags`
