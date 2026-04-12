@@ -5,18 +5,13 @@ import ServiceHeader from '../../components/catalog/ServiceHeader.astro';
 import ServiceMetadataCard from '../../components/catalog/ServiceMetadataCard.astro';
 import ServiceValidationCard from '../../components/catalog/ServiceValidationCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getConfig } from '../../lib/config';
-import { loadCatalog } from '../../lib/catalog';
+import { loadConfiguredServicePage } from '../../lib/catalog';
 
-const config = getConfig();
 const id = Astro.params.id;
 console.info(`[page:/services/[id]] rendering service route for id=${id}`);
-const catalog = await loadCatalog(config.localCatalogPath, {
-  gitSources: config.gitSources,
-});
-const service = catalog.services.find((entry) => entry.slug === id || entry.data.id === id);
+const servicePage = await loadConfiguredServicePage(id);
 
-if (!service) {
+if (!servicePage) {
   console.warn(`[page:/services/[id]] service not found for id=${id}`);
   return new Response(null, {
     status: 404,
@@ -26,10 +21,7 @@ if (!service) {
   });
 }
 
-const dependencies = (service.data.depends_on ?? []).map((dependencyId) => ({
-  id: dependencyId,
-  service: catalog.servicesById.get(dependencyId),
-}));
+const { service, dependencies } = servicePage;
 ---
 
 <BaseLayout title={`${service.data.name} — servdir`}>

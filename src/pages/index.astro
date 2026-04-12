@@ -4,11 +4,12 @@ import CatalogStatusCard from '../components/catalog/CatalogStatusCard.astro';
 import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getConfig } from '../lib/config';
-import { loadCatalog } from '../lib/catalog';
-
+import { loadConfiguredCatalog } from '../lib/catalog';
+// This page is the entry point for the service catalog. 
+// It loads the catalog data and renders the hero section, status card, and grid of services.
 const config = getConfig();
 console.info('[page:/] rendering catalog index');
-const catalog = await loadCatalog(config.localCatalogPath, { gitSources: config.gitSources, });
+const catalog = await loadConfiguredCatalog();
 const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;
 ---

@@ -56,3 +56,10 @@ export async function loadCatalog(localCatalogRoot: string | undefined, options:
 
   return refreshCatalogCache(localCatalogRoot, gitSources);
 }
+
+export async function loadConfiguredCatalog(): Promise<Catalog> {
+  const config = getConfig();
+  return loadCatalog(config.localCatalogPath, {
+    gitSources: config.gitSources,
+  });
+}
