@@ -18,9 +18,8 @@ Before making architectural or product-level changes, read:
 
 ## Current Architecture Direction
 - Use TypeScript end-to-end
-- Use Astro for the MVP UI and web app shell
+- Use Astro web app shell
 - Keep the product simple and content-centric
-- Prefer server-rendered pages first
 - Add React or other islands only when real interactivity demands it
 
 ## Key Constraints
@@ -29,25 +28,19 @@ Before making architectural or product-level changes, read:
 - Keep production deployment Docker-friendly
 - Keep local development fast and possible without Docker
 - Treat catalog files and config as external to the production image
+- Keep the default Node server runtime stable, static export is additive and should not quietly break the primary deployment path
 
 ## Source of Truth
 Shared project truth lives in repository files, not in conversation history.
 
 Use these layers (docs) deliberately:
 - `docs/prd.md` for product intent and scope
+- `docs/user-stories.md` for feature pipeline and planing
 - `.adr/` for architecture decisions (assume adr cli or install it https://github.com/aholbreich/adr-tool)
 - `docs/working-notes.md` for active thinking, unresolved questions, and design residue
 
 ## Decision Rules
-Create or update an ADR when changing:
-- core stack choices
-- deployment model
-- source-of-truth model
-- sync / scheduler model
-- persistence model
-- major architecture boundaries
-- API decisions
-
+Create or update an ADR when changing architecture.
 Do not create ADRs for small implementation details.
 Think API first. Ask if unsure.
 
@@ -59,13 +52,9 @@ Good:
 - clear domain types
 - explicit adapters
 - straightforward config handling
+- page-model loaders for page-specific orchestration instead of pushing catalog traversal into page files
+- extending the local component set before reaching for an external UI/component library
 
-Avoid early:
-- generic plugin systems
-- overbuilt event systems
-- distributed jobs
-- premature microservices
-- frontend complexity without proven need
 
 ## Future Features
 A likely next feature is periodic scanning of configured repositories.
@@ -83,10 +72,22 @@ When making meaningful changes:
 3. prefer commit messages that explain intent
 
 ## Testing instructions
-- Find the CI plan in the .github/workflows folder.
-- From the package root you can just call `pnpm test`. The commit should pass all tests before you merge.
-- Fix any test or type errors until the whole suite is green.
+- Find the CI plan in the `.github/workflows` folder.
 - Add or update tests for the code you change, even if nobody asked.
+- Fix any test or type errors until the whole suite is green.
+
+Default verification baseline:
+- `pnpm test && pnpm build`
+
+When changes touch build config, routing, page generation, deployment mode handling, middleware behavior, or catalog loading paths, also verify the static flavor explicitly:
+- `pnpm build:static`
+
+If you change static-preview behavior or static-hosting instructions, also sanity-check:
+- `pnpm preview:static`
+
+Important:
+- the default Node/server build is still the primary deployment path and must not regress silently
+- static export is a secondary mode and should be verified when relevant, not forgotten
 
 ## If You Are Another Agent / Another Machine
 Assume no conversational memory.
