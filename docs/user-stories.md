@@ -77,6 +77,22 @@ Notes:
 - local file sources are supported
 - managed Git sources are supported
 
+### Switch between card view and compact list view
+**Status:** `supported`
+
+As a service inventory user, I want to switch between a card view and a thin list view so I can either browse comfortably or scan many services quickly.
+
+Notes:
+- card view is useful for richer browsing and visual grouping
+- thin list view is useful for seeing the whole picture and finding a specific service faster
+- the view should be toggleable dynamically from the catalog page
+
+Acceptance notes:
+- switching views should not require navigating to another page
+- both views should render the same underlying service set
+- the active view should be obvious in the UI
+- the compact list should prioritize fast scanning over rich decoration
+
 ## Planned
 
 ### Search services by name or id
@@ -107,30 +123,16 @@ Acceptance notes:
 - values should map to existing service metadata
 - should work together with owner and tag filters
 
-### Filter services by tags
+### Navigate by tags
 **Status:** `planned`
 
-As an engineer, I want to filter services by tags so I can narrow the catalog to a technology, domain, or concern.
+As an engineer, I want to find services by tags so I can narrow the catalog to a technology, domain, or concern. 
 
 Acceptance notes:
-- should support more than one meaningful tag value over time
-- empty-result handling should stay clear and friendly
+- When tag is visible (#tag) it should be link.
+- There should be a tag page for every Tag that list all services having this tag
+- Tag cloud page should list all tags
 
-### Switch between card view and compact list view
-**Status:** `supported`
-
-As a service inventory user, I want to switch between a card view and a thin list view so I can either browse comfortably or scan many services quickly.
-
-Notes:
-- card view is useful for richer browsing and visual grouping
-- thin list view is useful for seeing the whole picture and finding a specific service faster
-- the view should be toggleable dynamically from the catalog page
-
-Acceptance notes:
-- switching views should not require navigating to another page
-- both views should render the same underlying service set
-- the active view should be obvious in the UI
-- the compact list should prioritize fast scanning over rich decoration
 
 ## Proposed
 
