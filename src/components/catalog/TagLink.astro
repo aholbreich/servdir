@@ -1,5 +1,6 @@
 ---
 import { toTagSlug } from '../../lib/catalog';
+import { toAppPath } from '../../lib/paths';
 
 export interface Props {
   tag: string;
@@ -10,4 +11,4 @@ const { tag, class: className = '' } = Astro.props;
 const slug = toTagSlug(tag);
 ---
 
-<a href={`/tags/${slug}`} class:list={['catalog-tag-link font-medium', className]}>#{tag}</a>
+<a href={toAppPath(`/tags/${slug}`)} class:list={['catalog-tag-link font-medium', className]}>#{tag}</a>

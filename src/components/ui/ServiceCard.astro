@@ -2,6 +2,7 @@
 import Card from "./Card.astro";
 import IssueList from "./IssueList.astro";
 import TagLink from "../catalog/TagLink.astro";
+import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from "../../lib/catalog";
 
 export interface Props {
@@ -23,7 +24,7 @@ const hasIssues = service.issues.length > 0;
     <h2
       class="min-w-0 text-[1.2rem] leading-tight font-semibold text-slate-950 sm:text-[1.28rem]"
     >
-      <a href={`/services/${service.slug}`}>{service.data.name}</a>
+      <a href={toAppPath(`/services/${service.slug}`)}>{service.data.name}</a>
     </h2>
     <span class="muted text-[0.82rem]">{service.data.id}</span>
     {
@@ -62,7 +63,7 @@ const hasIssues = service.issues.length > 0;
         ))
       }
     </div>
-    <a href={`/services/${service.slug}`}>View details →</a>
+    <a href={toAppPath(`/services/${service.slug}`)}>View details →</a>
   </div>
 
   {hasIssues && <IssueList issues={service.issues} class="mt-3 gap-1.5" />}

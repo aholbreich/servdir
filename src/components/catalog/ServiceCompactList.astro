@@ -1,5 +1,6 @@
 ---
 import TagLink from './TagLink.astro';
+import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from "../../lib/catalog";
 
 export interface Props {
@@ -24,7 +25,7 @@ const tagsColumnWidthCh = Math.max(
     services.map((service) => (
       <li>
         <div class="catalog-list-row catalog-list-grid px-4 py-3 sm:px-5">
-          <a href={`/services/${service.slug}`} class="catalog-list-main-link contents">
+          <a href={toAppPath(`/services/${service.slug}`)} class="catalog-list-main-link contents">
             <span class="catalog-list-id muted text-[0.84rem]">{service.data.id}</span>
 
             <span class="catalog-list-row-title min-w-0 truncate text-[1rem] font-semibold text-slate-950">

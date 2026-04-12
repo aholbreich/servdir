@@ -1,6 +1,7 @@
 ---
 import Card from '../ui/Card.astro';
 import SectionTitle from '../ui/SectionTitle.astro';
+import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from '../../lib/catalog';
 
 export interface DependencyItem {
@@ -22,7 +23,7 @@ const { dependencies } = Astro.props;
       {dependencies.map((dependency) => (
         <li>
           {dependency.service ? (
-            <a href={`/services/${dependency.service.slug}`}>{dependency.id}</a>
+            <a href={toAppPath(`/services/${dependency.service.slug}`)}>{dependency.id}</a>
           ) : (
             dependency.id
           )}

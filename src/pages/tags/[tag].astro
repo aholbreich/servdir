@@ -3,6 +3,7 @@ import CatalogHero from '../../components/catalog/CatalogHero.astro';
 import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { listConfiguredTagPaths, loadConfiguredTagPage } from '../../lib/catalog';
+import { toAppPath } from '../../lib/paths';
 
 // Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
@@ -16,7 +17,7 @@ if (!tagPage) {
   return new Response(null, {
     status: 404,
     headers: {
-      Location: '/404',
+      Location: toAppPath('/404'),
     },
   });
 }
@@ -25,7 +26,7 @@ const { tag, services } = tagPage;
 ---
 
 <BaseLayout title={`#${tag.label} — servdir`}>
-  <p class="mb-4 flex flex-wrap gap-4"><a href="/">← Back to catalog</a><a href="/tags">All tags</a></p>
+  <p class="mb-4 flex flex-wrap gap-4"><a href={toAppPath('/')}>← Back to catalog</a><a href={toAppPath('/tags')}>All tags</a></p>
 
   <section class="mb-7">
     <CatalogHero

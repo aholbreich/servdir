@@ -22,7 +22,9 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 * Service descriptions are written in Markdown
 * Git can be the source of truth, and multiple Git repos can be mixed in
 * Basic Auth protection
-* Dual deployment support: default Node server runtime plus explicit static export mode
+* Dual deployment support: 
+  * Default Node server runtime (Selfupdating)
+  * Render the serdir as static catalog and host it on CDN
 
 ## Current stack
 - Astro
@@ -66,10 +68,17 @@ pnpm build:static
 pnpm preview:static
 ```
 
+GitHub Pages-style local test:
+```bash
+SERVDIR_BASE_PATH=/servdir pnpm build:static
+SERVDIR_BASE_PATH=/servdir pnpm preview:static
+```
+
 Important:
 - the default mode remains the Node server runtime
 - static mode is opt-in via `SERVDIR_BUILD_MODE=static`
 - static mode renders from build-time catalog sources and does not include runtime scheduler/auth behavior
+- GitHub Pages deployment uses the repository-local catalog (`LOCAL_CATALOG_PATH=./catalog`) as its build-time source by default
 
 ### Create and push a release tag
 Use the interactive helper to inspect recent tags, create a new annotated tag, and optionally push it:
@@ -157,6 +166,7 @@ Characteristics:
 - good fit for local static preview and GitHub Pages-style hosting
 - build-time catalog snapshot
 - no runtime scheduler or middleware auth behavior
+- GitHub Pages deployment is wired through `.github/workflows/pages.yml`
 
 ## Development docs
 Developer relevant docs in the project:

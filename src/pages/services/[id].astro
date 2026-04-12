@@ -6,6 +6,7 @@ import ServiceMetadataCard from '../../components/catalog/ServiceMetadataCard.as
 import ServiceValidationCard from '../../components/catalog/ServiceValidationCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { listConfiguredServicePaths, loadConfiguredServicePage } from '../../lib/catalog';
+import { toAppPath } from '../../lib/paths';
 
 // Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
@@ -21,7 +22,7 @@ if (!servicePage) {
   return new Response(null, {
     status: 404,
     headers: {
-      Location: '/404',
+      Location: toAppPath('/404'),
     },
   });
 }
@@ -30,7 +31,7 @@ const { service, dependencies } = servicePage;
 ---
 
 <BaseLayout title={`${service.data.name} — servdir`}>
-  <p class="mb-4"><a href="/">← Back to catalog</a></p>
+  <p class="mb-4"><a href={toAppPath('/')}>← Back to catalog</a></p>
 
   <ServiceHeader service={service} />
 

@@ -10,6 +10,8 @@ interface ImportMetaEnv {
   readonly GIT_SYNC_INTERVAL_MS?: string;
   readonly GIT_SOURCES?: string;
   readonly SERVDIR_BUILD_MODE?: string;
+  readonly SERVDIR_BASE_PATH?: string;
+  readonly SERVDIR_SITE_URL?: string;
 }
 
 interface ImportMeta {
