@@ -138,6 +138,7 @@ The MVP is successful if:
 - engineers can find a service in under 30 seconds
 - metadata changes happen via normal Git review flow
 - the catalog feels easier to update than Confluence
+- the same catalog model can be deployed either as the default Node server runtime or as a static export when a simpler hosting target is preferred
 
 ## Architecture Overview
 The system has four parts:
@@ -148,8 +149,9 @@ The system has four parts:
 
 Deployment/runtime model:
 - local development runs directly without Docker
-- production runs as a Docker container
-- catalog content is provided from an external path
+- the default production path runs as a Docker container with the Node server runtime
+- the product should also support an explicit static export mode for simple hosting targets such as GitHub Pages
+- catalog content is provided from an external path or other build-time source configuration
 - configuration is provided through environment variables
 
 ## Technical Direction
@@ -166,6 +168,23 @@ Recommended stack for MVP:
 - Astro is simple, fast, and a good fit for content-heavy interfaces.
 - The UI can remain mostly server-rendered and avoid SPA complexity early on.
 - You can still add React or Svelte islands later only where interactivity is needed.
+
+## Deployment modes
+The product should support two deployment modes:
+
+### Default server mode
+- Node-based runtime
+- request-time routing
+- runtime config validation
+- managed Git sync and in-memory snapshot behavior
+
+### Explicit static export mode
+- build-time prerendered HTML output
+- intended for simple static hosting targets such as GitHub Pages first, with Cloudflare Pages also possible later
+- service and tag routes are generated ahead of time from the configured catalog snapshot
+- runtime-only concerns such as request middleware, Basic Auth, and scheduler-driven Git sync are intentionally not part of the static flavor
+
+The static flavor should be additive and low-risk. The default Node runtime remains the primary deployment path.
 
 ## Future Direction: Repository Scanning
 A likely next feature is periodic scanning of configured repositories for service definition files.

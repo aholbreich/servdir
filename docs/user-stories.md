@@ -77,6 +77,21 @@ Notes:
 - local file sources are supported
 - managed Git sources are supported
 
+### Build a static export for simple hosting
+**Status:** `supported`
+
+As a maintainer, I want to generate a static version of the catalog so I can publish servdir on simple static hosting platforms such as GitHub Pages.
+
+Notes:
+- the default deployment mode remains the Node-based server runtime
+- static export is an explicit secondary build mode
+- static builds render the catalog from build-time sources, not runtime sync
+
+Acceptance notes:
+- the server build remains the default and existing behavior should stay unchanged
+- static mode should generate service and tag pages ahead of time
+- static mode should be testable locally before using a static host
+
 ### Switch between card view and compact list view
 **Status:** `supported`
 

@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly BASIC_AUTH_PASSWORD?: string;
   readonly GIT_SYNC_INTERVAL_MS?: string;
   readonly GIT_SOURCES?: string;
+  readonly SERVDIR_BUILD_MODE?: string;
 }
 
 interface ImportMeta {

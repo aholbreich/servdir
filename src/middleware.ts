@@ -1,6 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getConfig, tryGetConfig } from './lib/config';
 import { isAuthorized } from './lib/auth';
+import { isStaticBuildMode } from './lib/build-mode';
 
 function misconfiguredResponse(): Response {
   return new Response('Servdir is misconfigured. Please check startup logs.', {
@@ -12,6 +13,12 @@ function misconfiguredResponse(): Response {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Static builds do not execute request-time auth or misconfiguration handling.
+  // Those concerns only apply to the server runtime path.
+  if (isStaticBuildMode()) {
+    return next();
+  }
+
   const configResolution = tryGetConfig();
 
   if (!configResolution.ok) {

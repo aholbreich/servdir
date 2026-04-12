@@ -87,3 +87,13 @@ export async function loadConfiguredTagPage(tagSlug: string | undefined): Promis
     services,
   };
 }
+
+export async function listConfiguredTagPaths(): Promise<Array<{ params: { tag: string } }>> {
+  const { tags } = await loadConfiguredTagsIndex();
+
+  return tags.map((tag) => ({
+    params: {
+      tag: tag.slug,
+    },
+  }));
+}

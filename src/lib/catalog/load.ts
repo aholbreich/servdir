@@ -3,6 +3,7 @@ import { getCatalogCacheEntry, refreshCatalogCache } from './cache';
 import type { GitSourceConfig } from '../config';
 import { getConfig } from '../config';
 import { startGitSyncScheduler, waitForInitialGitSync } from '../git-sync';
+import { isStaticBuildMode } from '../build-mode';
 
 type LoadCatalogOptions = {
   gitSources?: GitSourceConfig[];
@@ -44,7 +45,9 @@ export async function loadCatalogFromSources(localCatalogRoot: string | undefine
   const gitSources = options.gitSources ?? [];
   const existingEntry = getCatalogCacheEntry(localCatalogRoot, gitSources);
 
-  if (gitSources.length > 0) {
+  // Static export mode must not start the long-lived git sync scheduler.
+  // In static builds, we only need a one-off catalog snapshot at build time.
+  if (gitSources.length > 0 && !isStaticBuildMode()) {
     await ensureGitSchedulerStarted(localCatalogRoot, gitSources);
     await waitForInitialGitSync();
   }

@@ -22,6 +22,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 * Service descriptions are written in Markdown
 * Git can be the source of truth, and multiple Git repos can be mixed in
 * Basic Auth protection
+* Dual deployment support: default Node server runtime plus explicit static export mode
 
 ## Current stack
 - Astro
@@ -53,10 +54,22 @@ pnpm test
 ```
 
 ### Build locally
+Default server build:
 ```bash
 pnpm build
 pnpm preview
 ```
+
+Static export build:
+```bash
+pnpm build:static
+pnpm preview:static
+```
+
+Important:
+- the default mode remains the Node server runtime
+- static mode is opt-in via `SERVDIR_BUILD_MODE=static`
+- static mode renders from build-time catalog sources and does not include runtime scheduler/auth behavior
 
 ### Create and push a release tag
 Use the interactive helper to inspect recent tags, create a new annotated tag, and optionally push it:
@@ -124,6 +137,26 @@ See [Service Definition Reference](./docs/service-definition.md) for the support
 
 ## Kubernetes
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
+
+## Deployment modes
+### Default server mode
+This is the normal servdir deployment mode.
+
+Characteristics:
+- Node server runtime
+- Docker-friendly
+- request-time routing
+- managed Git sync scheduler
+- runtime Basic Auth support
+
+### Static export mode
+This is an explicit secondary deployment mode for simple static hosting targets.
+
+Characteristics:
+- prerendered HTML output
+- good fit for local static preview and GitHub Pages-style hosting
+- build-time catalog snapshot
+- no runtime scheduler or middleware auth behavior
 
 ## Development docs
 Developer relevant docs in the project:

@@ -44,3 +44,13 @@ export async function loadConfiguredServicePage(idOrSlug: string | undefined): P
     dependencies: buildDependencies(service, catalog),
   };
 }
+
+export async function listConfiguredServicePaths(): Promise<Array<{ params: { id: string } }>> {
+  const catalog = await loadConfiguredCatalog();
+
+  return catalog.services.map((service) => ({
+    params: {
+      id: service.slug,
+    },
+  }));
+}

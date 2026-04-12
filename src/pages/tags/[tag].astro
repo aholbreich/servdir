@@ -2,7 +2,12 @@
 import CatalogHero from '../../components/catalog/CatalogHero.astro';
 import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadConfiguredTagPage } from '../../lib/catalog';
+import { listConfiguredTagPaths, loadConfiguredTagPage } from '../../lib/catalog';
+
+// Used only by static builds. Server builds ignore this and keep request-time routing.
+export async function getStaticPaths() {
+  return listConfiguredTagPaths();
+}
 
 const tagSlug = Astro.params.tag;
 const tagPage = await loadConfiguredTagPage(tagSlug);

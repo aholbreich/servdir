@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:static": "SERVDIR_BUILD_MODE=static astro build",
     "preview": "astro preview",
+    "preview:static": "SERVDIR_BUILD_MODE=static astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "release:notes": "bash scripts/release-notes.sh",

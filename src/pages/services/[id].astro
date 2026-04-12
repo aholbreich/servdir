@@ -5,7 +5,12 @@ import ServiceHeader from '../../components/catalog/ServiceHeader.astro';
 import ServiceMetadataCard from '../../components/catalog/ServiceMetadataCard.astro';
 import ServiceValidationCard from '../../components/catalog/ServiceValidationCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadConfiguredServicePage } from '../../lib/catalog';
+import { listConfiguredServicePaths, loadConfiguredServicePage } from '../../lib/catalog';
+
+// Used only by static builds. Server builds ignore this and keep request-time routing.
+export async function getStaticPaths() {
+  return listConfiguredServicePaths();
+}
 
 const id = Astro.params.id;
 console.info(`[page:/services/[id]] rendering service route for id=${id}`);
