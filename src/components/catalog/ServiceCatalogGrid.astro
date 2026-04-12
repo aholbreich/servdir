@@ -1,8 +1,9 @@
 ---
-import Card from "../ui/Card.astro";
-import SectionTitle from "../ui/SectionTitle.astro";
-import ServiceCard from "../ui/ServiceCard.astro";
-import type { ServiceRecord } from "../../lib/catalog";
+import Card from '../ui/Card.astro';
+import SectionTitle from '../ui/SectionTitle.astro';
+import ServiceCard from '../ui/ServiceCard.astro';
+import type { ServiceRecord } from '../../lib/catalog';
+import ServiceCompactList from './ServiceCompactList.astro';
 
 export interface Props {
   services: ServiceRecord[];
@@ -10,14 +11,74 @@ export interface Props {
 }
 
 const { services } = Astro.props;
+const toggleId = 'catalog-view-toggle';
 ---
 
 {
   services.length > 0 ? (
-    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {services.map((service) => (
-        <ServiceCard service={service} />
-      ))}
+    <section data-catalog-view-root>
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="muted text-[0.95rem]">Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
+
+        <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
+          <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="cards" aria-pressed="true">
+            Cards
+          </button>
+          <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="list" aria-pressed="false">
+            List
+          </button>
+        </div>
+      </div>
+
+      <div data-catalog-view-panel data-view="cards">
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {services.map((service) => (
+            <ServiceCard service={service} />
+          ))}
+        </section>
+      </div>
+
+      <div data-catalog-view-panel data-view="list" hidden>
+        <ServiceCompactList services={services} />
+      </div>
+
+      <script is:inline>
+        (() => {
+          const storageKey = 'servdir:catalog-view';
+          const root = document.currentScript?.closest('[data-catalog-view-root]');
+
+          if (!root) {
+            return;
+          }
+
+          const buttons = Array.from(root.querySelectorAll('[data-catalog-view-button]'));
+          const panels = Array.from(root.querySelectorAll('[data-catalog-view-panel]'));
+
+          const applyView = (view) => {
+            buttons.forEach((button) => {
+              const active = button.dataset.view === view;
+              button.classList.toggle('is-active', active);
+              button.setAttribute('aria-pressed', String(active));
+            });
+
+            panels.forEach((panel) => {
+              panel.hidden = panel.dataset.view !== view;
+            });
+          };
+
+          const savedView = window.localStorage.getItem(storageKey);
+          const initialView = savedView === 'list' ? 'list' : 'cards';
+          applyView(initialView);
+
+          buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+              const view = button.dataset.view === 'list' ? 'list' : 'cards';
+              window.localStorage.setItem(storageKey, view);
+              applyView(view);
+            });
+          });
+        })();
+      </script>
     </section>
   ) : (
     <Card class="px-6 py-14 text-center">

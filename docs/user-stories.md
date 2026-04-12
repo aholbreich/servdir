@@ -117,7 +117,7 @@ Acceptance notes:
 - empty-result handling should stay clear and friendly
 
 ### Switch between card view and compact list view
-**Status:** `planned`
+**Status:** `supported`
 
 As a service inventory user, I want to switch between a card view and a thin list view so I can either browse comfortably or scan many services quickly.
 
