@@ -9,9 +9,9 @@ description: Kernservice für Rechnungsstellung und Billing-Funktionen in intern
 tier: 2
 runbook: https://example.com/runbooks/billing-api
 tags:
-  - payments
   - backend
-  - production
+  - test
+  - example
 depends_on:
   - auth-api
 links:

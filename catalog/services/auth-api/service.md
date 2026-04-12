@@ -11,6 +11,8 @@ tags:
   - identity
   - backend
   - api
+  - test
+  - example
 runbook: https://example.com/runbooks/auth-api
 links:
   - label: Dashboard
