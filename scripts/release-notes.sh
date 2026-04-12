@@ -11,7 +11,28 @@ fi
 
 LAST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || true)"
 
+print_available_tags() {
+  local tags
+  tags="$(git tag --list)"
+
+  if [[ -n "$tags" ]]; then
+    echo
+    echo "Available tags:"
+    printf '%s\n' "$tags"
+  else
+    echo
+    echo "No tags exist in this repository yet."
+  fi
+}
+
 if [[ -n "$START_TAG" ]]; then
+  if ! git rev-parse --verify --quiet "refs/tags/${START_TAG}" >/dev/null; then
+    echo "Error: tag '${START_TAG}' does not exist locally." >&2
+    echo "Tip: check the tag name or fetch tags from origin." >&2
+    print_available_tags >&2
+    exit 1
+  fi
+
   RANGE="${START_TAG}..HEAD"
   echo "## Changes since ${START_TAG}"
 elif [[ -n "$LAST_TAG" ]]; then
