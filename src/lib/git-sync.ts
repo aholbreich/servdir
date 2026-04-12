@@ -5,11 +5,7 @@ let started = false;
 let startupSyncPromise: Promise<void> | undefined;
 let timer: NodeJS.Timeout | undefined;
 
-export function startGitSyncScheduler(
-  sources: GitSourceConfig[],
-  intervalMs: number,
-  onCycleComplete?: () => Promise<void> | void,
-): Promise<void> {
+export function startGitSyncScheduler(sources: GitSourceConfig[], intervalMs: number, onCycleComplete?: () => Promise<void> | void,): Promise<void> {
   if (started || sources.length === 0) {
     return startupSyncPromise ?? Promise.resolve();
   }
@@ -26,11 +22,7 @@ export function startGitSyncScheduler(
   return startupSyncPromise;
 }
 
-async function runScheduledSync(
-  sources: GitSourceConfig[],
-  trigger: 'startup' | 'interval',
-  onCycleComplete?: () => Promise<void> | void,
-): Promise<void> {
+async function runScheduledSync(sources: GitSourceConfig[], trigger: 'startup' | 'interval', onCycleComplete?: () => Promise<void> | void,): Promise<void> {
   const startedAt = Date.now();
   console.info(`[git-sync] ${trigger} sync cycle started for ${sources.length} source(s)`);
 
