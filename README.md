@@ -26,6 +26,10 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
   * Default Node server runtime (Selfupdating)
   * Render the serdir as static catalog and host it on CDN
 
+## Demo
+
+[Staticaly rendered Demo](https://aholbreich.github.io/servdir/) version with demo services in the `catalog folder`
+
 ## Current stack
 - Astro
 - TypeScript
