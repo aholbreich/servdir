@@ -82,6 +82,12 @@ When making meaningful changes:
 2. keep commits small and clear
 3. prefer commit messages that explain intent
 
+## Testing instructions
+- Find the CI plan in the .github/workflows folder.
+- From the package root you can just call `pnpm test`. The commit should pass all tests before you merge.
+- Fix any test or type errors until the whole suite is green.
+- Add or update tests for the code you change, even if nobody asked.
+
 ## If You Are Another Agent / Another Machine
 Assume no conversational memory.
 Recover project context from the repository itself.
