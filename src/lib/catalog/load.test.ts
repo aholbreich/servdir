@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadCatalog } from './load';
+import { loadCatalogFromSources } from './load';
 
 let tempDir: string;
 
@@ -22,7 +22,7 @@ afterEach(async () => {
   }
 });
 
-describe('loadCatalog', () => {
+describe('loadCatalogFromSources', () => {
   it('loads and sorts services by name', async () => {
     await writeService(
       'services/zeta/service.md',
@@ -34,7 +34,7 @@ describe('loadCatalog', () => {
       `---\nid: alpha\nname: Alpha Service\nowner: team-a\nlifecycle: production\nrepo: https://example.com/alpha\n---\n\n# Alpha\n`,
     );
 
-    const catalog = await loadCatalog(tempDir);
+    const catalog = await loadCatalogFromSources(tempDir);
 
     expect(catalog.services.map((service) => service.data.name)).toEqual(['Alpha Service', 'Zeta Service']);
     expect(catalog.servicesById.get('alpha')?.data.owner).toBe('team-a');
@@ -47,7 +47,7 @@ describe('loadCatalog', () => {
       `---\nid: broken\nname: Broken Service\nowner: team-x\nlifecycle: production\nrepo: not-a-url\ndepends_on:\n  - missing-service\n---\n\n# Broken\n`,
     );
 
-    const catalog = await loadCatalog(tempDir);
+    const catalog = await loadCatalogFromSources(tempDir);
     const service = catalog.services[0];
 
     expect(service).toBeDefined();
@@ -81,7 +81,7 @@ describe('loadCatalog', () => {
     );
     await fs.mkdir(path.join(tempDir, 'git-checkout', '.git'), { recursive: true });
 
-    const catalog = await loadCatalog(undefined, {
+    const catalog = await loadCatalogFromSources(undefined, {
       gitSources: [
         {
           name: 'catalog-main',
@@ -109,8 +109,8 @@ describe('loadCatalog', () => {
       `---\nid: alpha\nname: Alpha Service\nowner: team-a\nlifecycle: production\nrepo: https://example.com/alpha\n---\n\n# Alpha\n`,
     );
 
-    const first = await loadCatalog(tempDir);
-    const second = await loadCatalog(tempDir);
+    const first = await loadCatalogFromSources(tempDir);
+    const second = await loadCatalogFromSources(tempDir);
 
     expect(first.services).toHaveLength(1);
     expect(second.services).toHaveLength(1);

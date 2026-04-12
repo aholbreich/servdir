@@ -1,3 +1,8 @@
+/**
+ * Service page model and loader. This module defines the data structure for a service page, 
+ * which includes the service record and its dependencies, and provides a function to load this data based on a service ID or slug. 
+ * The loader function retrieves the catalog, finds the specified service, and builds the list of dependencies for that service.
+ */
 import { loadConfiguredCatalog } from './load';
 import type { Catalog, ServiceRecord } from './types';
 

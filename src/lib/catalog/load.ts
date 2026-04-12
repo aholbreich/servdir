@@ -1,5 +1,5 @@
 import type { Catalog } from './types';
-import { getCatalogCacheEntry, getCatalogCacheKey, refreshCatalogCache } from './cache';
+import { getCatalogCacheEntry, refreshCatalogCache } from './cache';
 import type { GitSourceConfig } from '../config';
 import { getConfig } from '../config';
 import { startGitSyncScheduler, waitForInitialGitSync } from '../git-sync';
@@ -40,10 +40,9 @@ function ensureGitSchedulerStarted(localCatalogRoot: string | undefined, gitSour
  * - after the initial sync, we serve the cached snapshot instead of rescanning on every request
  * - if a later refresh fails, the cache module keeps the last known good snapshot and marks it stale
  */
-export async function loadCatalog(localCatalogRoot: string | undefined, options: LoadCatalogOptions = {}): Promise<Catalog> {
+export async function loadCatalogFromSources(localCatalogRoot: string | undefined, options: LoadCatalogOptions = {}): Promise<Catalog> {
   const gitSources = options.gitSources ?? [];
-  const cacheKey = getCatalogCacheKey(localCatalogRoot, gitSources);
-  const existingEntry = getCatalogCacheEntry(cacheKey);
+  const existingEntry = getCatalogCacheEntry(localCatalogRoot, gitSources);
 
   if (gitSources.length > 0) {
     await ensureGitSchedulerStarted(localCatalogRoot, gitSources);
@@ -59,7 +58,7 @@ export async function loadCatalog(localCatalogRoot: string | undefined, options:
 
 export async function loadConfiguredCatalog(): Promise<Catalog> {
   const config = getConfig();
-  return loadCatalog(config.localCatalogPath, {
+  return loadCatalogFromSources(config.localCatalogPath, {
     gitSources: config.gitSources,
   });
 }

@@ -3,9 +3,8 @@ import { validateCatalog } from './validate';
 import type { Catalog, ServiceRecord } from './types';
 import type { GitSourceConfig } from '../config';
 
-export type CatalogCacheKey = string;
-
 export type CatalogCacheEntry = {
+  sourceSignature: string;
   catalog?: Catalog;
   lastRefreshStartedAt?: string;
   lastRefreshFinishedAt?: string;
@@ -14,9 +13,9 @@ export type CatalogCacheEntry = {
   refreshPromise?: Promise<Catalog>;
 };
 
-const cacheEntries = new Map<CatalogCacheKey, CatalogCacheEntry>();
+let cacheEntry: CatalogCacheEntry | undefined;
 
-export function getCatalogCacheKey(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): CatalogCacheKey {
+function getSourceSignature(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): string {
   return JSON.stringify({
     localCatalogRoot: localCatalogRoot ?? null,
     gitSources: gitSources.map((source) => ({
@@ -29,8 +28,24 @@ export function getCatalogCacheKey(localCatalogRoot: string | undefined, gitSour
   });
 }
 
-export function getCatalogCacheEntry(cacheKey: CatalogCacheKey): CatalogCacheEntry | undefined {
-  return cacheEntries.get(cacheKey);
+function getOrCreateCacheEntry(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): CatalogCacheEntry {
+  const sourceSignature = getSourceSignature(localCatalogRoot, gitSources);
+
+  if (!cacheEntry || cacheEntry.sourceSignature !== sourceSignature) {
+    cacheEntry = { sourceSignature };
+  }
+
+  return cacheEntry;
+}
+
+export function getCatalogCacheEntry(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): CatalogCacheEntry | undefined {
+  const sourceSignature = getSourceSignature(localCatalogRoot, gitSources);
+
+  if (!cacheEntry || cacheEntry.sourceSignature !== sourceSignature) {
+    return undefined;
+  }
+
+  return cacheEntry;
 }
 
 function createCatalog(services: ServiceRecord[], snapshotStatus: Catalog['snapshotStatus'], snapshotError?: string): Catalog {
@@ -60,21 +75,11 @@ async function buildCatalog(localCatalogRoot: string | undefined, gitSources: Gi
   return createCatalog(loaded.flat(), 'fresh');
 }
 
-/**
- * Refresh the cache entry for one catalog configuration.
- *
- * Important behavior:
- * - only one refresh runs at a time per cache key
- * - a successful refresh replaces the in-memory catalog
- * - a failed refresh keeps the last known good catalog and marks it stale
- * - if no catalog was ever built successfully, the error still bubbles up
- */
 export async function refreshCatalogCache(
   localCatalogRoot: string | undefined,
   gitSources: GitSourceConfig[],
 ): Promise<Catalog> {
-  const cacheKey = getCatalogCacheKey(localCatalogRoot, gitSources);
-  const entry = cacheEntries.get(cacheKey) ?? {};
+  const entry = getOrCreateCacheEntry(localCatalogRoot, gitSources);
 
   if (entry.refreshPromise) {
     return entry.refreshPromise;
@@ -112,10 +117,9 @@ export async function refreshCatalogCache(
     });
 
   entry.refreshPromise = refreshPromise;
-  cacheEntries.set(cacheKey, entry);
   return refreshPromise;
 }
 
 export function clearCatalogCache(): void {
-  cacheEntries.clear();
+  cacheEntry = undefined;
 }

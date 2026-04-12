@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { clearCatalogCache, getCatalogCacheEntry, getCatalogCacheKey, refreshCatalogCache } from './cache';
+import { clearCatalogCache, getCatalogCacheEntry, refreshCatalogCache } from './cache';
 
 let tempDir: string;
 
@@ -32,8 +32,7 @@ describe('catalog cache', () => {
     );
 
     const catalog = await refreshCatalogCache(tempDir, []);
-    const cacheKey = getCatalogCacheKey(tempDir, []);
-    const entry = getCatalogCacheEntry(cacheKey);
+    const entry = getCatalogCacheEntry(tempDir, []);
 
     expect(catalog.snapshotStatus).toBe('fresh');
     expect(entry?.catalog?.services).toHaveLength(1);
@@ -56,8 +55,7 @@ describe('catalog cache', () => {
     const loadSpy = vi.spyOn(localSources, 'loadLocalServices').mockRejectedValueOnce(new Error('simulated refresh failure'));
 
     const second = await refreshCatalogCache(tempDir, []);
-    const cacheKey = getCatalogCacheKey(tempDir, []);
-    const entry = getCatalogCacheEntry(cacheKey);
+    const entry = getCatalogCacheEntry(tempDir, []);
 
     expect(second.snapshotStatus).toBe('stale');
     expect(second.snapshotError).toBe('simulated refresh failure');
