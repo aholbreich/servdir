@@ -1,0 +1,13 @@
+---
+import { toTagSlug } from '../../lib/catalog';
+
+export interface Props {
+  tag: string;
+  class?: string;
+}
+
+const { tag, class: className = '' } = Astro.props;
+const slug = toTagSlug(tag);
+---
+
+<a href={`/tags/${slug}`} class:list={['catalog-tag-link font-medium', className]}>#{tag}</a>

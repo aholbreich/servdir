@@ -124,14 +124,17 @@ Acceptance notes:
 - should work together with owner and tag filters
 
 ### Navigate by tags
-**Status:** `planned`
+**Status:** `supported`
 
-As an engineer, I want to find services by tags so I can narrow the catalog to a technology, domain, or concern. 
+As an engineer, I want to navigate the catalog by tag so I can explore services by technology, domain, or concern.
 
 Acceptance notes:
-- When tag is visible (#tag) it should be link.
-- There should be a tag page for every Tag that list all services having this tag
-- Tag cloud page should list all tags
+- visible tags should be clickable
+- every tag should have a dedicated page listing matching services
+- there should be a tag index page listing all known tags
+- tag pages should show the number of matching services
+- tag navigation should reuse the existing service list presentation where possible
+- unknown tag routes should return 404
 
 
 ## Proposed

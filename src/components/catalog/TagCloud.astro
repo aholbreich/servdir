@@ -1,0 +1,26 @@
+---
+import Card from '../ui/Card.astro';
+import type { TagSummary } from '../../lib/catalog';
+import TagLink from './TagLink.astro';
+
+export interface Props {
+  tags: TagSummary[];
+}
+
+const { tags } = Astro.props;
+---
+
+{tags.length > 0 ? (
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {tags.map((tag) => (
+      <Card class="flex items-center justify-between gap-4 px-5 py-4">
+        <TagLink tag={tag.label} class="text-[1rem] text-sky-700" />
+        <span class="pill">{tag.serviceCount} service{tag.serviceCount === 1 ? '' : 's'}</span>
+      </Card>
+    ))}
+  </section>
+) : (
+  <Card class="px-6 py-14 text-center">
+    <p class="muted mx-auto max-w-3xl leading-7">No tags were discovered from the configured services.</p>
+  </Card>
+)}

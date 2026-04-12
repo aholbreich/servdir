@@ -18,7 +18,10 @@ const toggleId = 'catalog-view-toggle';
   services.length > 0 ? (
     <section data-catalog-view-root>
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p class="muted text-[0.95rem]">Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
+        <div class="flex flex-wrap items-center gap-4">
+          <p class="muted text-[0.95rem]">Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
+          <a href="/tags" class="text-[0.95rem]">Browse tags</a>
+        </div>
 
         <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
           <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="cards" aria-pressed="true">

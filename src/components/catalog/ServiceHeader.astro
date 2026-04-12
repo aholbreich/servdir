@@ -3,6 +3,7 @@ import Badge from '../ui/Badge.astro';
 import Card from '../ui/Card.astro';
 import MetadataPill from '../ui/MetadataPill.astro';
 import SectionTitle from '../ui/SectionTitle.astro';
+import TagLink from './TagLink.astro';
 import type { ServiceRecord } from '../../lib/catalog';
 
 export interface Props {
@@ -38,7 +39,9 @@ const attributeItems = [
       <Badge tone={hasIssues ? 'warn' : 'ok'}>
         {hasIssues ? `${service.issues.length} issue(s)` : 'valid'}
       </Badge>
-      {service.data.tags?.map((tag) => <Badge>#{tag}</Badge>)}
+      {service.data.tags?.map((tag) => (
+        <TagLink tag={tag} class="pill" />
+      ))}
     </div>
   </div>
 </Card>

@@ -1,6 +1,7 @@
 ---
 import Card from "./Card.astro";
 import IssueList from "./IssueList.astro";
+import TagLink from "../catalog/TagLink.astro";
 import type { ServiceRecord } from "../../lib/catalog";
 
 export interface Props {
@@ -29,7 +30,7 @@ const hasIssues = service.issues.length > 0;
       service.data.tags && service.data.tags.length > 0 && (
         <p class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[0.83rem] leading-5 text-sky-700">
           {service.data.tags.map((tag) => (
-            <span class="font-medium">#{tag}</span>
+            <TagLink tag={tag} />
           ))}
         </p>
       )
