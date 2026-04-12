@@ -116,6 +116,22 @@ Acceptance notes:
 - should support more than one meaningful tag value over time
 - empty-result handling should stay clear and friendly
 
+### Switch between card view and compact list view
+**Status:** `planned`
+
+As a service inventory user, I want to switch between a card view and a thin list view so I can either browse comfortably or scan many services quickly.
+
+Notes:
+- card view is useful for richer browsing and visual grouping
+- thin list view is useful for seeing the whole picture and finding a specific service faster
+- the view should be toggleable dynamically from the catalog page
+
+Acceptance notes:
+- switching views should not require navigating to another page
+- both views should render the same underlying service set
+- the active view should be obvious in the UI
+- the compact list should prioritize fast scanning over rich decoration
+
 ## Proposed
 
 ### Share filtered catalog views by URL
