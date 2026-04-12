@@ -74,6 +74,32 @@ See:
 - After sync cycles, servdir refreshes the snapshot in the background and keeps serving the last known good catalog if a refresh fails.
 - The cache/snapshot logic now lives as an explicit catalog cache subsystem instead of being hidden inside `load.ts`, to make later stats, debug views, and observability easier to extend.
 
+### Dual deployment modes
+- Servdir now supports two deployment flavors:
+  - default Node server runtime
+  - explicit static export mode
+- Static export is additive and should not destabilize the main server path.
+- Current static flow is aimed at GitHub Pages first, with base-path-aware internal links and a dedicated Pages workflow.
+- Static mode intentionally skips runtime-only concerns such as middleware auth enforcement and scheduler-driven Git sync.
+- Build/test reminder for future work:
+  - baseline: `pnpm test && pnpm build`
+  - when relevant to build/routing/deployment paths: `pnpm build:static`
+
+### Catalog entry model broadening
+- The catalog started service-first, but the model now supports a broader optional `kind` field.
+- If `kind` is omitted, it defaults to `service`.
+- Current examples of broader entry types include:
+  - `application`
+  - `tool`
+- This is meant to broaden the catalog without renaming the whole product or breaking older service definitions.
+
+### Tag navigation
+- Visible tags now link to dedicated tag pages.
+- The catalog now has:
+  - `/tags` for the tag index
+  - `/tags/[tag]` for tag-specific listings
+- Important implementation lesson: do not nest tag links inside a row-level anchor in list views. That broke the compact list and had to be fixed by restructuring the row markup.
+
 ### SSH behavior and local container testing
 - App-managed Git checkout/pull should prefer SSH repository access keys over provider API tokens.
 - Common container/Kubernetes defaults are:
