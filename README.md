@@ -127,8 +127,9 @@ See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernete
 
 ## Development docs
 Developer relevant docs in the project:
-- `docs/prd.md`
+- [docs/prd.md](./docs/prd.md)
+- [docs/user-stories.md](./docs/user-stories.md)
 - `.adr/`
-- `docs/working-notes.md`
-- `docs/release.md`
+- [docs/working-notes.md](./docs/working-notes.md)
+- [docs/release.md](./docs/release.md)
 - `AGENTS.md`

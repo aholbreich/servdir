@@ -38,14 +38,10 @@ Secondary users:
 - engineering managers
 - product people
 
-## Jobs To Be Done
-- As an engineer, I want to quickly find a service and its owner.
-- As an engineer, I want to read a human-friendly service description without leaving the catalog.
-- As an engineer, I want to see repo, Ci/CD details, and tags in one place.
-- As an engineer, I want to understand dependencies between services (or other components)
-- As an engineer, I want to quickly find relevant dashboards, alerting, or configuration details for a particular service.
-- As an engineer, I want to find service architecture context, such as Pulumi-generated infrastructure diagrams, Mermaid diagrams, PlantUML diagrams, or Structurizr/C4 views, from the same service page.
-- As a maintainer, I want to update service metadata by editing a Markdown file in Git.
+## User stories
+Detailed user-facing stories now live in [User Stories](./user-stories.md).
+
+Keep this PRD focused on product scope, UX expectations, and constraints. Use the user stories document for supported, planned, and proposed capabilities.
 
 ## MVP Scope
 
@@ -122,11 +118,9 @@ Show at least:
 - room for future architecture context such as Pulumi diagrams, Mermaid, PlantUML, Structurizr/C4 views, or architecture links
 
 ### Search and filter
-Support:
-- free-text search by name and id
-- filter by owner
-- filter by tags
-- filter by lifecycle
+The MVP should support search and filtering in the list experience.
+
+See [User Stories](./user-stories.md) for the tracked story list and current status of search and filter capabilities.
 
 ## Validation
 Validate at load time:
