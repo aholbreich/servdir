@@ -3,7 +3,7 @@ id: billing-api
 name: Billing API
 kind: service
 owner: team-payments
-lifecycle: production
+lifecycle: experimental
 repo: https://github.com/acme/billing-api
 description: Kernservice für Rechnungsstellung und Billing-Funktionen in internen Systemen
 tier: 2

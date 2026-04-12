@@ -3,7 +3,7 @@ id: servdir
 name: Servdir
 kind: application
 owner: team-platform
-lifecycle: experimental
+lifecycle: "beta testing"
 repo: https://github.com/aholbreich/servdir
 description: Git-backed engineering catalog for services and related platform entries
 tier: 3

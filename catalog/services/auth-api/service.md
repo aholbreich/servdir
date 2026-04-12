@@ -3,7 +3,7 @@ id: auth-api
 name: Auth API
 kind: service
 owner: team-platform
-lifecycle: production
+lifecycle: experimental
 repo: https://github.com/acme/auth-api
 description: Zentrale Authentifizierungs- und Autorisierungsschnittstelle für interne Plattformdienste
 tier: 1
