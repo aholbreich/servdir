@@ -24,13 +24,18 @@ const tagsColumnWidthCh = Math.max(
   {
     services.map((service) => (
       <li>
-        <div class="catalog-list-row catalog-list-grid px-4 py-3 sm:px-5">
-          <a href={toAppPath(`/services/${service.slug}`)} class="catalog-list-main-link contents">
-            <span class="catalog-list-id muted text-[0.84rem]">{service.data.id}</span>
+        <div class="catalog-list-row px-4 py-3 sm:px-5">
+          <div class="catalog-list-grid">
+            <a href={toAppPath(`/services/${service.slug}`)} class="catalog-list-main-link catalog-list-id muted text-[0.84rem]">
+              {service.data.id}
+            </a>
 
-            <span class="catalog-list-row-title min-w-0 truncate text-[1rem] font-semibold text-slate-950">
+            <a
+              href={toAppPath(`/services/${service.slug}`)}
+              class="catalog-list-main-link catalog-list-row-title min-w-0 truncate text-[1rem] font-semibold text-slate-950"
+            >
               {service.data.name}
-            </span>
+            </a>
 
             <span class="catalog-list-status flex shrink-0 items-center gap-2">
               {service.issues.length > 0 ? (
@@ -42,17 +47,17 @@ const tagsColumnWidthCh = Math.max(
                 <span class="pill pill-ok">ok</span>
               )}
             </span>
-          </a>
 
-          <span class="catalog-list-meta flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[0.9rem] text-slate-700">
-            {service.data.tags && service.data.tags.length > 0 && (
-              <span class="catalog-list-tags flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-[0.83rem] leading-5 text-sky-700">
-                {service.data.tags.map((tag) => (
-                  <TagLink tag={tag} />
-                ))}
-              </span>
-            )}
-          </span>
+            <span class="catalog-list-meta flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[0.9rem] text-slate-700">
+              {service.data.tags && service.data.tags.length > 0 && (
+                <span class="catalog-list-tags flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-[0.83rem] leading-5 text-sky-700">
+                  {service.data.tags.map((tag) => (
+                    <TagLink tag={tag} />
+                  ))}
+                </span>
+              )}
+            </span>
+          </div>
         </div>
       </li>
     ))

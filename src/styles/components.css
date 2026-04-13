@@ -133,15 +133,17 @@
   .catalog-list-grid {
     display: grid;
     gap: 0.5rem 0.875rem;
-    align-items: center;
+    align-items: start;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "title status"
-      "id meta";
+      "id status"
+      "meta meta";
   }
 
   .catalog-list-id {
     grid-area: id;
+    width: fit-content;
   }
 
   .catalog-list-row-title {
@@ -151,6 +153,7 @@
 
   .catalog-list-meta {
     grid-area: meta;
+    margin-top: 0.125rem;
   }
 
   .catalog-list-tags {
@@ -160,11 +163,13 @@
   .catalog-list-status {
     grid-area: status;
     justify-self: end;
+    align-self: start;
   }
 
   @media (min-width: 768px) {
     .catalog-list-grid {
       gap: 0.75rem 1rem;
+      align-items: center;
       grid-template-columns: var(--catalog-id-column) minmax(0, 1fr) minmax(0, var(--catalog-tags-column)) auto;
       grid-template-areas: "id title meta status";
     }
@@ -190,6 +195,12 @@
     outline: 2px solid rgba(37, 99, 235, 0.32);
     outline-offset: 2px;
     border-radius: 0.375rem;
+  }
+
+  .catalog-list-id.catalog-list-main-link,
+  .catalog-list-row-title.catalog-list-main-link {
+    width: fit-content;
+    max-width: 100%;
   }
 
   .catalog-list-row:hover .catalog-list-row-title,
