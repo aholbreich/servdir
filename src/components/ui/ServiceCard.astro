@@ -1,4 +1,5 @@
 ---
+import CatalogKindIcon from '../catalog/CatalogKindIcon.astro';
 import ServiceCardLinkIcon from '../catalog/ServiceCardLinkIcon.astro';
 import Card from './Card.astro';
 import IssueList from './IssueList.astro';
@@ -24,7 +25,10 @@ const cardLinks = getServiceCardLinks(service.data);
     >
       <a href={toAppPath(`/services/${service.slug}`)}>{service.data.name}</a>
     </h2>
-    <span class="muted text-[0.82rem]">{service.data.id}</span>
+    <span class="service-card-id muted text-[0.82rem]">
+      <CatalogKindIcon kind={service.data.kind} class="service-card-kind-icon" />
+      <span>{service.data.id}</span>
+    </span>
     {
       service.data.tags && service.data.tags.length > 0 && (
         <p class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[0.83rem] leading-5 text-sky-700">

@@ -353,6 +353,14 @@
     text-decoration: none;
   }
 
+  .service-card-id {
+    @apply inline-flex items-center gap-1.5;
+  }
+
+  .service-card-kind-icon {
+    @apply block shrink-0 text-slate-400;
+  }
+
   .service-card-link-icon {
     border: 1px solid rgba(148, 163, 184, 0.2);
     background: rgba(248, 250, 252, 0.9);
