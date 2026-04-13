@@ -4,6 +4,7 @@ import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astr
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { listConfiguredTagPaths, loadConfiguredTagPage } from '../../lib/catalog';
 import { toAppPath } from '../../lib/paths';
+import { createNotFoundRedirectResponse } from '../../lib/page';
 
 // Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
@@ -14,12 +15,7 @@ const tagSlug = Astro.params.tag;
 const tagPage = await loadConfiguredTagPage(tagSlug);
 
 if (!tagPage) {
-  return new Response(null, {
-    status: 404,
-    headers: {
-      Location: toAppPath('/404'),
-    },
-  });
+  return createNotFoundRedirectResponse();
 }
 
 const { tag, services } = tagPage;

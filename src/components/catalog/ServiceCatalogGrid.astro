@@ -70,6 +70,7 @@ const toggleId = 'catalog-view-toggle';
             });
           };
 
+          // We default to list view so the page still reads well before any client script runs.
           const savedView = window.localStorage.getItem(storageKey);
           const initialView = savedView === 'cards' ? 'cards' : 'list';
           applyView(initialView);

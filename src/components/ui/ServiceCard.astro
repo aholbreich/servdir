@@ -1,10 +1,10 @@
 ---
 import ServiceCardLinkIcon from '../catalog/ServiceCardLinkIcon.astro';
-import Card from "./Card.astro";
-import IssueList from "./IssueList.astro";
-import TagLink from "../catalog/TagLink.astro";
+import Card from './Card.astro';
+import IssueList from './IssueList.astro';
+import TagLink from '../catalog/TagLink.astro';
+import { getServiceSummary, type ServiceRecord } from '../../lib/catalog';
 import { toAppPath } from '../../lib/paths';
-import type { ServiceRecord } from "../../lib/catalog";
 import { getServiceCardLinks } from '../../lib/service-card-links';
 
 export interface Props {
@@ -12,12 +12,7 @@ export interface Props {
 }
 
 const { service } = Astro.props;
-const summary =
-  service.data.description ??
-  service.body
-    .split("\n")
-    .find((line) => line.trim() && !line.trim().startsWith("#")) ??
-  "No description provided.";
+const summary = getServiceSummary(service);
 const hasIssues = service.issues.length > 0;
 const cardLinks = getServiceCardLinks(service.data);
 ---

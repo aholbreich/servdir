@@ -53,6 +53,84 @@ See:
 - The common Kubernetes case should stay simple: `emptyDir` cache, mounted SSH key, mounted `known_hosts`
 - Basic Auth realm is fixed to `servdir`
 
+## Cross-session handoff essentials
+
+Read this section first when picking the project up in a fresh session.
+It exists so future agents do not need to reconstruct important context from chat history.
+
+### Verification baseline
+
+Use this as the default verification set after UI, routing, or build-related changes:
+- `pnpm test`
+- `pnpm build`
+- `pnpm build:static`
+
+Reason:
+- servdir intentionally supports both the default server runtime and a secondary static export mode
+- recent work touched both UI composition and route/build behavior, so checking only one build mode is not enough
+
+### Current icon strategy
+
+- Astro icons are wired through `astro-icon` in `astro.config.mjs`
+- app code should go through `src/components/ui/Icon.astro`, not raw `astro-icon` usage spread across the codebase
+- app-specific icons live as local SVGs under `src/icons/`
+- when a UI needs semantic icons, prefer a small explicit mapping helper plus local SVGs over introducing a large external icon set
+
+Reason:
+- local SVGs are predictable and avoid fragile icon-set dependencies for a small number of domain-specific icons
+- the wrapper keeps icon usage consistent and easier to change later
+
+### Catalog status card structure
+
+The catalog status area was intentionally split into small Astro pieces for readability:
+- `src/components/catalog/CatalogStatusCard.astro` — composition shell
+- `src/components/catalog/CatalogStatusTabs.astro` — tab buttons
+- `src/components/catalog/CatalogStatusPanel.astro` — accessible panel wrapper
+- `src/components/catalog/CatalogStatusDetailList.astro` — shared detail grid
+- `src/components/catalog/CatalogStatusGitSourcesPopover.astro` — compact Git source details popover
+- `src/lib/catalog-status.ts` — pure labels/format/id helpers
+- `src/scripts/catalog-status-card.ts` — tab and popover behavior
+
+Preserve these boundaries unless there is a clear readability win.
+Do not collapse them back into one large `.astro` file.
+
+### Service list and card conventions
+
+- compact list rows now show a small kind icon before the stable service id
+- kind icon mapping lives in:
+  - `src/components/catalog/CatalogKindIcon.astro`
+  - `src/lib/catalog-kind-icon.ts`
+- currently supported explicit kinds are:
+  - `service`
+  - `tool`
+  - `application`
+  - `library`
+  - `component`
+  - `iac`
+- unknown kinds are still allowed and intentionally fall back to a default icon
+
+For service cards:
+- the footer was intentionally simplified to icon-only actions for stable first-class links only
+- current stable card actions are:
+  - repository
+  - runbook
+  - OpenAPI
+  - delivery / CI when a URL exists
+- free-form `links[]` are intentionally excluded from the card footer because icon-only affordances become ambiguous there
+- card action selection lives in `src/lib/service-card-links.ts`
+
+### Small helper extraction rule
+
+When a page/component repeats a small piece of non-trivial logic more than once, prefer extracting it into a tiny tested helper instead of keeping parallel inline copies.
+
+Current examples:
+- `src/lib/catalog/service-summary.ts` — shared fallback summary derivation
+- `src/lib/page.ts` — shared route/page response helpers
+
+This is the preferred level of abstraction here:
+- small and boring helpers are good
+- generic framework-y abstraction layers are not
+
 ## Recent implementation notes
 
 ### Managed Git scheduler and sync behavior
@@ -156,12 +234,16 @@ Reusable UI building blocks currently in use:
 - `src/components/catalog/CatalogStatusDetailList.astro` — reusable detail grid for configuration/runtime/issues sections
 - `src/components/catalog/CatalogStatusGitSourcesPopover.astro` — small overlay for managed Git source details
 - `src/components/catalog/ServiceHeader.astro` — detail-page header with service identity, summary state, and tags
+- `src/lib/catalog/service-summary.ts` — shared service excerpt fallback logic for card/list-style summaries
+- `src/lib/page.ts` — app-aware route helpers such as 404 redirect responses
 - `src/components/catalog/ServiceDocumentationCard.astro` — detail-page documentation body card
 - `src/components/catalog/ServiceMetadataCard.astro` — detail-page metadata and OpenAPI sections
 - `src/components/catalog/ServiceDependenciesCard.astro` — detail-page dependency list
 - `src/components/catalog/ServiceValidationCard.astro` — detail-page validation state card
 
 Design reminder:
+
+- keep repeated route responses and small presentation derivations in lib helpers once they appear in more than one page/component
 
 - prefer extending these components or adding adjacent catalog-scoped components before pushing more layout logic back into page files
 - keep generic UI primitives in `src/components/ui/`

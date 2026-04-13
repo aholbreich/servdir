@@ -203,6 +203,6 @@ Developer relevant docs in the project:
 - [docs/prd.md](./docs/prd.md)
 - [docs/user-stories.md](./docs/user-stories.md)
 - `.adr/`
-- [docs/working-notes.md](./docs/working-notes.md)
+- [docs/working-notes.md](./docs/working-notes.md) — includes cross-session handoff context for future agents and maintainers
 - [docs/release.md](./docs/release.md)
 - `AGENTS.md`

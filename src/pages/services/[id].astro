@@ -7,6 +7,7 @@ import ServiceValidationCard from '../../components/catalog/ServiceValidationCar
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { listConfiguredServicePaths, loadConfiguredServicePage } from '../../lib/catalog';
 import { toAppPath } from '../../lib/paths';
+import { createNotFoundRedirectResponse } from '../../lib/page';
 
 // Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
@@ -19,12 +20,7 @@ const servicePage = await loadConfiguredServicePage(id);
 
 if (!servicePage) {
   console.warn(`[page:/services/[id]] service not found for id=${id}`);
-  return new Response(null, {
-    status: 404,
-    headers: {
-      Location: toAppPath('/404'),
-    },
-  });
+  return createNotFoundRedirectResponse();
 }
 
 const { service, dependencies } = servicePage;
