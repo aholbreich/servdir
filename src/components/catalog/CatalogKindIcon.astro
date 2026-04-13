@@ -1,0 +1,15 @@
+---
+import { getCatalogKindIconName } from '../../lib/catalog-kind-icon';
+import Icon from '../ui/Icon.astro';
+
+export interface Props {
+  kind: string;
+  size?: number | string;
+  class?: string;
+}
+
+const { kind, size = 14, class: className = '' } = Astro.props;
+---
+
+<!-- Small type icon for catalog entries, using a fixed local mapping plus fallback. -->
+<Icon name={getCatalogKindIconName(kind)} size={size} class={className} />

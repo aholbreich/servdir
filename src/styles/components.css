@@ -268,6 +268,11 @@
   .catalog-list-id {
     grid-area: id;
     width: fit-content;
+    @apply inline-flex items-center gap-1.5;
+  }
+
+  .catalog-list-kind-icon {
+    @apply block shrink-0 text-slate-400 transition-colors;
   }
 
   .catalog-list-row-title {
@@ -329,6 +334,11 @@
 
   .catalog-list-row:hover .catalog-list-row-title,
   .catalog-list-row:focus-within .catalog-list-row-title {
+    color: #1d4ed8;
+  }
+
+  .catalog-list-row:hover .catalog-list-kind-icon,
+  .catalog-list-row:focus-within .catalog-list-kind-icon {
     color: #1d4ed8;
   }
 

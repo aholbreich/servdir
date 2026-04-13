@@ -1,4 +1,5 @@
 ---
+import CatalogKindIcon from './CatalogKindIcon.astro';
 import TagLink from './TagLink.astro';
 import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from "../../lib/catalog";
@@ -19,7 +20,7 @@ const tagsColumnWidthCh = Math.max(
 
 <ul
   class="divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-white/85 shadow-sm"
-  style={`--catalog-id-column: ${idColumnWidthCh}ch; --catalog-tags-column: ${tagsColumnWidthCh}ch;`}
+  style={`--catalog-id-column: calc(${idColumnWidthCh}ch + 1.25rem); --catalog-tags-column: ${tagsColumnWidthCh}ch;`}
 >
   {
     services.map((service) => (
@@ -27,7 +28,8 @@ const tagsColumnWidthCh = Math.max(
         <div class="catalog-list-row px-4 py-3 sm:px-5">
           <div class="catalog-list-grid">
             <a href={toAppPath(`/services/${service.slug}`)} class="catalog-list-main-link catalog-list-id muted text-[0.84rem]">
-              {service.data.id}
+              <CatalogKindIcon kind={service.data.kind} class="catalog-list-kind-icon" />
+              <span>{service.data.id}</span>
             </a>
 
             <a
