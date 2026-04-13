@@ -25,25 +25,25 @@ const toggleId = 'catalog-view-toggle';
         </div>
 
         <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
-          <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="cards" aria-pressed="true">
-            Cards
-          </button>
-          <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="list" aria-pressed="false">
+          <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
             List
+          </button>
+          <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="cards" aria-pressed="false">
+            Cards
           </button>
         </div>
       </div>
 
-      <div data-catalog-view-panel data-view="cards">
+      <div data-catalog-view-panel data-view="list">
+        <ServiceCompactList services={services} />
+      </div>
+
+      <div data-catalog-view-panel data-view="cards" hidden>
         <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service) => (
             <ServiceCard service={service} />
           ))}
         </section>
-      </div>
-
-      <div data-catalog-view-panel data-view="list" hidden>
-        <ServiceCompactList services={services} />
       </div>
 
       <script is:inline>
@@ -71,7 +71,7 @@ const toggleId = 'catalog-view-toggle';
           };
 
           const savedView = window.localStorage.getItem(storageKey);
-          const initialView = savedView === 'list' ? 'list' : 'cards';
+          const initialView = savedView === 'cards' ? 'cards' : 'list';
           applyView(initialView);
 
           buttons.forEach((button) => {
