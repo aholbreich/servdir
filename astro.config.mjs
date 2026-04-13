@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
+import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
 
 // Important switch: default remains the current server runtime.
@@ -12,6 +13,7 @@ const staticSiteUrl = process.env.SERVDIR_SITE_URL;
 export default defineConfig({
   // Static builds do not use the Node adapter because they emit plain prerendered files.
   ...(isStaticBuild ? {} : { adapter: node({ mode: 'standalone' }) }),
+  integrations: [icon()],
   vite: {
     plugins: [tailwindcss()],
   },

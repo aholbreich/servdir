@@ -27,6 +27,9 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       snapshotStatus={catalog.snapshotStatus}
       snapshotError={catalog.snapshotError}
       localCatalogPath={config.localCatalogPath}
+      gitSourcesCount={config.gitSources.length}
+      gitSyncIntervalMs={config.gitSyncIntervalMs}
+      basicAuthEnabled={config.basicAuth.enabled}
     />
   </section>
 

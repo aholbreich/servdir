@@ -119,6 +119,43 @@
     color: white;
   }
 
+  .catalog-status-tablist {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .catalog-status-tab {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--color-border);
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-full p-0 text-slate-700 transition-colors;
+  }
+
+  .catalog-status-tab:hover,
+  .catalog-status-tab:focus-visible {
+    background: rgba(37, 99, 235, 0.08);
+    color: #0f172a;
+    outline: none;
+  }
+
+  .catalog-status-tab.is-active {
+    background: rgba(37, 99, 235, 0.12);
+    border-color: rgba(37, 99, 235, 0.18);
+    color: #1d4ed8;
+  }
+
+  .catalog-status-tab-icon {
+    @apply block;
+  }
+
+  .catalog-status-details {
+    @apply grid gap-x-4 gap-y-2 text-[0.95rem] leading-6;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .catalog-status-panel code {
+    background: rgba(37, 99, 235, 0.08);
+    @apply rounded px-1.5 py-0.5 text-sm text-slate-900;
+  }
+
   .catalog-list-row {
     @apply transition-all duration-150;
     color: inherit;
