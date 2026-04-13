@@ -1,6 +1,7 @@
 # Service Definition Reference
 
 ## Table of Contents
+
 - [File shape](#file-shape)
 - [Required front matter fields](#required-front-matter-fields)
 - [Optional front matter fields](#optional-front-matter-fields)
@@ -16,6 +17,7 @@
 This document describes the `service.md` file format used by `servdir`.
 
 Each service entry is a Markdown file with:
+
 - YAML front matter
 - a Markdown body
 
@@ -68,54 +70,68 @@ Creates invoices and exposes billing functionality for internal systems.
 These fields are required and validated.
 
 ### `id`
+
 Unique service identifier.
 
 Expected:
+
 - non-empty string
 - should be stable over time
 - should be unique across the full merged catalog
 
 Example:
+
 ```yaml
 id: billing-api
 ```
 
 Note:
+
 - `id` remains the stable primary identifier even when `kind` broadens the entry type beyond classic services
 
 Notes:
+
 - duplicate ids are reported as validation errors
 - the service route slug is currently derived from `id` by lowercasing it
 
 ### `name`
+
 Human-readable display name.
 
 Expected:
+
 - non-empty string
 
 Example:
+
 ```yaml
 name: Billing API
 ```
 
 ### `owner`
+
 Owning team or responsible group.
 
 Expected:
+
 - non-empty string
 
 Example:
+
 ```yaml
 owner: team-payments
 ```
 
 ### `lifecycle`
+
 Current lifecycle state of the service.
 
 Expected:
+
 - non-empty string
 
 Example values:
+
 ```yaml
 lifecycle: production
 lifecycle: experimental
@@ -123,16 +139,20 @@ lifecycle: deprecated
 ```
 
 Note:
+
 - current implementation validates only that it is a non-empty string
 - it does not yet enforce a fixed enum
 
 ### `repo`
+
 Repository URL for the service.
 
 Expected:
+
 - valid absolute URL
 
 Example:
+
 ```yaml
 repo: https://github.com/acme/billing-api
 ```
@@ -140,58 +160,75 @@ repo: https://github.com/acme/billing-api
 ## Optional front matter fields
 
 ### `kind`
+
 Optional catalog entry kind.
 
 Expected:
+
 - non-empty string
 
 Example:
+
 ```yaml
 kind: service
 kind: application
-kind: frontend
 ```
 
 Default behavior:
+
 - if omitted, `servdir` defaults this field to `service`
 
 Use this field when the catalog should include things broader than backend services, for example applications or other entry types.
 
+Current built-in UI kind icons explicitly support: `service`, `tool`, `application`, `library`, `component`, and `iac`.
+Other kind values are still allowed, but they currently fall back to the default icon.
+
 ### `description`
+
 Short summary of the service.
 
 Expected:
+
 - string
 
 Example:
+
 ```yaml
 description: Core billing service for invoice creation
 ```
 
 Used for:
+
 - list page summary when present
 
 If missing:
+
 - the UI falls back to the first non-heading line from the Markdown body
 
 ### `tier`
+
 Optional service tier.
 
 Expected:
+
 - positive integer
 
 Example:
+
 ```yaml
 tier: 2
 ```
 
 ### `tags`
+
 List of searchable labels.
 
 Expected:
+
 - array of non-empty strings
 
 Example:
+
 ```yaml
 tags:
   - payments
@@ -199,12 +236,15 @@ tags:
 ```
 
 ### `depends_on`
+
 List of other service ids this service depends on.
 
 Expected:
+
 - array of non-empty strings
 
 Example:
+
 ```yaml
 depends_on:
   - auth-api
@@ -212,30 +252,37 @@ depends_on:
 ```
 
 Validation behavior:
+
 - unresolved dependency ids are reported as warnings
 - they do not block the service from loading
 
 ### `runbook`
+
 Link to operational documentation.
 
 Expected:
+
 - valid absolute URL
 
 Example:
+
 ```yaml
 runbook: https://example.com/runbooks/billing-api
 ```
 
 ### `links`
+
 Extra links shown as metadata.
 
 Expected:
+
 - array of objects
 - each object must include:
   - `label`: non-empty string
   - `url`: valid absolute URL
 
 Example:
+
 ```yaml
 links:
   - label: Dashboard
@@ -245,15 +292,18 @@ links:
 ```
 
 ### `openapi`
+
 OpenAPI specification references for the service.
 
 Expected:
+
 - array of objects
 - each object must include:
   - `label`: non-empty string
   - `url`: valid absolute URL
 
 Example:
+
 ```yaml
 openapi:
   - label: Public API
@@ -263,9 +313,11 @@ openapi:
 This field is intended for machine-readable API definitions that are important enough to model separately from generic links.
 
 ### `delivery`
+
 Delivery or pipeline references for the service.
 
 Expected:
+
 - array of objects
 - each object must include:
   - `label`: non-empty string
@@ -274,6 +326,7 @@ Expected:
   - `text`: non-empty string
 
 Example:
+
 ```yaml
 # Your CI & CD details
 delivery:
@@ -286,23 +339,29 @@ delivery:
 Use this field for CI/CD and delivery references that should be shown separately from generic links.
 
 ### `system`
+
 Optional larger system grouping.
 
 Expected:
+
 - string
 
 Example:
+
 ```yaml
 system: payments
 ```
 
 ### `domain`
+
 Optional business or technical domain.
 
 Expected:
+
 - string
 
 Example:
+
 ```yaml
 domain: finance
 ```
@@ -312,10 +371,12 @@ domain: finance
 Everything after the front matter is treated as the service documentation body.
 
 The body is:
+
 - stored as raw Markdown
 - rendered to HTML for the detail page
 
 Common uses:
+
 - service overview
 - operational notes
 - architecture notes
@@ -342,6 +403,7 @@ Example:
 ```
 
 That means:
+
 - files must be named `service.md`
 - each service must live one directory below `services/`
 - deeper nesting is not currently discovered automatically
@@ -378,12 +440,14 @@ This discovers paths like:
 ## Catalog merge behavior
 
 `servdir` merges services from:
+
 - local catalog files when `LOCAL_CATALOG_PATH` is configured
 - all configured managed Git sources
 
 Then it validates the merged set together.
 
 Current validation includes:
+
 - front matter schema validation
 - duplicate `id` detection across all loaded sources
 - unresolved `depends_on` references
@@ -391,6 +455,7 @@ Current validation includes:
 ## Validation and error handling
 
 If front matter does not match the schema:
+
 - the service is still loaded into the catalog
 - validation issues are attached to the service
 - fallback placeholder values are used for missing required fields where needed
@@ -398,6 +463,7 @@ If front matter does not match the schema:
 This means broken entries remain visible instead of silently disappearing.
 
 Examples of validation problems:
+
 - missing `owner`
 - invalid `repo` URL
 - `tier` is not a positive integer
@@ -411,6 +477,7 @@ Examples of validation problems:
 ## Practical authoring rules
 
 Recommended conventions:
+
 - keep `id` short, stable, and URL-safe
 - use team names for `owner`
 - keep `description` short, let the body carry the detail
