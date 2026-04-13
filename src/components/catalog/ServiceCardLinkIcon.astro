@@ -1,0 +1,24 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { ServiceCardLinkKind } from '../../lib/service-card-links';
+
+export interface Props {
+  kind: ServiceCardLinkKind;
+  href: string;
+  label: string;
+}
+
+const { kind, href, label } = Astro.props;
+
+const iconNames: Record<ServiceCardLinkKind, string> = {
+  repository: 'card-link/repository',
+  runbook: 'card-link/runbook',
+  openapi: 'card-link/openapi',
+  delivery: 'card-link/delivery',
+};
+---
+
+<!-- Stable icon-only action for well-known service card links. -->
+<a href={href} target="_blank" rel="noreferrer" class="service-card-link-icon" aria-label={label} title={label}>
+  <Icon name={iconNames[kind]} size={16} />
+</a>

@@ -1,9 +1,11 @@
 ---
+import ServiceCardLinkIcon from '../catalog/ServiceCardLinkIcon.astro';
 import Card from "./Card.astro";
 import IssueList from "./IssueList.astro";
 import TagLink from "../catalog/TagLink.astro";
 import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from "../../lib/catalog";
+import { getServiceCardLinks } from '../../lib/service-card-links';
 
 export interface Props {
   service: ServiceRecord;
@@ -17,6 +19,7 @@ const summary =
     .find((line) => line.trim() && !line.trim().startsWith("#")) ??
   "No description provided.";
 const hasIssues = service.issues.length > 0;
+const cardLinks = getServiceCardLinks(service.data);
 ---
 
 <Card as="article" class="flex h-full flex-col px-4 pt-4 pb-3 sm:px-5 sm:pt-5">
@@ -45,23 +48,10 @@ const hasIssues = service.issues.length > 0;
   <div
     class="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-[var(--color-border)]/70 pt-3 text-[0.95rem]"
   >
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-      <a href={service.data.repo} target="_blank" rel="noreferrer">Repository</a
-      >
-      {
-        service.data.runbook && (
-          <a href={service.data.runbook} target="_blank" rel="noreferrer">
-            Runbook
-          </a>
-        )
-      }
-      {
-        service.data.links?.slice(0, 2).map((link) => (
-          <a href={link.url} target="_blank" rel="noreferrer">
-            {link.label}
-          </a>
-        ))
-      }
+    <div class="flex flex-wrap items-center gap-2">
+      {cardLinks.map((link) => (
+        <ServiceCardLinkIcon kind={link.kind} href={link.href} label={link.label} />
+      ))}
     </div>
     <a href={toAppPath(`/services/${service.slug}`)}>View details →</a>
   </div>
