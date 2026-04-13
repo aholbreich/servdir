@@ -1,0 +1,39 @@
+---
+import type { CatalogStatusTabDefinition } from '../../lib/catalog-status';
+import { getCatalogStatusTabButtonId, getCatalogStatusTabPanelId } from '../../lib/catalog-status';
+import Icon from '../ui/Icon.astro';
+
+export interface Props {
+  tabs: CatalogStatusTabDefinition[];
+  defaultTabId: string;
+  tabsId: string;
+}
+
+const { tabs, defaultTabId, tabsId } = Astro.props;
+---
+
+<!-- Compact icon-only tab buttons for switching catalog status sections. -->
+<div class="catalog-status-tablist" role="tablist" aria-label="Catalog status sections">
+  {tabs.map((tab) => {
+    const isActive = tab.id === defaultTabId;
+
+    return (
+      <button
+        type="button"
+        id={getCatalogStatusTabButtonId(tabsId, tab.id)}
+        class:list={['catalog-status-tab', isActive && 'is-active']}
+        role="tab"
+        aria-selected={isActive ? 'true' : 'false'}
+        aria-controls={getCatalogStatusTabPanelId(tabsId, tab.id)}
+        aria-label={tab.label}
+        title={tab.label}
+        tabindex={isActive ? 0 : -1}
+        data-catalog-status-tab
+        data-tab={tab.id}
+      >
+        <Icon name={tab.icon} size={14} class="catalog-status-tab-icon" />
+        <span class="sr-only">{tab.label}</span>
+      </button>
+    );
+  })}
+</div>

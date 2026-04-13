@@ -1,0 +1,27 @@
+---
+export interface DetailItem {
+  label: string;
+  value: string;
+  asCode?: boolean;
+}
+
+export interface Props {
+  items: DetailItem[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+<!-- Shared key/value grid for compact status details inside each tab panel. -->
+<dl class:list={['catalog-status-details', className]}>
+  {items.map((item) => (
+    <>
+      <dt class="muted font-medium">{item.label}</dt>
+      <dd class="min-w-0 break-words text-slate-700">
+        {item.asCode ? <code>{item.value}</code> : item.value}
+      </dd>
+    </>
+  ))}
+  <slot />
+</dl>

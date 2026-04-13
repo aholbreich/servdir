@@ -1,8 +1,18 @@
 ---
 import Badge from '../ui/Badge.astro';
 import Card from '../ui/Card.astro';
-import Icon from '../ui/Icon.astro';
 import SectionTitle from '../ui/SectionTitle.astro';
+import CatalogStatusDetailList, { type DetailItem } from './CatalogStatusDetailList.astro';
+import CatalogStatusGitSourcesPopover from './CatalogStatusGitSourcesPopover.astro';
+import CatalogStatusPanel from './CatalogStatusPanel.astro';
+import CatalogStatusTabs from './CatalogStatusTabs.astro';
+import {
+  CATALOG_STATUS_TABS,
+  describeSourceMode,
+  formatDuration,
+  getGitSourcesSummaryLabel,
+  type CatalogStatusTabId,
+} from '../../lib/catalog-status';
 
 export interface Props {
   servicesCount: number;
@@ -14,25 +24,16 @@ export interface Props {
   snapshotError?: string;
   localCatalogPath?: string;
   gitSourcesCount: number;
+  gitSources: Array<{
+    name: string;
+    repoUrl: string;
+    branch: string;
+    checkoutPath: string;
+    scanPaths: string[];
+  }>;
   gitSyncIntervalMs: number;
   basicAuthEnabled: boolean;
 }
-
-type TabId = 'configuration' | 'runtime' | 'issues';
-
-type DetailItem = {
-  label: string;
-  value: string;
-  asCode?: boolean;
-};
-
-type TabDefinition = {
-  id: TabId;
-  label: string;
-  icon: string;
-  items: DetailItem[];
-  showSummaryBadges?: boolean;
-};
 
 const {
   servicesCount,
@@ -44,252 +45,102 @@ const {
   snapshotError,
   localCatalogPath,
   gitSourcesCount,
+  gitSources,
   gitSyncIntervalMs,
   basicAuthEnabled,
 } = Astro.props;
 
-function formatDate(value: string): string {
-  return new Date(value).toLocaleString('en-GB');
-}
-
-function formatDuration(valueMs: number): string {
-  if (valueMs % 60000 === 0) {
-    const minutes = valueMs / 60000;
-    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
-  }
-
-  if (valueMs % 1000 === 0) {
-    const seconds = valueMs / 1000;
-    return `${seconds} second${seconds === 1 ? '' : 's'}`;
-  }
-
-  return `${valueMs} ms`;
-}
-
-function describeSourceMode(localPath: string | undefined, gitSourceCount: number): string {
-  if (localPath && gitSourceCount > 0) {
-    return 'Local + managed Git';
-  }
-
-  if (localPath) {
-    return 'Local only';
-  }
-
-  if (gitSourceCount > 0) {
-    return 'Managed Git only';
-  }
-
-  return 'Unconfigured';
-}
-
-const defaultTabId: TabId = 'configuration';
+const defaultTabId: CatalogStatusTabId = 'configuration';
 const tabsId = 'catalog-status-tabs';
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+
+const configurationItems: DetailItem[] = [
+  { label: 'Source mode', value: describeSourceMode(localCatalogPath, gitSourcesCount) },
+  {
+    label: 'Local catalog',
+    value: localCatalogPath ?? 'disabled',
+    asCode: Boolean(localCatalogPath),
+  },
+  { label: 'Basic auth', value: basicAuthEnabled ? 'enabled' : 'disabled' },
+];
+
+const runtimeItems: DetailItem[] = [
+  { label: 'Generated', value: dateFormatter.format(new Date(generatedAt)) },
+  { label: 'Snapshot', value: snapshotStatus },
+  { label: 'Build', value: buildVersion },
+  { label: 'Git sync interval', value: formatDuration(gitSyncIntervalMs) },
+];
+
+const issueItems: DetailItem[] = [
+  {
+    label: 'Validation warnings',
+    value:
+      servicesWithIssues > 0
+        ? `${servicesWithIssues} service${servicesWithIssues === 1 ? '' : 's'} with warnings`
+        : 'None',
+  },
+  ...(snapshotError ? [{ label: 'Last refresh error', value: snapshotError }] : []),
+];
 
 const summaryBadges = [
   { tone: 'ok' as const, label: `${servicesCount} services` },
   { tone: 'ok' as const, label: `${servicesValid} valid` },
   {
-    tone: servicesWithIssues > 0 ? 'warn' as const : 'default' as const,
+    tone: servicesWithIssues > 0 ? ('warn' as const) : ('default' as const),
     label: servicesWithIssues > 0 ? `${servicesWithIssues} warnings` : 'No warnings',
   },
   {
-    tone: snapshotStatus === 'fresh' ? 'ok' as const : 'warn' as const,
+    tone: snapshotStatus === 'fresh' ? ('ok' as const) : ('warn' as const),
     label: snapshotStatus,
   },
 ];
 
-const tabs: TabDefinition[] = [
-  {
-    id: 'configuration',
-    label: 'Configuration',
-    icon: 'status/configuration',
-    items: [
-      { label: 'Source mode', value: describeSourceMode(localCatalogPath, gitSourcesCount) },
-      { label: 'Local catalog', value: localCatalogPath ?? 'disabled', asCode: Boolean(localCatalogPath) },
-      { label: 'Git sources', value: String(gitSourcesCount) },
-      { label: 'Git sync interval', value: formatDuration(gitSyncIntervalMs) },
-      { label: 'Basic auth', value: basicAuthEnabled ? 'enabled' : 'disabled' },
-    ],
-  },
-  {
-    id: 'runtime',
-    label: 'Runtime',
-    icon: 'status/runtime',
-    items: [
-      { label: 'Generated', value: formatDate(generatedAt) },
-      { label: 'Snapshot', value: snapshotStatus },
-      { label: 'Build', value: buildVersion },
-    ],
-  },
-  {
-    id: 'issues',
-    label: 'Issues',
-    icon: 'status/issues',
-    showSummaryBadges: true,
-    items: [
-      {
-        label: 'Validation warnings',
-        value:
-          servicesWithIssues > 0
-            ? `${servicesWithIssues} service${servicesWithIssues === 1 ? '' : 's'} with warnings`
-            : 'None',
-      },
-      ...(snapshotError ? [{ label: 'Last refresh error', value: snapshotError }] : []),
-    ],
-  },
-];
-
-function getTabButtonId(tabId: TabId): string {
-  return `${tabsId}-${tabId}`;
-}
-
-function getTabPanelId(tabId: TabId): string {
-  return `${tabsId}-${tabId}-panel`;
-}
+const gitSourcesSummaryLabel = getGitSourcesSummaryLabel(gitSourcesCount);
+const gitSourcesCountLabel = String(gitSourcesCount);
 ---
 
 <Card as="aside" class="p-6">
   <section data-catalog-status-root data-default-tab={defaultTabId}>
     <SectionTitle class="mb-4 text-lg">Catalog status</SectionTitle>
 
-    <div class="catalog-status-tablist" role="tablist" aria-label="Catalog status sections">
-      {tabs.map((tab) => {
-        const isActive = tab.id === defaultTabId;
-
-        return (
-          <button
-            type="button"
-            id={getTabButtonId(tab.id)}
-            class:list={['catalog-status-tab', isActive && 'is-active']}
-            role="tab"
-            aria-selected={isActive ? 'true' : 'false'}
-            aria-controls={getTabPanelId(tab.id)}
-            aria-label={tab.label}
-            title={tab.label}
-            tabindex={isActive ? 0 : -1}
-            data-catalog-status-tab
-            data-tab={tab.id}
-          >
-            <Icon name={tab.icon} size={14} class="catalog-status-tab-icon" />
-            <span class="sr-only">{tab.label}</span>
-          </button>
-        );
-      })}
-    </div>
+    <CatalogStatusTabs tabs={CATALOG_STATUS_TABS} defaultTabId={defaultTabId} tabsId={tabsId} />
 
     <div class="catalog-status-panels mt-4">
-      {tabs.map((tab) => {
-        const isActive = tab.id === defaultTabId;
-
-        return (
-          <section
-            id={getTabPanelId(tab.id)}
-            class="catalog-status-panel"
-            role="tabpanel"
-            aria-labelledby={getTabButtonId(tab.id)}
-            data-catalog-status-panel
-            data-tab={tab.id}
-            hidden={!isActive}
-          >
-            {tab.showSummaryBadges && (
-              <div class="mb-4 flex flex-wrap gap-2">
-                {summaryBadges.map((badge) => (
-                  <Badge tone={badge.tone}>{badge.label}</Badge>
-                ))}
-              </div>
+      <CatalogStatusPanel tabsId={tabsId} tabId="configuration" active>
+        <CatalogStatusDetailList items={configurationItems}>
+          <dt class="muted font-medium">Git sources</dt>
+          <dd class="catalog-status-detail-inline min-w-0 text-slate-700">
+            {gitSources.length > 0 ? (
+              <CatalogStatusGitSourcesPopover
+                gitSources={gitSources}
+                summaryLabel={gitSourcesSummaryLabel}
+                countLabel={gitSourcesCountLabel}
+              />
+            ) : (
+              <span>{gitSourcesCount}</span>
             )}
+          </dd>
+        </CatalogStatusDetailList>
+      </CatalogStatusPanel>
 
-            <dl class="catalog-status-details">
-              {tab.items.map((item) => (
-                <>
-                  <dt class="muted font-medium">{item.label}</dt>
-                  <dd class="min-w-0 break-words text-slate-700">
-                    {item.asCode ? <code>{item.value}</code> : item.value}
-                  </dd>
-                </>
-              ))}
-            </dl>
-          </section>
-        );
-      })}
+      <CatalogStatusPanel tabsId={tabsId} tabId="runtime">
+        <CatalogStatusDetailList items={runtimeItems} />
+      </CatalogStatusPanel>
+
+      <CatalogStatusPanel tabsId={tabsId} tabId="issues">
+        <div class="mb-4 flex flex-wrap gap-2">
+          {summaryBadges.map((badge) => (
+            <Badge tone={badge.tone}>{badge.label}</Badge>
+          ))}
+        </div>
+
+        <CatalogStatusDetailList items={issueItems} />
+      </CatalogStatusPanel>
     </div>
 
-    <script is:inline>
-      (() => {
-        const root = document.currentScript?.closest('[data-catalog-status-root]');
-
-        if (!root) {
-          return;
-        }
-
-        const buttons = Array.from(root.querySelectorAll('[data-catalog-status-tab]'));
-        const panels = Array.from(root.querySelectorAll('[data-catalog-status-panel]'));
-        const defaultTabId = root.dataset.defaultTab ?? 'configuration';
-
-        const applyTab = (tabId, options = {}) => {
-          const { focusButton = false } = options;
-
-          buttons.forEach((button) => {
-            const active = button.dataset.tab === tabId;
-            button.classList.toggle('is-active', active);
-            button.setAttribute('aria-selected', String(active));
-            button.tabIndex = active ? 0 : -1;
-
-            if (active && focusButton) {
-              button.focus();
-            }
-          });
-
-          panels.forEach((panel) => {
-            panel.hidden = panel.dataset.tab !== tabId;
-          });
-        };
-
-        const focusTabByIndex = (index) => {
-          const nextButton = buttons[index];
-
-          if (!nextButton) {
-            return;
-          }
-
-          applyTab(nextButton.dataset.tab ?? defaultTabId, { focusButton: true });
-        };
-
-        buttons.forEach((button) => {
-          button.addEventListener('click', () => {
-            applyTab(button.dataset.tab ?? defaultTabId);
-          });
-
-          button.addEventListener('keydown', (event) => {
-            const currentIndex = buttons.indexOf(button);
-
-            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-              event.preventDefault();
-              focusTabByIndex((currentIndex + 1) % buttons.length);
-              return;
-            }
-
-            if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-              event.preventDefault();
-              focusTabByIndex((currentIndex - 1 + buttons.length) % buttons.length);
-              return;
-            }
-
-            if (event.key === 'Home') {
-              event.preventDefault();
-              focusTabByIndex(0);
-              return;
-            }
-
-            if (event.key === 'End') {
-              event.preventDefault();
-              focusTabByIndex(buttons.length - 1);
-            }
-          });
-        });
-
-        applyTab(defaultTabId);
-      })();
-    </script>
+    <script src="../../scripts/catalog-status-card.ts"></script>
   </section>
 </Card>

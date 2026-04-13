@@ -1,0 +1,46 @@
+---
+export interface GitSourceItem {
+  name: string;
+  repoUrl: string;
+  branch: string;
+  checkoutPath: string;
+  scanPaths: string[];
+}
+
+export interface Props {
+  gitSources: GitSourceItem[];
+  summaryLabel: string;
+  countLabel: string;
+}
+
+const { gitSources, summaryLabel, countLabel } = Astro.props;
+---
+
+<!-- Small details popover for managed Git source metadata in the configuration tab. -->
+<details class="catalog-status-popover" data-catalog-status-popover>
+  <summary class="catalog-status-popover-toggle" aria-label={summaryLabel} title={summaryLabel}>
+    <span class="catalog-status-popover-count">{countLabel}...</span>
+    <span class="sr-only">{summaryLabel}</span>
+  </summary>
+
+  <div class="catalog-status-popover-panel">
+    <div class="catalog-status-source-list">
+      {gitSources.map((source, index) => (
+        <section class="catalog-status-source-card" aria-label={`Git source ${index + 1}`}>
+          <div class="catalog-status-source-header">
+            <h3 class="catalog-status-source-title">{source.name}</h3>
+            <span class="catalog-status-source-branch">{source.branch}</span>
+          </div>
+
+          <dl class="catalog-status-source-details">
+            <dt class="muted">Repo</dt>
+            <dd class="min-w-0 break-all text-slate-700"><code>{source.repoUrl}</code></dd>
+
+            <dt class="muted">Scan</dt>
+            <dd class="min-w-0 break-words text-slate-700">{source.scanPaths.join(', ')}</dd>
+          </dl>
+        </section>
+      ))}
+    </div>
+  </div>
+</details>

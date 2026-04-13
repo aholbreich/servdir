@@ -7,6 +7,7 @@ Even though the product started service-first, entries can now declare a broader
 The catalog title defaults to `Service Catalog`, but can be overridden with `CATALOG_TITLE`.
 
 ## Table of Contents
+
 - [Features](#features)
 - [Current stack](#current-stack)
 - [Usage](#usage)
@@ -20,19 +21,21 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 - [Development docs](#development-docs)
 
 ## Features
-* Nice looking and comprehensive out of the box
-* Service descriptions are written in Markdown
-* Git can be the source of truth, and multiple Git repos can be mixed in
-* Basic Auth protection
-* Dual deployment support: 
-  * Default Node server runtime (Selfupdating)
-  * Render the serdir as static catalog and host it on CDN
+
+- Nice looking and comprehensive out of the box
+- Service descriptions are written in Markdown
+- Git can be the source of truth, and multiple Git repos can be mixed in
+- Basic Auth protection
+- Dual deployment support:
+  - Default Node server runtime (Selfupdating)
+  - Render the serdir as static catalog and host it on CDN
 
 ## Demo
 
 [Staticaly rendered Demo](https://aholbreich.github.io/servdir/) version with demo services in the `catalog folder`
 
 ## Current stack
+
 - Astro
 - TypeScript
   - gray-matter
@@ -45,6 +48,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 ## Usage
 
 ### Running locally
+
 ```bash
 pnpm install
 cp .env.example .env
@@ -57,36 +61,43 @@ For local file-based catalog development, set `LOCAL_CATALOG_PATH=./catalog` in 
 The app requires at least one configured source, either `LOCAL_CATALOG_PATH` or `GIT_SOURCES`.
 
 ### Test locally
+
 ```bash
 pnpm test
 ```
 
 ### Build locally
+
 Default server build:
+
 ```bash
 pnpm build
 pnpm preview
 ```
 
 Static export build:
+
 ```bash
 pnpm build:static
 pnpm preview:static
 ```
 
 GitHub Pages-style local test:
+
 ```bash
 SERVDIR_BASE_PATH=/servdir pnpm build:static
 SERVDIR_BASE_PATH=/servdir pnpm preview:static
 ```
 
 Important:
+
 - the default mode remains the Node server runtime
 - static mode is opt-in via `SERVDIR_BUILD_MODE=static`
 - static mode renders from build-time catalog sources and does not include runtime scheduler/auth behavior
 - GitHub Pages deployment uses the repository-local catalog (`LOCAL_CATALOG_PATH=./catalog`) as its build-time source by default
 
 ### Create and push a release tag
+
 Use the interactive helper to inspect recent tags, create a new annotated tag, and optionally push it:
 
 ```bash
@@ -94,6 +105,7 @@ pnpm release:tag
 ```
 
 ### Draft release notes since the latest tag
+
 Generate a markdown-style list of commit messages since the latest tag:
 
 ```bash
@@ -107,6 +119,7 @@ pnpm release:notes -- v0.3.0
 ```
 
 ### Running locally, but closer to prod setup Docker / Podman
+
 Build the image with:
 
 ```bash
@@ -137,6 +150,7 @@ docker run --rm -it \
 ```
 
 ## Managed Git behavior
+
 - sources are synced on startup
 - sources are refreshed periodically in-process
 - requests read from the local checkout cache and do not perform Git pulls
@@ -144,20 +158,26 @@ docker run --rm -it \
 - if `checkoutPath` is omitted in `GIT_SOURCES`, servdir defaults to `./catalog-cache/<source-name>-<n>`
 
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
+
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
 
 ## Service definition format
+
 See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, including `kind`, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
 
 ## Kubernetes
+
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
 
 ## Deployment modes
+
 ### Default server mode
+
 This is the normal servdir deployment mode.
 
 Characteristics:
+
 - Node server runtime
 - Docker-friendly
 - request-time routing
@@ -165,9 +185,11 @@ Characteristics:
 - runtime Basic Auth support
 
 ### Static export mode
+
 This is an explicit secondary deployment mode for simple static hosting targets.
 
 Characteristics:
+
 - prerendered HTML output
 - good fit for local static preview and GitHub Pages-style hosting
 - build-time catalog snapshot
@@ -175,7 +197,9 @@ Characteristics:
 - GitHub Pages deployment is wired through `.github/workflows/pages.yml`
 
 ## Development docs
+
 Developer relevant docs in the project:
+
 - [docs/prd.md](./docs/prd.md)
 - [docs/user-stories.md](./docs/user-stories.md)
 - `.adr/`

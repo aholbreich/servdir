@@ -1,9 +1,11 @@
 # Working Notes
 
 ## Why this file exists
+
 This file preserves useful design context that is not formal enough for the PRD or an ADR.
 
 Use it for:
+
 - unresolved questions
 - design ideas worth revisiting
 - implementation watchouts
@@ -11,6 +13,7 @@ Use it for:
 - session-to-session continuity
 
 ## Current direction
+
 - Build a simple service catalog for engineers
 - Keep the MVP significantly simpler than a traditional CMDB
 - Git is the database
@@ -27,7 +30,9 @@ Use it for:
 - Managed Git sync is now handled by a small in-process scheduler instead of syncing on every request
 
 ## Confirmed decisions already captured elsewhere
+
 See:
+
 - `docs/prd.md`
 - `.adr/001-choose-typescript-and-astro-for-mvp.md`
 - `.adr/002-use-git-backed-markdown-as-source-of-truth.md`
@@ -38,6 +43,7 @@ See:
 - `.adr/008-add-an-in-process-git-sync-scheduler.md`
 
 ## Important design reminders
+
 - Do not overbuild the frontend too early
 - Do not let future repository sync requirements distort the MVP
 - Validation is part of the product, not just plumbing
@@ -48,7 +54,9 @@ See:
 - Basic Auth realm is fixed to `servdir`
 
 ## Recent implementation notes
+
 ### Managed Git scheduler and sync behavior
+
 - Managed Git sync previously happened on the request path and caused repeated pulls, race conditions, and noisy logs.
 - This has been replaced with an in-process scheduler that syncs on startup and then periodically.
 - Requests now read from local checkout state and do not perform Git sync work.
@@ -61,6 +69,7 @@ See:
 - Invalid partial checkout directories are removed before retrying clone.
 
 ### Logging direction
+
 - Startup/config logs were too noisy when config was recomputed per request.
 - Config is now cached so those logs are emitted once per process instead of on every page render.
 - Useful log categories now include:
@@ -75,17 +84,20 @@ See:
 - The cache/snapshot logic now lives as an explicit catalog cache subsystem instead of being hidden inside `load.ts`, to make later stats, debug views, and observability easier to extend.
 
 ### Dual deployment modes
+
 - Servdir now supports two deployment flavors:
   - default Node server runtime
   - explicit static export mode
 - Static export is additive and should not destabilize the main server path.
 - Current static flow is aimed at GitHub Pages first, with base-path-aware internal links and a dedicated Pages workflow.
 - Static mode intentionally skips runtime-only concerns such as middleware auth enforcement and scheduler-driven Git sync.
+- Static build was re-verified after the catalog status card refactor, and `pnpm build:static` still completes successfully.
 - Build/test reminder for future work:
   - baseline: `pnpm test && pnpm build`
   - when relevant to build/routing/deployment paths: `pnpm build:static`
 
 ### Catalog entry model broadening
+
 - The catalog started service-first, but the model now supports a broader optional `kind` field.
 - If `kind` is omitted, it defaults to `service`.
 - Current examples of broader entry types include:
@@ -94,6 +106,7 @@ See:
 - This is meant to broaden the catalog without renaming the whole product or breaking older service definitions.
 
 ### Tag navigation
+
 - Visible tags now link to dedicated tag pages.
 - The catalog now has:
   - `/tags` for the tag index
@@ -101,6 +114,7 @@ See:
 - Important implementation lesson: do not nest tag links inside a row-level anchor in list views. That broke the compact list and had to be fixed by restructuring the row markup.
 
 ### SSH behavior and local container testing
+
 - App-managed Git checkout/pull should prefer SSH repository access keys over provider API tokens.
 - Common container/Kubernetes defaults are:
   - `/etc/servdir/ssh/id_ed25519`
@@ -113,6 +127,7 @@ See:
 - For local debugging, mounting personal SSH files can work, but it is an interactive convenience path, not a good production-like example.
 
 ### Documentation added or improved
+
 - Added `docs/kubernetes.md` for Kubernetes deployment, Flux/SOPS-friendly config patterns, SSH setup, and operational notes.
 - Added `docs/service-definition.md` describing the `service.md` contract:
   - required and optional front matter fields
@@ -123,7 +138,9 @@ See:
 - README now has a direct link to the service definition reference, similar to the Kubernetes guide link.
 
 ### Current UI component structure
+
 Reusable UI building blocks currently in use:
+
 - `src/components/ui/Badge.astro` — compact status/tag pills
 - `src/components/ui/Card.astro` — shared card shell
 - `src/components/ui/IssueList.astro` — validation issue rendering
@@ -133,7 +150,11 @@ Reusable UI building blocks currently in use:
 - `src/components/ui/ServiceCard.astro` — dense reusable service list card
 - `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
 - `src/components/catalog/CatalogHero.astro` — index-page hero section for catalog identity and intro text
-- `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card
+- `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card, now mostly a composition shell
+- `src/components/catalog/CatalogStatusTabs.astro` — icon-only tab controls for the status card
+- `src/components/catalog/CatalogStatusPanel.astro` — tab panel wrapper with shared accessibility wiring
+- `src/components/catalog/CatalogStatusDetailList.astro` — reusable detail grid for configuration/runtime/issues sections
+- `src/components/catalog/CatalogStatusGitSourcesPopover.astro` — small overlay for managed Git source details
 - `src/components/catalog/ServiceHeader.astro` — detail-page header with service identity, summary state, and tags
 - `src/components/catalog/ServiceDocumentationCard.astro` — detail-page documentation body card
 - `src/components/catalog/ServiceMetadataCard.astro` — detail-page metadata and OpenAPI sections
@@ -141,12 +162,14 @@ Reusable UI building blocks currently in use:
 - `src/components/catalog/ServiceValidationCard.astro` — detail-page validation state card
 
 Design reminder:
+
 - prefer extending these components or adding adjacent catalog-scoped components before pushing more layout logic back into page files
 - keep generic UI primitives in `src/components/ui/`
 - keep domain-aware catalog components in `src/components/catalog/`
 - keep page files mostly orchestration plus layout composition, not presentation-heavy mapping
 
 ### Future direction: architecture diagrams and Pulumi context
+
 - There is user interest in surfacing Pulumi-generated architecture drawings from the service catalog.
 - Current recommendation is to show architecture context on the same service detail page, not on a separate page.
 - Short-term pragmatic option: represent Pulumi drawings as links.
@@ -157,6 +180,7 @@ Design reminder:
   - how diagram previews should be rendered on the service page
 
 ## Open questions
+
 - Should `provides` become a first-class field in the initial schema?
 - Should validation status be stored only in memory, or exposed through a small explicit model?
 - Should local development support file watch and hot reload for catalog changes in the first implementation?
@@ -166,8 +190,11 @@ Design reminder:
 - Should repository scanning be feature-flagged at first?
 
 ## Future feature ideas
+
 ### Repository scanning
+
 Likely next feature after the MVP foundation:
+
 - configure one or more repositories
 - periodically fetch or sync them
 - scan for service definition files
@@ -175,26 +202,33 @@ Likely next feature after the MVP foundation:
 - track sync status and last run state
 
 ### Validation UX
+
 Potential useful additions:
+
 - validation details page
 - warnings vs errors distinction
 - unresolved dependency view
 - duplicate id diagnostics
 
 ### Architecture diagrams
+
 Potential useful additions:
+
 - support Pulumi-generated architecture diagrams on service detail pages
 - start with generic link-based support if needed
 - later consider first-class architecture metadata
 - evaluate whether diagram assets should be remote only or allowed inside the catalog repo next to `service.md`
 
 ### Authoring support
+
 Potential later additions:
+
 - example templates for new services
 - schema docs for maintainers
 - CLI helper for generating a new service entry
 
 ## Suggested near-term improvements
+
 1. Expose a small health or debug view for sync state, for example last sync time, last success, last error, and source status.
 2. Improve validation UX in the UI, especially duplicate id diagnostics, unresolved dependency visibility, and clearer warning vs error treatment.
 3. Decide whether `provides` should become a first-class field in the service definition schema.
@@ -206,5 +240,6 @@ Potential later additions:
 9. Extend the explicit catalog cache subsystem with stats/debug surfaces if operational visibility becomes important.
 
 ## Working assumption
+
 The catalog is the product.
 Repository scanning is a future ingestion mechanism, not the foundation of the system.
