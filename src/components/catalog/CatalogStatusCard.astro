@@ -8,11 +8,13 @@ import CatalogStatusPanel from './CatalogStatusPanel.astro';
 import CatalogStatusTabs from './CatalogStatusTabs.astro';
 import {
   CATALOG_STATUS_TABS,
+  describeGitSourceHealth,
   describeSourceMode,
   formatDuration,
   getGitSourcesSummaryLabel,
   type CatalogStatusTabId,
 } from '../../lib/catalog-status';
+import type { GitSourceSyncStatus } from '../../lib/catalog/sources';
 import type { GitSourceConfig } from '../../lib/config';
 
 export interface Props {
@@ -27,6 +29,7 @@ export interface Props {
   gitSourcesCount: number;
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
+  gitSourceStatuses: GitSourceSyncStatus[];
   basicAuthEnabled: boolean;
 }
 
@@ -42,6 +45,7 @@ const {
   gitSourcesCount,
   gitSources,
   gitSyncIntervalMs,
+  gitSourceStatuses,
   basicAuthEnabled,
 } = Astro.props;
 
@@ -52,6 +56,14 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB', {
   timeStyle: 'short',
 });
 
+const gitSourceStatusByCheckoutPath = new Map(gitSourceStatuses.map((status) => [status.checkoutPath, status]));
+const gitSourcesWithStatus = gitSources.map((source) => ({
+  ...source,
+  syncStatus: gitSourceStatusByCheckoutPath.get(source.checkoutPath),
+}));
+const gitSourceFailureCount = gitSourcesWithStatus.filter((source) => source.syncStatus && !source.syncStatus.lastSyncSucceeded).length;
+const gitSourceKnownStatusCount = gitSourcesWithStatus.filter((source) => source.syncStatus).length;
+
 const configurationItems: DetailItem[] = [
   { label: 'Source mode', value: describeSourceMode(localCatalogPath, gitSourcesCount) },
   {
@@ -59,6 +71,7 @@ const configurationItems: DetailItem[] = [
     value: localCatalogPath ?? 'disabled',
     asCode: Boolean(localCatalogPath),
   },
+  { label: 'Git sync health', value: describeGitSourceHealth(gitSourcesCount, gitSourceFailureCount, gitSourceKnownStatusCount) },
   { label: 'Basic auth', value: basicAuthEnabled ? 'enabled' : 'disabled' },
 ];
 
@@ -77,6 +90,7 @@ const issueItems: DetailItem[] = [
         ? `${servicesWithIssues} service${servicesWithIssues === 1 ? '' : 's'} with warnings`
         : 'None',
   },
+  ...(gitSourcesCount > 0 ? [{ label: 'Git source sync', value: describeGitSourceHealth(gitSourcesCount, gitSourceFailureCount, gitSourceKnownStatusCount) }] : []),
   ...(snapshotError ? [{ label: 'Last refresh error', value: snapshotError }] : []),
 ];
 
@@ -87,6 +101,10 @@ const summaryBadges = [
     tone: servicesWithIssues > 0 ? ('warn' as const) : ('default' as const),
     label: servicesWithIssues > 0 ? `${servicesWithIssues} warnings` : 'No warnings',
   },
+  ...(gitSourcesCount > 0 ? [{
+    tone: gitSourceFailureCount > 0 ? ('warn' as const) : gitSourceKnownStatusCount > 0 ? ('ok' as const) : ('default' as const),
+    label: describeGitSourceHealth(gitSourcesCount, gitSourceFailureCount, gitSourceKnownStatusCount),
+  }] : []),
   {
     tone: snapshotStatus === 'fresh' ? ('ok' as const) : ('warn' as const),
     label: snapshotStatus,
@@ -110,7 +128,7 @@ const gitSourcesCountLabel = String(gitSourcesCount);
           <dd class="catalog-status-detail-inline min-w-0 text-slate-700">
             {gitSources.length > 0 ? (
               <CatalogStatusGitSourcesPopover
-                gitSources={gitSources}
+                gitSources={gitSourcesWithStatus}
                 summaryLabel={gitSourcesSummaryLabel}
                 countLabel={gitSourcesCountLabel}
               />

@@ -53,6 +53,7 @@ See:
 - The common Kubernetes case should stay simple: `emptyDir` cache, mounted SSH key, mounted `known_hosts`
 - Basic Auth realm is fixed to `servdir`
 - Probe endpoints should stay unauthenticated: `/health/live` for liveness and `/health/ready` for config/readiness checks
+- Managed Git source UI should distinguish configured sources from failing sources, using the runtime sync status that already exists in memory
 
 ## Cross-session handoff essentials
 

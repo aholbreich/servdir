@@ -5,11 +5,13 @@ import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getConfig } from '../lib/config';
 import { loadConfiguredCatalog } from '../lib/catalog';
+import { getGitSyncStatuses } from '../lib/git-sync';
 // This page is the entry point for the service catalog. 
 // It loads the catalog data and renders the hero section, status card, and grid of services.
 const config = getConfig();
 console.info('[page:/] rendering catalog index');
 const catalog = await loadConfiguredCatalog();
+const gitSourceStatuses = getGitSyncStatuses();
 const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;
 ---
@@ -30,6 +32,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       gitSourcesCount={config.gitSources.length}
       gitSources={config.gitSources}
       gitSyncIntervalMs={config.gitSyncIntervalMs}
+      gitSourceStatuses={gitSourceStatuses}
       basicAuthEnabled={config.basicAuth.enabled}
     />
   </section>

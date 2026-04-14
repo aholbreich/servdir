@@ -1,10 +1,18 @@
 ---
+import Badge from '../ui/Badge.astro';
+import {
+  getGitSourceSyncBadge,
+  summarizeGitSourceError,
+} from '../../lib/catalog-status';
+import type { GitSourceSyncStatus } from '../../lib/catalog/sources';
+
 export interface GitSourceItem {
   name: string;
   repoUrl: string;
   branch: string;
   checkoutPath: string;
   scanPaths?: string[];
+  syncStatus?: GitSourceSyncStatus;
 }
 
 export interface Props {
@@ -14,6 +22,10 @@ export interface Props {
 }
 
 const { gitSources, summaryLabel, countLabel } = Astro.props;
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
 ---
 
 <!-- Small details popover for managed Git source metadata in the configuration tab. -->
@@ -25,22 +37,44 @@ const { gitSources, summaryLabel, countLabel } = Astro.props;
 
   <div class="catalog-status-popover-panel">
     <div class="catalog-status-source-list">
-      {gitSources.map((source, index) => (
-        <section class="catalog-status-source-card" aria-label={`Git source ${index + 1}`}>
-          <div class="catalog-status-source-header">
-            <h3 class="catalog-status-source-title">{source.name}</h3>
-            <span class="catalog-status-source-branch">{source.branch}</span>
-          </div>
+      {gitSources.map((source, index) => {
+        const syncBadge = getGitSourceSyncBadge(source.syncStatus);
+        const syncHint = summarizeGitSourceError(source.syncStatus?.lastError);
 
-          <dl class="catalog-status-source-details">
-            <dt class="muted">Repo</dt>
-            <dd class="min-w-0 break-all text-slate-700"><code>{source.repoUrl}</code></dd>
+        return (
+          <section class="catalog-status-source-card" aria-label={`Git source ${index + 1}`}>
+            <div class="catalog-status-source-header gap-2">
+              <h3 class="catalog-status-source-title">{source.name}</h3>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <Badge tone={syncBadge.tone}>{syncBadge.label}</Badge>
+                <span class="catalog-status-source-branch">{source.branch}</span>
+              </div>
+            </div>
 
-            <dt class="muted">Scan</dt>
-            <dd class="min-w-0 break-words text-slate-700">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
-          </dl>
-        </section>
-      ))}
+            <dl class="catalog-status-source-details">
+              <dt class="muted">Repo</dt>
+              <dd class="min-w-0 break-all text-slate-700"><code>{source.repoUrl}</code></dd>
+
+              <dt class="muted">Scan</dt>
+              <dd class="min-w-0 break-words text-slate-700">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
+
+              {source.syncStatus?.lastSyncFinishedAt && (
+                <>
+                  <dt class="muted">Last sync</dt>
+                  <dd class="min-w-0 break-words text-slate-700">{dateFormatter.format(new Date(source.syncStatus.lastSyncFinishedAt))}</dd>
+                </>
+              )}
+
+              {syncHint && (
+                <>
+                  <dt class="muted">Issue</dt>
+                  <dd class="min-w-0 break-words text-[var(--color-warn)]">{syncHint}</dd>
+                </>
+              )}
+            </dl>
+          </section>
+        );
+      })}
     </div>
   </div>
 </details>
