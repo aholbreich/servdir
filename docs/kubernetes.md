@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Ops quick start](#ops-quick-start)
 - [What this setup expects](#what-this-setup-expects)
+- [SSH Access Key setup](#ssh-access-key-setup)
 - [Configuration reference](#configuration-reference)
 - [Health checks](#health-checks)
 - [Operational notes](#operational-notes)
@@ -160,6 +161,31 @@ spec:
 
 Recommended default:
 - keep `replicas: 1` unless you intentionally want multiple pods doing Git sync work
+
+## SSH Access Key setup
+
+Use a repository-scoped SSH access key for each Git repository when possible.
+
+Typical setup:
+1. create an SSH key pair for servdir
+2. add the public key as a read-only repository access key in Bitbucket or your Git provider
+3. prepare a `known_hosts` file for the Git host
+4. create a Kubernetes Secret containing:
+   - `id_ed25519`
+   - `known_hosts`
+5. mount that Secret at:
+   - `/etc/servdir/ssh/id_ed25519`
+   - `/etc/servdir/ssh/known_hosts`
+6. use SSH repository URLs, for example:
+   - `git@bitbucket.org:your-org/service-catalog.git`
+
+Quick helper for `known_hosts`:
+
+```bash
+ssh-keyscan bitbucket.org > known_hosts
+```
+
+Review the fingerprint before using it.
 
 ## Configuration reference
 
