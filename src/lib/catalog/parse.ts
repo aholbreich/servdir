@@ -28,6 +28,10 @@ export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
     }
   }
 
+  // On schema failure, build a best-effort data object from the raw frontmatter
+  // rather than discarding the entry entirely. This keeps the service visible in
+  // the catalog so the validation issues are surfaced in the UI rather than
+  // silently disappearing from the list.
   const data = result.success
     ? result.data
     : {

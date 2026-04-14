@@ -64,83 +64,16 @@ const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
       </div>
 
       <div data-catalog-view-panel data-view="cards" hidden>
-        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service) => (
-            <div data-service-kind={effectiveKind(service)}>
+            <li data-service-kind={effectiveKind(service)}>
               <ServiceCard service={service} />
-            </div>
+            </li>
           ))}
-        </section>
+        </ul>
       </div>
 
-      <script is:inline>
-        (() => {
-          const storageKey = 'servdir:catalog-view';
-          const root = document.currentScript?.closest('[data-catalog-view-root]');
-
-          if (!root) {
-            return;
-          }
-
-          const viewButtons = Array.from(root.querySelectorAll('[data-catalog-view-button]'));
-          const panels = Array.from(root.querySelectorAll('[data-catalog-view-panel]'));
-          const kindButtons = Array.from(root.querySelectorAll('[data-kind-filter-btn]'));
-          const countEl = root.querySelector('[data-catalog-count]');
-          let activeKind = null;
-
-          const applyView = (view) => {
-            viewButtons.forEach((button) => {
-              const active = button.dataset.view === view;
-              button.classList.toggle('is-active', active);
-              button.setAttribute('aria-pressed', String(active));
-            });
-
-            panels.forEach((panel) => {
-              panel.hidden = panel.dataset.view !== view;
-            });
-          };
-
-          const applyKindFilter = (kind) => {
-            activeKind = kind;
-            kindButtons.forEach((btn) => {
-              const active = btn.dataset.kindFilterBtn === kind;
-              btn.classList.toggle('is-active', active);
-              btn.setAttribute('aria-pressed', String(active));
-            });
-
-            const items = Array.from(root.querySelectorAll('[data-service-kind]'));
-            let visible = 0;
-            items.forEach((item) => {
-              const match = !kind || item.dataset.serviceKind === kind;
-              item.hidden = !match;
-              if (match) visible++;
-            });
-
-            if (countEl) {
-              countEl.textContent = `Showing ${visible} service${visible === 1 ? '' : 's'}`;
-            }
-          };
-
-          kindButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-              applyKindFilter(activeKind === btn.dataset.kindFilterBtn ? null : btn.dataset.kindFilterBtn);
-            });
-          });
-
-          // We default to list view so the page still reads well before any client script runs.
-          const savedView = window.localStorage.getItem(storageKey);
-          const initialView = savedView === 'cards' ? 'cards' : 'list';
-          applyView(initialView);
-
-          viewButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-              const view = button.dataset.view === 'list' ? 'list' : 'cards';
-              window.localStorage.setItem(storageKey, view);
-              applyView(view);
-            });
-          });
-        })();
-      </script>
+      <script src="../../scripts/catalog-grid.ts"></script>
     </section>
   ) : (
     <Card class="px-6 py-14 text-center">

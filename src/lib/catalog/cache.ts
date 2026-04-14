@@ -81,6 +81,9 @@ export async function refreshCatalogCache(
 ): Promise<Catalog> {
   const entry = getOrCreateCacheEntry(localCatalogRoot, gitSources);
 
+  // If a refresh is already in flight, return the same promise rather than
+  // starting a second concurrent build. Two simultaneous requests that both
+  // miss the cache will share one catalog build instead of duplicating work.
   if (entry.refreshPromise) {
     return entry.refreshPromise;
   }

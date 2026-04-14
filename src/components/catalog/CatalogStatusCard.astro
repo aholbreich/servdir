@@ -13,6 +13,7 @@ import {
   getGitSourcesSummaryLabel,
   type CatalogStatusTabId,
 } from '../../lib/catalog-status';
+import type { GitSourceConfig } from '../../lib/config';
 
 export interface Props {
   servicesCount: number;
@@ -24,13 +25,7 @@ export interface Props {
   snapshotError?: string;
   localCatalogPath?: string;
   gitSourcesCount: number;
-  gitSources: Array<{
-    name: string;
-    repoUrl: string;
-    branch: string;
-    checkoutPath: string;
-    scanPaths: string[];
-  }>;
+  gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
   basicAuthEnabled: boolean;
 }
