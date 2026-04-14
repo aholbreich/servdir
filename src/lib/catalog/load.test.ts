@@ -20,6 +20,7 @@ afterEach(async () => {
   if (tempDir) {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
+  delete process.env.GIT_SOURCE_CATALOG_MAIN;
 });
 
 describe('loadCatalogFromSources', () => {
@@ -65,15 +66,7 @@ describe('loadCatalogFromSources', () => {
 
   it('logs validation issues when parsing git-backed services', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    process.env.GIT_SOURCES = JSON.stringify([
-      {
-        name: 'catalog-main',
-        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
-        branch: 'main',
-        checkoutPath: path.join(tempDir, 'git-checkout'),
-        scanPaths: ['services'],
-      },
-    ]);
+    process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main|services';
 
     await writeService(
       'git-checkout/services/broken/service.md',

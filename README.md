@@ -58,7 +58,7 @@ pnpm dev
 Then open `http://localhost:4321` to see the catalog running on your machine.
 
 For local file-based catalog development, set `LOCAL_CATALOG_PATH=./catalog` in `.env`.
-The app requires at least one configured source, either `LOCAL_CATALOG_PATH` or `GIT_SOURCES`.
+The app requires at least one configured source, either `LOCAL_CATALOG_PATH` or a `GIT_SOURCE_<NAME>` variable.
 
 ### Test locally
 
@@ -155,7 +155,7 @@ docker run --rm -it \
 - sources are refreshed periodically in-process
 - requests read from the local checkout cache and do not perform Git pulls
 - sync is locked per source to avoid overlapping operations
-- if `checkoutPath` is omitted in `GIT_SOURCES`, servdir defaults to `./catalog-cache/<source-name>-<n>`
+- checkout path is always derived automatically as `./catalog-cache/<source-name>-<n>`
 
 Managed Git uses sensible SSH defaults in container environments when keys are mounted at:
 

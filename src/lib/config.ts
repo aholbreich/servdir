@@ -68,49 +68,52 @@ function defaultCheckoutPath(name: string, index: number): string {
   return path.join('.', 'catalog-cache', `${toSafePathSegment(name)}-${index + 1}`);
 }
 
-function parseGitSources(raw: string | undefined): GitSourceConfig[] {
-  if (!raw) {
-    return [];
+function parseGitSources(): GitSourceConfig[] {
+  if (process.env.GIT_SOURCES) {
+    console.warn('[config] GIT_SOURCES is no longer supported — migrate to GIT_SOURCE_<NAME>=repoUrl|branch[|scanPath1,scanPath2]');
   }
 
-  try {
-    const parsed = JSON.parse(raw) as unknown;
+  // Merge process.env and import.meta.env — Astro/Vite may inject .env vars into
+  // import.meta.env without putting them into process.env in dev mode.
+  const merged: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key.startsWith('GIT_SOURCE_') && value) merged[key] = value;
+  }
+  for (const [key, value] of Object.entries(import.meta.env as Record<string, unknown>)) {
+    if (key.startsWith('GIT_SOURCE_') && typeof value === 'string' && value && !(key in merged)) {
+      merged[key] = value;
+    }
+  }
 
-    if (!Array.isArray(parsed)) {
-      throw new Error('GIT_SOURCES must be a JSON array');
+  const entries = Object.entries(merged).sort(([a], [b]) => a.localeCompare(b));
+
+  return entries.map(([key, value], index) => {
+    const nameSuffix = key.slice('GIT_SOURCE_'.length);
+    const name = nameSuffix.toLowerCase().replace(/_/g, '-');
+    const parts = (value as string).split('|');
+
+    if (parts.length < 2) {
+      throw new Error(`${key}: expected format repoUrl|branch[|scanPaths] but got "${value}"`);
     }
 
-    return parsed.map((entry, index) => {
-      if (!entry || typeof entry !== 'object') {
-        throw new Error(`GIT_SOURCES[${index}] must be an object`);
-      }
+    const [repoUrl, branch, scanPathsRaw] = parts;
+    const scanPaths = scanPathsRaw
+      ? scanPathsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+      : undefined;
 
-      const candidate = entry as Record<string, unknown>;
-      const scanPaths = Array.isArray(candidate.scanPaths)
-        ? candidate.scanPaths.map(String)
-        : undefined;
-
-      const name = String(candidate.name ?? `source-${index + 1}`);
-      const checkoutPath = typeof candidate.checkoutPath === 'string' && candidate.checkoutPath.trim().length > 0
-        ? candidate.checkoutPath
-        : defaultCheckoutPath(name, index);
-
-      return {
-        name,
-        repoUrl: String(candidate.repoUrl ?? ''),
-        branch: String(candidate.branch ?? 'main'),
-        checkoutPath,
-        scanPaths,
-      };
-    }).filter((source) => source.repoUrl);
-  } catch (error) {
-    throw new Error(`failed to parse GIT_SOURCES: ${toError(error).message}`);
-  }
+    return {
+      name,
+      repoUrl: repoUrl.trim(),
+      branch: branch.trim() || 'main',
+      checkoutPath: defaultCheckoutPath(name, index),
+      scanPaths,
+    };
+  }).filter((source) => source.repoUrl);
 }
 
 function buildConfig(): AppConfig {
   const localCatalogPath = readEnv('LOCAL_CATALOG_PATH');
-  const gitSources = parseGitSources(readEnv('GIT_SOURCES'));
+  const gitSources = parseGitSources();
   const basicAuthEnabled = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));
   const basicAuthUsername = readEnv('BASIC_AUTH_USERNAME');
   const basicAuthPassword = readEnv('BASIC_AUTH_PASSWORD');
@@ -136,7 +139,7 @@ function buildConfig(): AppConfig {
 
 function validateConfig(config: AppConfig): AppConfig {
   if (!config.localCatalogPath && config.gitSources.length === 0) {
-    throw new Error('at least one catalog source must be configured: set LOCAL_CATALOG_PATH or GIT_SOURCES');
+    throw new Error('at least one catalog source must be configured: set LOCAL_CATALOG_PATH or GIT_SOURCE_<NAME>');
   }
 
   if (config.basicAuth.enabled) {
