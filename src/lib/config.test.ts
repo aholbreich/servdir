@@ -5,7 +5,7 @@ describe('getConfig', () => {
     vi.resetModules();
     delete process.env.APP_BUILD_VERSION;
     delete process.env.CATALOG_TITLE;
-    delete process.env.GIT_SYNC_INTERVAL_MS;
+    delete process.env.GIT_SYNC_INTERVAL;
     delete process.env.GIT_SOURCE_CATALOG_MAIN;
     delete process.env.LOCAL_CATALOG_PATH;
     delete process.env.BASIC_AUTH_ENABLED;
@@ -25,7 +25,7 @@ describe('getConfig', () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
     process.env.APP_BUILD_VERSION = 'v0.3.1 · sha-635bfd6';
     process.env.CATALOG_TITLE = 'Platform Service Catalog';
-    process.env.GIT_SYNC_INTERVAL_MS = '15000';
+    process.env.GIT_SYNC_INTERVAL = '15s';
     const { getConfig } = await import('./config');
     expect(getConfig().appBuildVersion).toBe('v0.3.1 · sha-635bfd6');
     expect(getConfig().catalogTitle).toBe('Platform Service Catalog');

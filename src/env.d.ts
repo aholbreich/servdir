@@ -7,7 +7,7 @@ interface ImportMetaEnv {
   readonly BASIC_AUTH_ENABLED?: string;
   readonly BASIC_AUTH_USERNAME?: string;
   readonly BASIC_AUTH_PASSWORD?: string;
-  readonly GIT_SYNC_INTERVAL_MS?: string;
+  readonly GIT_SYNC_INTERVAL?: string;
   readonly SERVDIR_BUILD_MODE?: string;
   readonly SERVDIR_BASE_PATH?: string;
   readonly SERVDIR_SITE_URL?: string;

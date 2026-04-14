@@ -128,12 +128,13 @@ Notes:
 
 ### Managed Git settings
 
-#### `GIT_SYNC_INTERVAL_MS`
-Managed Git refresh interval in milliseconds.
+#### `GIT_SYNC_INTERVAL`
+
+Managed Git refresh interval. Accepts a duration string with `s`, `m`, or `h` suffix, or a plain number treated as seconds.
 
 Default:
 ```env
-GIT_SYNC_INTERVAL_MS=60000
+GIT_SYNC_INTERVAL=1m
 ```
 
 #### `GIT_SOURCE_<NAME>`

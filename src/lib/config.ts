@@ -41,9 +41,16 @@ function looksEncryptedPlaceholder(value: string | undefined): boolean {
   return typeof value === 'string' && value.startsWith('ENC[');
 }
 
-function parsePositiveNumber(raw: string | undefined, fallback: number): number {
-  const parsed = Number(raw ?? fallback);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+
+function parseDurationMs(raw: string | undefined, fallback: number): number {
+  if (!raw) return fallback;
+  const match = raw.trim().match(/^(\d+(?:\.\d+)?)\s*(ms|s|m|h)?$/);
+  if (!match) return fallback;
+  const value = parseFloat(match[1]);
+  const unit = match[2] ?? 's';
+  const multipliers: Record<string, number> = { ms: 1, s: 1000, m: 60000, h: 3600000 };
+  const ms = value * multipliers[unit];
+  return ms > 0 ? ms : fallback;
 }
 
 function parseBoolean(raw: string | undefined): boolean {
@@ -128,7 +135,7 @@ function buildConfig(): AppConfig {
     catalogTitle: readEnv('CATALOG_TITLE') ?? 'Service Catalog',
     localCatalogPath,
     gitSources,
-    gitSyncIntervalMs: parsePositiveNumber(readEnv('GIT_SYNC_INTERVAL_MS'), 60000),
+    gitSyncIntervalMs: parseDurationMs(readEnv('GIT_SYNC_INTERVAL'), 60000),
     basicAuth: {
       enabled: basicAuthEnabled,
       username: basicAuthEnabled ? basicAuthUsername : undefined,
