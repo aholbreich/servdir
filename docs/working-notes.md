@@ -214,6 +214,9 @@ This is the preferred level of abstraction here:
   - Markdown body behavior
   - validation behavior
   - discovery rules for local and managed Git sources
+- Discovery now also supports an explicit single-repo entry file at the scan root: `.servdir.md`.
+  - keep using `services/*/service.md` for multi-entry catalogs
+  - use root `.servdir.md` when the repository itself should appear as one catalog entry
 - Added ToCs to `README.md`, `docs/kubernetes.md`, and `docs/service-definition.md`.
 - README now has a direct link to the service definition reference, similar to the Kubernetes guide link.
 

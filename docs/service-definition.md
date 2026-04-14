@@ -65,6 +65,8 @@ domain: finance
 Creates invoices and exposes billing functionality for internal systems.
 ```
 
+The same front matter and Markdown body format also applies when a repository declares itself as a single catalog entry via a root-level `.servdir.md` file.
+
 ## Required front matter fields
 
 These fields are required and validated.
@@ -393,20 +395,22 @@ For the local catalog root from `LOCAL_CATALOG_PATH`, `servdir` scans:
 
 ```text
 <catalog-root>/services/*/service.md
+<catalog-root>/.servdir.md
 ```
 
-Example:
+Examples:
 
 ```text
 /data/catalog/services/billing-api/service.md
 /data/catalog/services/auth-api/service.md
+/data/catalog/.servdir.md
 ```
 
 That means:
 
-- files must be named `service.md`
-- each service must live one directory below `services/`
-- deeper nesting is not currently discovered automatically
+- normal multi-entry catalogs still use `services/*/service.md`
+- a repository can also declare itself as one single catalog entry with a root-level `.servdir.md`
+- deeper nesting is not currently discovered automatically beyond those explicit patterns
 
 ### Managed Git source discovery
 
@@ -414,14 +418,21 @@ For each `GIT_SOURCE_<NAME>` variable, `servdir` syncs the repository into a loc
 
 ```text
 <checkoutPath>/<scanPath>/*/service.md
+<checkoutPath>/<scanPath>/.servdir.md
 ```
 
-If no scan paths are configured, the repo root is scanned (`<checkoutPath>/*/service.md`).
+If no scan paths are configured, the repo root is scanned, which means:
+
+```text
+<checkoutPath>/*/service.md
+<checkoutPath>/.servdir.md
+```
 
 Example config:
 
 ```env
 GIT_SOURCE_CATALOG_MAIN=git@bitbucket.org:your-org/service-catalog.git|main|services,platform/services
+GIT_SOURCE_FLUX_GITOPS=git@bitbucket.org:your-org/flux-gitops.git|main
 ```
 
 This discovers paths like:
@@ -429,6 +440,7 @@ This discovers paths like:
 ```text
 /data/catalog-cache/catalog-main/services/billing-api/service.md
 /data/catalog-cache/catalog-main/platform/services/auth-api/service.md
+/data/catalog-cache/flux-gitops/.servdir.md
 ```
 
 ## Catalog merge behavior

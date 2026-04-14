@@ -64,6 +64,48 @@ describe('loadCatalogFromSources', () => {
     expect(catalog.snapshotStatus).toBe('fresh');
   });
 
+  it('loads a single-repo definition from .servdir.md in the local catalog root', async () => {
+    await writeService(
+      '.servdir.md',
+      `---\nid: servdir\nname: Servdir\nkind: application\nowner: team-platform\nlifecycle: production\nrepo: https://example.com/servdir\n---\n\n# Servdir\n`,
+    );
+
+    const catalog = await loadCatalogFromSources(tempDir);
+
+    expect(catalog.services).toHaveLength(1);
+    expect(catalog.services[0]?.filePath).toContain('.servdir.md');
+    expect(catalog.services[0]?.data.id).toBe('servdir');
+    expect(catalog.services[0]?.data.kind).toBe('application');
+    expect(catalog.snapshotStatus).toBe('fresh');
+  });
+
+  it('loads a single-repo definition from .servdir.md in a git scan root', async () => {
+    process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main';
+
+    await writeService(
+      'git-checkout/.servdir.md',
+      `---\nid: flux-gitops\nname: Flux GitOps\nkind: iac\nowner: devops\nlifecycle: production\nrepo: https://example.com/flux-gitops\n---\n\n# Flux GitOps\n`,
+    );
+    await fs.mkdir(path.join(tempDir, 'git-checkout', '.git'), { recursive: true });
+
+    const catalog = await loadCatalogFromSources(undefined, {
+      gitSources: [
+        {
+          name: 'catalog-main',
+          repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+          branch: 'main',
+          checkoutPath: path.join(tempDir, 'git-checkout'),
+          scanPaths: [],
+        },
+      ],
+    });
+
+    expect(catalog.services).toHaveLength(1);
+    expect(catalog.services[0]?.filePath).toContain('.servdir.md');
+    expect(catalog.services[0]?.data.id).toBe('flux-gitops');
+    expect(catalog.snapshotStatus).toBe('fresh');
+  });
+
   it('logs validation issues when parsing git-backed services', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main|services';

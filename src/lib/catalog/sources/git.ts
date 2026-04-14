@@ -97,11 +97,20 @@ async function scanCheckout(source: GitCatalogSource): Promise<ServiceRecord[]> 
   const paths = source.scanPaths && source.scanPaths.length > 0 ? source.scanPaths : [''];
   const allFiles = await Promise.all(paths.map(async (scanPath) => {
     const pattern = path.join(source.checkoutPath, scanPath, '*', 'service.md').replaceAll('\\', '/');
+    const singleRepoDefinitionPath = path.join(source.checkoutPath, scanPath, '.servdir.md');
     console.info(`[catalog:git] scanning ${source.name} with pattern: ${pattern}`);
-    return glob(pattern);
+
+    const matchedPaths = await glob(pattern);
+
+    if (await pathExists(singleRepoDefinitionPath)) {
+      console.info(`[catalog:git] discovered single-repo definition in ${source.name}: ${singleRepoDefinitionPath}`);
+      matchedPaths.push(singleRepoDefinitionPath);
+    }
+
+    return matchedPaths;
   }));
 
-  const filePaths = allFiles.flat();
+  const filePaths = Array.from(new Set(allFiles.flat()));
   console.info(`[catalog:git] discovered ${filePaths.length} service definition file(s) in ${source.name}`);
 
   const parsedServices = await Promise.all(filePaths.map(async (filePath) => {
