@@ -6,7 +6,7 @@ describe('getConfig', () => {
     delete process.env.APP_BUILD_VERSION;
     delete process.env.CATALOG_TITLE;
     delete process.env.GIT_SYNC_INTERVAL_MS;
-    delete process.env.GIT_SOURCES;
+    delete process.env.GIT_SOURCE_CATALOG_MAIN;
     delete process.env.LOCAL_CATALOG_PATH;
     delete process.env.BASIC_AUTH_ENABLED;
     delete process.env.BASIC_AUTH_USERNAME;
@@ -32,15 +32,8 @@ describe('getConfig', () => {
     expect(getConfig().gitSyncIntervalMs).toBe(15000);
   });
 
-  it('assigns a default checkout path for git sources when checkoutPath is omitted', async () => {
-    process.env.GIT_SOURCES = JSON.stringify([
-      {
-        name: 'catalog-main',
-        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
-        branch: 'main',
-        scanPaths: ['services'],
-      },
-    ]);
+  it('parses GIT_SOURCE_* env vars into git sources', async () => {
+    process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main|services';
     const { getConfig } = await import('./config');
     expect(getConfig().gitSources).toEqual([
       {
@@ -49,6 +42,20 @@ describe('getConfig', () => {
         branch: 'main',
         checkoutPath: 'catalog-cache/catalog-main-1',
         scanPaths: ['services'],
+      },
+    ]);
+  });
+
+  it('parses GIT_SOURCE_* without scanPaths as undefined', async () => {
+    process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main';
+    const { getConfig } = await import('./config');
+    expect(getConfig().gitSources).toEqual([
+      {
+        name: 'catalog-main',
+        repoUrl: 'git@bitbucket.org:example/service-catalog.git',
+        branch: 'main',
+        checkoutPath: 'catalog-cache/catalog-main-1',
+        scanPaths: undefined,
       },
     ]);
   });

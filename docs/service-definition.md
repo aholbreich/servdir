@@ -410,24 +410,18 @@ That means:
 
 ### Managed Git source discovery
 
-For each Git source entry in `GIT_SOURCES`, `servdir` first syncs the repository into `checkoutPath`.
-
-Then for each configured `scanPath`, it scans:
+For each `GIT_SOURCE_<NAME>` variable, `servdir` syncs the repository into a local checkout path, then scans each configured scan path:
 
 ```text
 <checkoutPath>/<scanPath>/*/service.md
 ```
 
+If no scan paths are configured, the repo root is scanned (`<checkoutPath>/*/service.md`).
+
 Example config:
 
-```json
-{
-  "name": "catalog-main",
-  "repoUrl": "git@bitbucket.org:your-org/service-catalog.git",
-  "branch": "main",
-  "checkoutPath": "/data/catalog-cache/catalog-main",
-  "scanPaths": ["services", "platform/services"]
-}
+```env
+GIT_SOURCE_CATALOG_MAIN=git@bitbucket.org:your-org/service-catalog.git|main|services,platform/services
 ```
 
 This discovers paths like:

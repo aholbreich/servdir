@@ -33,7 +33,7 @@ This guide describes how to run `servdir` in Kubernetes with:
 `servdir` can load service definitions from two kinds of sources:
 
 1. **Local catalog path** via `LOCAL_CATALOG_PATH`
-2. **Managed Git sources** via `GIT_SOURCES`
+2. **Managed Git sources** via `GIT_SOURCE_<NAME>` variables
 
 At startup the app:
 - scans local catalog files from `LOCAL_CATALOG_PATH` when configured
@@ -136,49 +136,31 @@ Default:
 GIT_SYNC_INTERVAL_MS=60000
 ```
 
-#### `GIT_SOURCES`
-JSON array describing managed Git repositories.
+#### `GIT_SOURCE_<NAME>`
+One variable per managed Git repository. The variable name suffix becomes the source name (`CATALOG_MAIN` → `catalog-main`).
 
-Example:
-```env
-GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
-```
+Format: `repoUrl|branch[|scanPath1,scanPath2]`
 
-Each entry supports:
-
-- `name`: human-readable source name
 - `repoUrl`: Git clone URL
-- `branch`: branch to checkout and pull
-- `checkoutPath`: writable local checkout path inside the container, optional when the default cache location is acceptable
-- `scanPaths`: array of relative paths to scan for `*/service.md`
+- `branch`: branch to track
+- `scanPaths`: comma-separated relative paths to scan for `*/service.md` — omit to scan the entire repo root
 
-If `checkoutPath` is omitted, servdir defaults to:
+The checkout path is always derived automatically:
 
 ```text
 ./catalog-cache/<sanitized-source-name>-<n>
 ```
 
-In Kubernetes, it can still make sense to set `checkoutPath` explicitly so the cache location clearly matches your mounted writable volume, for example `/data/catalog-cache/catalog-main`.
+Example:
+```env
+GIT_SOURCE_CATALOG_MAIN=git@bitbucket.org:your-org/service-catalog.git|main|services
+```
 
 Example with multiple repositories:
-
 ```env
-GIT_SOURCES=[
-  {
-    "name":"catalog-main",
-    "repoUrl":"git@bitbucket.org:your-org/service-catalog.git",
-    "branch":"main",
-    "checkoutPath":"/data/catalog-cache/catalog-main",
-    "scanPaths":["services"]
-  },
-  {
-    "name":"catalog-payments",
-    "repoUrl":"git@bitbucket.org:your-org/service-catalog-payments.git",
-    "branch":"main",
-    "checkoutPath":"/data/catalog-cache/catalog-payments",
-    "scanPaths":["services", "platform/services"]
-  }
-]
+GIT_SOURCE_CATALOG_MAIN=git@bitbucket.org:your-org/service-catalog.git|main|services
+GIT_SOURCE_CATALOG_PAYMENTS=git@bitbucket.org:your-org/service-catalog-payments.git|main|services,platform/services
+GIT_SOURCE_MONOREPO=git@bitbucket.org:your-org/monorepo.git|main
 ```
 
 #### `GIT_SSH_COMMAND`
@@ -275,8 +257,7 @@ metadata:
   name: servdir-config
 data:
   LOCAL_CATALOG_PATH: "/data/catalog"
-  GIT_SOURCES: >-
-    [{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","checkoutPath":"/data/catalog-cache/catalog-main","scanPaths":["services"]}]
+  GIT_SOURCE_CATALOG_MAIN: "git@bitbucket.org:your-org/service-catalog.git|main|services"
 ```
 
 ## Example Secret
@@ -429,7 +410,7 @@ Use a PVC when:
 ### Local and Git sources can be mixed
 You can use both:
 - local mounted catalog files in `LOCAL_CATALOG_PATH`
-- remote Git-backed catalog repositories in `GIT_SOURCES`
+- remote Git-backed catalog repositories via `GIT_SOURCE_<NAME>` variables
 
 This is useful for:
 - bootstrapping
@@ -460,7 +441,7 @@ LOCAL_CATALOG_PATH=./catalog
 BASIC_AUTH_ENABLED=true
 BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=secret
-GIT_SOURCES=[{"name":"catalog-main","repoUrl":"git@bitbucket.org:your-org/service-catalog.git","branch":"main","scanPaths":["services"]}]
+GIT_SOURCE_CATALOG_MAIN=git@bitbucket.org:your-org/service-catalog.git|main|services
 ```
 
 This will default the checkout cache to a local path such as:
