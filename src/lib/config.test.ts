@@ -80,4 +80,22 @@ describe('getConfig', () => {
     const { getConfig } = await import('./config');
     expect(() => getConfig()).toThrow('Encrypted secret placeholder detected in runtime env');
   });
+
+  it('recovers after an earlier invalid config once env values become valid', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.BASIC_AUTH_USERNAME = 'dev';
+    process.env.BASIC_AUTH_PASSWORD = 'ENC[AES256_GCM,data:example]';
+    const { getConfig } = await import('./config');
+
+    expect(() => getConfig()).toThrow('Encrypted secret placeholder detected in runtime env');
+
+    process.env.BASIC_AUTH_PASSWORD = 'real-secret';
+
+    expect(getConfig().basicAuth).toEqual({
+      enabled: true,
+      username: 'dev',
+      password: 'real-secret',
+    });
+  });
 });

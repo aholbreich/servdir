@@ -52,6 +52,7 @@ See:
 - For managed Git, keep sync and checkout management boring and predictable
 - The common Kubernetes case should stay simple: `emptyDir` cache, mounted SSH key, mounted `known_hosts`
 - Basic Auth realm is fixed to `servdir`
+- Probe endpoints should stay unauthenticated: `/health/live` for liveness and `/health/ready` for config/readiness checks
 
 ## Cross-session handoff essentials
 

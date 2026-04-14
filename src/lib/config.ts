@@ -27,7 +27,7 @@ type ConfigResolution =
   | { ok: true; config: AppConfig }
   | { ok: false; error: Error };
 
-let cachedConfigResolution: ConfigResolution | undefined;
+let cachedConfig: AppConfig | undefined;
 
 function readEnv(name: keyof ImportMetaEnv): string | undefined {
   return process.env[name] ?? import.meta.env[name];
@@ -174,21 +174,20 @@ function logConfig(config: AppConfig): void {
 }
 
 function resolveConfig(): ConfigResolution {
-  if (cachedConfigResolution) {
-    return cachedConfigResolution;
+  if (cachedConfig) {
+    return { ok: true, config: cachedConfig };
   }
 
   try {
     const config = validateConfig(buildConfig());
     logConfig(config);
-    cachedConfigResolution = { ok: true, config };
+    cachedConfig = config;
+    return { ok: true, config };
   } catch (error) {
     const resolvedError = toError(error);
     console.error(`[config] invalid configuration: ${resolvedError.message}`);
-    cachedConfigResolution = { ok: false, error: resolvedError };
+    return { ok: false, error: resolvedError };
   }
-
-  return cachedConfigResolution;
 }
 
 export function tryGetConfig(): ConfigResolution {

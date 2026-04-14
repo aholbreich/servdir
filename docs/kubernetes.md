@@ -13,6 +13,7 @@
 - [Recommended repository layout](#recommended-repository-layout)
 - [SSH Access Key setup](#ssh-access-key-setup)
 - [Logging and failure behavior](#logging-and-failure-behavior)
+- [Health endpoints and probe strategy](#health-endpoints-and-probe-strategy)
 - [Example ConfigMap](#example-configmap)
 - [Example Secret](#example-secret)
 - [Example Deployment with `emptyDir` (recommended)](#example-deployment-with-emptydir-recommended)
@@ -249,6 +250,29 @@ Managed Git sync logs should now show:
 
 If a source has no valid checkout yet, the app skips scanning that source until the scheduler has created one.
 
+## Health endpoints and probe strategy
+
+Servdir now exposes probe-friendly endpoints that bypass Basic Auth:
+
+- `/health/live` → process is alive
+- `/health/ready` → configuration is valid and the pod is ready to receive traffic
+
+This is especially useful when secrets arrive in a bad state temporarily, for example if an encrypted placeholder reaches the container before the final Secret value is available.
+
+Important Kubernetes note:
+- if credentials are injected as environment variables, a running pod usually will not see later Secret updates automatically
+- the app now retries configuration resolution instead of caching a failure forever, but env-var based pods still usually need a restart or rollout when the Secret changes
+
+Recommended probe strategy:
+- `startupProbe` on `/health/ready` to give the pod time to start cleanly
+- `readinessProbe` on `/health/ready` so traffic is only sent when config is valid
+- `livenessProbe` on `/health/live` so only genuinely stuck processes are restarted
+
+For env-var based Secrets, also use a restart-on-secret-change mechanism such as:
+- Stakater Reloader
+- Helm checksum annotations
+- another rollout trigger managed by your GitOps setup
+
 ## Example ConfigMap
 
 ```yaml
@@ -310,6 +334,8 @@ spec:
     metadata:
       labels:
         app: servdir
+      annotations:
+        reloader.stakater.com/auto: "true"
     spec:
       containers:
         - name: servdir
@@ -324,6 +350,24 @@ spec:
                 name: servdir-config
             - secretRef:
                 name: servdir-secrets
+          startupProbe:
+            httpGet:
+              path: /health/ready
+              port: 4321
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 4321
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 4321
+            periodSeconds: 30
+            failureThreshold: 3
           volumeMounts:
             - name: servdir-data
               mountPath: /data

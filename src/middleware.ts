@@ -12,10 +12,20 @@ function misconfiguredResponse(): Response {
   });
 }
 
+function isHealthPath(pathname: string): boolean {
+  return pathname === '/health/live' || pathname === '/health/ready';
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
   // Static builds do not execute request-time auth or misconfiguration handling.
   // Those concerns only apply to the server runtime path.
   if (isStaticBuildMode()) {
+    return next();
+  }
+
+  const pathname = new URL(context.request.url).pathname;
+
+  if (isHealthPath(pathname)) {
     return next();
   }
 
