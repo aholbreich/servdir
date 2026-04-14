@@ -179,6 +179,76 @@ Acceptance notes:
 
 ## Proposed
 
+### View the raw Markdown definition for a catalog entry
+**Status:** `proposed`
+
+As an engineer or catalog maintainer, I want to see the raw Markdown source for a catalog entry so I can understand the real definition, review the front matter, and improve it at the source.
+
+Acceptance notes:
+- the detail page should offer an explicit way to view the raw source
+- the raw view should include both front matter and Markdown body
+- the raw view should reflect the stored source definition, not reconstructed data
+- the feature should work for local and managed Git-backed entries
+
+### Copy the raw service definition for editing or reuse
+**Status:** `proposed`
+
+As an engineer or catalog maintainer, I want to copy the raw `service.md` or `.servdir.md` definition so I can paste it into an editor, improve the source, or use it as a starting template for another entry.
+
+Acceptance notes:
+- there should be a simple copy action from the raw definition view
+- copied content should preserve original Markdown and YAML front matter formatting as closely as possible
+- the UI should make clear whether the source came from `service.md` or `.servdir.md`
+
+### Link from a catalog entry to its source definition in Git
+**Status:** `proposed`
+
+As a catalog maintainer, I want a direct link from the rendered entry to the source file in Git so I can jump straight into normal review and editing flow.
+
+Acceptance notes:
+- the link should point to the actual source file when a repository URL and relative source path are known
+- the feature should degrade quietly when a source link cannot be derived safely
+- the UI should not pretend editing happens inside servdir when the real workflow is Git-based
+
+### Render architecture diagrams on the service detail page
+**Status:** `proposed`
+
+As an engineer, I want architecture diagrams such as PlantUML or C4-PlantUML rendered directly on the service detail page so I can understand a system visually without leaving the catalog.
+
+Acceptance notes:
+- the detail page should support attaching one or more diagrams to an entry
+- PlantUML-based diagrams should be a first-class candidate because they are text-based and Git-friendly
+- the feature should work for diagrams stored alongside the catalog entry or referenced explicitly from the repository
+- the UI should make it clear when a diagram could not be rendered
+- the rendered page should still provide access to the raw diagram source
+
+Implementation notes:
+- the example discussed is PlantUML, not Pulumi
+- C4-PlantUML support is especially relevant because it fits service and infrastructure documentation well
+- remote `!include` dependencies may need explicit handling or restrictions so rendering stays predictable and safe
+
+### Render Mermaid diagrams on the service detail page
+**Status:** `proposed`
+
+As an engineer, I want Mermaid diagrams rendered directly on the service detail page so I can document flows, sequences, and lightweight architecture views in a simple text-based format.
+
+Acceptance notes:
+- Mermaid should be supported as an explicit diagram format, not only as fenced Markdown code blocks
+- the rendered page should still provide access to the raw Mermaid source
+- rendering should work without forcing maintainers to pre-render images manually
+- invalid Mermaid should fail clearly without breaking the rest of the service page
+
+### Support Structurizr DSL as an architecture source format
+**Status:** `proposed`
+
+As an engineer or architect, I want Structurizr DSL support so I can describe systems with a more structured C4-oriented model and expose those diagrams from the catalog.
+
+Acceptance notes:
+- Structurizr DSL should be treated as a first-class architecture format candidate
+- servdir should support at least linking or rendering exported views from a Structurizr model
+- the catalog should preserve access to the raw DSL source when available
+- the implementation should stay explicit about which Structurizr views are shown on a service detail page
+
 ### Share filtered catalog views by URL
 **Status:** `proposed`
 
