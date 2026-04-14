@@ -4,7 +4,7 @@ export interface GitSourceItem {
   repoUrl: string;
   branch: string;
   checkoutPath: string;
-  scanPaths: string[];
+  scanPaths?: string[];
 }
 
 export interface Props {
@@ -37,7 +37,7 @@ const { gitSources, summaryLabel, countLabel } = Astro.props;
             <dd class="min-w-0 break-all text-slate-700"><code>{source.repoUrl}</code></dd>
 
             <dt class="muted">Scan</dt>
-            <dd class="min-w-0 break-words text-slate-700">{source.scanPaths.join(', ')}</dd>
+            <dd class="min-w-0 break-words text-slate-700">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
           </dl>
         </section>
       ))}

@@ -94,7 +94,8 @@ async function ensureCheckout(source: GitCatalogSource): Promise<void> {
 }
 
 async function scanCheckout(source: GitCatalogSource): Promise<ServiceRecord[]> {
-  const allFiles = await Promise.all(source.scanPaths.map(async (scanPath) => {
+  const paths = source.scanPaths && source.scanPaths.length > 0 ? source.scanPaths : [''];
+  const allFiles = await Promise.all(paths.map(async (scanPath) => {
     const pattern = path.join(source.checkoutPath, scanPath, '*', 'service.md').replaceAll('\\', '/');
     console.info(`[catalog:git] scanning ${source.name} with pattern: ${pattern}`);
     return glob(pattern);

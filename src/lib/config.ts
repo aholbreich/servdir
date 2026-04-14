@@ -5,7 +5,7 @@ export type GitSourceConfig = {
   repoUrl: string;
   branch: string;
   checkoutPath: string;
-  scanPaths: string[];
+  scanPaths?: string[];
 };
 
 export type BasicAuthConfig = {
@@ -88,7 +88,7 @@ function parseGitSources(raw: string | undefined): GitSourceConfig[] {
       const candidate = entry as Record<string, unknown>;
       const scanPaths = Array.isArray(candidate.scanPaths)
         ? candidate.scanPaths.map(String)
-        : ['services'];
+        : undefined;
 
       const name = String(candidate.name ?? `source-${index + 1}`);
       const checkoutPath = typeof candidate.checkoutPath === 'string' && candidate.checkoutPath.trim().length > 0
