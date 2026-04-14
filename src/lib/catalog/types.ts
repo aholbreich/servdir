@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { serviceFrontmatterSchema } from './schema';
+
 export type ValidationLevel = 'error' | 'warning';
 
 export type ValidationIssue = {
@@ -5,24 +8,8 @@ export type ValidationIssue = {
   message: string;
 };
 
-export type ServiceFrontmatter = {
-  id: string;
-  name: string;
-  kind: string;
-  owner: string;
-  lifecycle: string;
-  repo: string;
-  description?: string;
-  tier?: number;
-  tags?: string[];
-  depends_on?: string[];
-  runbook?: string;
-  links?: Array<{ label: string; url: string }>;
-  openapi?: Array<{ label: string; url: string }>;
-  delivery?: Array<{ label: string; url?: string; text?: string }>;
-  system?: string;
-  domain?: string;
-};
+// Derived from the Zod schema so field definitions stay in one place.
+export type ServiceFrontmatter = z.infer<typeof serviceFrontmatterSchema>;
 
 export type ServiceRecord = {
   filePath: string;

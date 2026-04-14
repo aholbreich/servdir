@@ -37,5 +37,3 @@ export const serviceFrontmatterSchema = z.object({
   system: z.string().optional(),
   domain: z.string().optional(),
 });
-
-export type ParsedServiceFrontmatter = z.infer<typeof serviceFrontmatterSchema>;
