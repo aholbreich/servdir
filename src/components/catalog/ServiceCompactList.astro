@@ -24,7 +24,7 @@ const tagsColumnWidthCh = Math.max(
 >
   {
     services.map((service) => (
-      <li>
+      <li data-service-kind={service.data.kind?.trim().toLowerCase() || 'service'}>
         <div class="catalog-list-row px-4 py-3 sm:px-5">
           <div class="catalog-list-grid">
             <a href={toAppPath(`/services/${service.slug}`)} class="catalog-list-main-link catalog-list-id muted text-[0.84rem]">

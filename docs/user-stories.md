@@ -148,6 +148,21 @@ Acceptance notes:
 - values should map to existing service metadata
 - should work together with owner and tag filters
 
+### Filter services by kind
+**Status:** `planned`
+
+As an engineer, I want to filter the catalog by kind so I can quickly focus on services, tools, libraries, or other entry types.
+
+Acceptance notes:
+
+- filter controls should be icon-only — one small button per kind present in the catalog
+- the active kind should be clearly highlighted
+- clicking the active kind again resets to showing all entries
+- the filter should only appear when more than one kind is present
+- the filter should work in both list and card view
+- the visible service count should update to reflect the active filter
+- kind icons and labels should be consistent with those used on service cards and list rows
+
 ### Navigate by tags
 **Status:** `supported`
 

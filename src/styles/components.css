@@ -105,6 +105,23 @@
     @apply my-5 pl-4 text-slate-600;
   }
 
+  .kind-filter-btn {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--color-border);
+    @apply inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-500 transition-colors;
+  }
+
+  .kind-filter-btn:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: #0f172a;
+  }
+
+  .kind-filter-btn.is-active {
+    background: rgba(37, 99, 235, 0.12);
+    border-color: rgba(37, 99, 235, 0.38);
+    color: #1d4ed8;
+  }
+
   .catalog-view-toggle {
     @apply rounded-full px-3 py-1.5 text-[0.92rem] font-medium text-slate-700 transition-colors;
   }

@@ -2,8 +2,10 @@
 import Card from '../ui/Card.astro';
 import SectionTitle from '../ui/SectionTitle.astro';
 import ServiceCard from '../ui/ServiceCard.astro';
+import CatalogKindIcon from './CatalogKindIcon.astro';
 import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from '../../lib/catalog';
+import { normalizeCatalogKind } from '../../lib/catalog-kind-icon';
 import ServiceCompactList from './ServiceCompactList.astro';
 
 export interface Props {
@@ -13,6 +15,11 @@ export interface Props {
 
 const { services } = Astro.props;
 const toggleId = 'catalog-view-toggle';
+
+const effectiveKind = (s: ServiceRecord) => normalizeCatalogKind(s.data.kind) || 'service';
+const uniqueKinds = [...new Set(services.map(effectiveKind))].sort();
+const showKindFilter = uniqueKinds.length > 1;
+const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
 ---
 
 {
@@ -20,17 +27,35 @@ const toggleId = 'catalog-view-toggle';
     <section data-catalog-view-root>
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-4">
-          <p class="muted text-[0.95rem]">Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
+          <p class="muted text-[0.95rem]" data-catalog-count>Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
           <a href={toAppPath('/tags')} class="text-[0.95rem]">Browse tags</a>
         </div>
 
-        <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
-          <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
-            List
-          </button>
-          <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="cards" aria-pressed="false">
-            Cards
-          </button>
+        <div class="flex items-center gap-3">
+          {showKindFilter && (
+            <div class="inline-flex items-center gap-1" role="group" aria-label="Filter by kind">
+              {uniqueKinds.map((kind) => (
+                <button
+                  type="button"
+                  class="kind-filter-btn"
+                  data-kind-filter-btn={kind}
+                  title={kindLabel(kind)}
+                  aria-pressed="false"
+                >
+                  <CatalogKindIcon kind={kind} size={15} />
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
+            <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
+              List
+            </button>
+            <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="cards" aria-pressed="false">
+              Cards
+            </button>
+          </div>
         </div>
       </div>
 
@@ -41,7 +66,9 @@ const toggleId = 'catalog-view-toggle';
       <div data-catalog-view-panel data-view="cards" hidden>
         <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service) => (
-            <ServiceCard service={service} />
+            <div data-service-kind={effectiveKind(service)}>
+              <ServiceCard service={service} />
+            </div>
           ))}
         </section>
       </div>
@@ -55,11 +82,14 @@ const toggleId = 'catalog-view-toggle';
             return;
           }
 
-          const buttons = Array.from(root.querySelectorAll('[data-catalog-view-button]'));
+          const viewButtons = Array.from(root.querySelectorAll('[data-catalog-view-button]'));
           const panels = Array.from(root.querySelectorAll('[data-catalog-view-panel]'));
+          const kindButtons = Array.from(root.querySelectorAll('[data-kind-filter-btn]'));
+          const countEl = root.querySelector('[data-catalog-count]');
+          let activeKind = null;
 
           const applyView = (view) => {
-            buttons.forEach((button) => {
+            viewButtons.forEach((button) => {
               const active = button.dataset.view === view;
               button.classList.toggle('is-active', active);
               button.setAttribute('aria-pressed', String(active));
@@ -70,12 +100,39 @@ const toggleId = 'catalog-view-toggle';
             });
           };
 
+          const applyKindFilter = (kind) => {
+            activeKind = kind;
+            kindButtons.forEach((btn) => {
+              const active = btn.dataset.kindFilterBtn === kind;
+              btn.classList.toggle('is-active', active);
+              btn.setAttribute('aria-pressed', String(active));
+            });
+
+            const items = Array.from(root.querySelectorAll('[data-service-kind]'));
+            let visible = 0;
+            items.forEach((item) => {
+              const match = !kind || item.dataset.serviceKind === kind;
+              item.hidden = !match;
+              if (match) visible++;
+            });
+
+            if (countEl) {
+              countEl.textContent = `Showing ${visible} service${visible === 1 ? '' : 's'}`;
+            }
+          };
+
+          kindButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              applyKindFilter(activeKind === btn.dataset.kindFilterBtn ? null : btn.dataset.kindFilterBtn);
+            });
+          });
+
           // We default to list view so the page still reads well before any client script runs.
           const savedView = window.localStorage.getItem(storageKey);
           const initialView = savedView === 'cards' ? 'cards' : 'list';
           applyView(initialView);
 
-          buttons.forEach((button) => {
+          viewButtons.forEach((button) => {
             button.addEventListener('click', () => {
               const view = button.dataset.view === 'list' ? 'list' : 'cards';
               window.localStorage.setItem(storageKey, view);
