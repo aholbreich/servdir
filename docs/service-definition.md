@@ -56,6 +56,17 @@ delivery:
     url: https://github.com/acme/billing-api/actions
   - label: Deployment pipeline # CI & CD
     text: Managed in platform-infra repository
+tech_stack:
+  languages:
+    - java
+  frameworks:
+    - spring
+  data:
+    - postgres
+  platform:
+    - kubernetes
+  tooling:
+    - github-actions
 system: payments
 domain: finance
 ---
@@ -340,6 +351,45 @@ delivery:
 
 Use this field for CI/CD and delivery references that should be shown separately from generic links.
 
+### `tech_stack`
+
+Optional structured technology stack metadata.
+
+Expected:
+
+- object
+- each category is optional
+- each populated category must be an array of non-empty strings
+- at least one category must be populated when `tech_stack` is present
+
+Supported categories:
+
+- `languages`
+- `frameworks`
+- `data`
+- `platform`
+- `tooling`
+
+Example:
+
+```yaml
+tech_stack:
+  languages:
+    - java
+  frameworks:
+    - spring
+  data:
+    - postgres
+  platform:
+    - kubernetes
+    - keycloak
+  tooling:
+    - maven
+```
+
+This field is intentionally shared across all entry kinds.
+It is meant to stay structured enough for future grouping, icons, and filtering without introducing kind-specific schema branches too early.
+
 ### `system`
 
 Optional larger system grouping.
@@ -477,6 +527,9 @@ Examples of validation problems:
 - `openapi[].url` is not a valid URL
 - `delivery[]` is missing both `url` and `text`
 - `delivery[].url` is not a valid URL
+- `tech_stack` is not an object
+- `tech_stack` is present but all categories are empty
+- `tech_stack.<category>` is not an array of non-empty strings
 - duplicate `id`
 - unresolved `depends_on`
 
@@ -489,6 +542,7 @@ Recommended conventions:
 - keep `description` short, let the body carry the detail
 - prefer absolute URLs for all links
 - use `depends_on` only for meaningful dependencies
+- keep `tech_stack` short and recognizable, favor common technology names over internal abbreviations
 - keep one service per directory
 
 ## Minimal valid example

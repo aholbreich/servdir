@@ -184,6 +184,13 @@ This is the preferred level of abstraction here:
   - `application`
   - `tool`
 - This is meant to broaden the catalog without renaming the whole product or breaking older service definitions.
+- Service definitions now also support an optional structured `tech_stack` object with shared categories:
+  - `languages`
+  - `frameworks`
+  - `data`
+  - `platform`
+  - `tooling`
+- Intentional design choice: keep `tech_stack` structured enough for future icons/grouping/filtering, but do not make it kind-specific yet.
 
 ### Tag navigation
 

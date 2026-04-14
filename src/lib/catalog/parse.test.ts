@@ -23,4 +23,43 @@ describe('parseServiceContent', () => {
 
     expect(service.data.kind).toBe('application');
   });
+
+  it('parses a structured tech_stack when present', () => {
+    const service = parseServiceContent({
+      filePath: '/tmp/catalog-source/services/care-api/service.md',
+      raw: `---\nid: care-api\nname: Care API\nowner: team-care\nlifecycle: production\nrepo: https://example.com/care-api\ntech_stack:\n  languages:\n    - java\n  frameworks:\n    - spring\n  data:\n    - mariadb\n  platform:\n    - kubernetes\n    - keycloak\n  tooling:\n    - maven\n---\n\n# Care API\n`,
+    });
+
+    expect(service.data.tech_stack).toEqual({
+      languages: ['java'],
+      frameworks: ['spring'],
+      data: ['mariadb'],
+      platform: ['kubernetes', 'keycloak'],
+      tooling: ['maven'],
+    });
+    expect(service.issues).toEqual([]);
+  });
+
+  it('keeps a best-effort tech_stack when other validation fails', () => {
+    const service = parseServiceContent({
+      filePath: '/tmp/catalog-source/services/care-api/service.md',
+      raw: `---\nid: care-api\nname: Care API\nowner: team-care\nlifecycle: production\nrepo: not-a-url\ntech_stack:\n  languages:\n    - java\n  frameworks:\n    - spring\n---\n\n# Care API\n`,
+    });
+
+    expect(service.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          level: 'error',
+          message: 'repo: Invalid URL',
+        }),
+      ]),
+    );
+    expect(service.data.tech_stack).toEqual({
+      languages: ['java'],
+      frameworks: ['spring'],
+      data: undefined,
+      platform: undefined,
+      tooling: undefined,
+    });
+  });
 });

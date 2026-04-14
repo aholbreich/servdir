@@ -164,7 +164,7 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 
 ## Service definition format
 
-See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, including `kind`, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
+See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, including `kind`, structured `tech_stack`, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
 
 Discovery supports both:
 - multi-entry catalogs under `services/*/service.md`

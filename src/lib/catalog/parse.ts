@@ -9,8 +9,39 @@ type ParseServiceInput = {
   raw: string;
 };
 
+type TechStackCategoryMap = {
+  languages?: string[];
+  frameworks?: string[];
+  data?: string[];
+  platform?: string[];
+  tooling?: string[];
+};
+
 function toSlug(id: string): string {
   return id.trim().toLowerCase();
+}
+
+function toStringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value) ? value.map(String) : undefined;
+}
+
+function toTechStack(value: unknown): TechStackCategoryMap | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  const techStack: TechStackCategoryMap = {
+    languages: toStringArray(candidate.languages),
+    frameworks: toStringArray(candidate.frameworks),
+    data: toStringArray(candidate.data),
+    platform: toStringArray(candidate.platform),
+    tooling: toStringArray(candidate.tooling),
+  };
+
+  return Object.values(techStack).some((items) => Array.isArray(items) && items.length > 0)
+    ? techStack
+    : undefined;
 }
 
 export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
@@ -49,6 +80,7 @@ export function parseServiceContent(input: ParseServiceInput): ServiceRecord {
         links: Array.isArray(parsed.data.links) ? parsed.data.links as Array<{ label: string; url: string }> : undefined,
         openapi: Array.isArray(parsed.data.openapi) ? parsed.data.openapi as Array<{ label: string; url: string }> : undefined,
         delivery: Array.isArray(parsed.data.delivery) ? parsed.data.delivery as Array<{ label: string; url?: string; text?: string }> : undefined,
+        tech_stack: toTechStack(parsed.data.tech_stack),
         system: typeof parsed.data.system === 'string' ? parsed.data.system : undefined,
         domain: typeof parsed.data.domain === 'string' ? parsed.data.domain : undefined,
       };

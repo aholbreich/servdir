@@ -19,6 +19,19 @@ const deliverySchema = z.object({
   path: ['url'],
 });
 
+const techStackCategorySchema = z.array(z.string().min(1)).optional();
+
+const techStackSchema = z.object({
+  languages: techStackCategorySchema,
+  frameworks: techStackCategorySchema,
+  data: techStackCategorySchema,
+  platform: techStackCategorySchema,
+  tooling: techStackCategorySchema,
+}).refine((value) => Object.values(value).some((items) => Array.isArray(items) && items.length > 0), {
+  message: 'tech_stack must include at least one non-empty category',
+  path: [],
+});
+
 export const serviceFrontmatterSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -34,6 +47,7 @@ export const serviceFrontmatterSchema = z.object({
   links: z.array(linkSchema).optional(),
   openapi: z.array(openApiSchema).optional(),
   delivery: z.array(deliverySchema).optional(),
+  tech_stack: techStackSchema.optional(),
   system: z.string().optional(),
   domain: z.string().optional(),
 });
