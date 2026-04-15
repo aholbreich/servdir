@@ -90,7 +90,24 @@ Important:
 - static export is a secondary mode and should be verified when relevant, not forgotten
 
 ## Commit Style
-- Do not add `Co-Authored-By` trailers to commits.
+
+Follow Chris Beams style with a type prefix:
+
+- Subject: `type: Capitalized imperative, no period, ≤50 chars`
+- Blank line between subject and body
+- Body wrapped at 72 chars, explains *why* not *what*
+- No `Co-Authored-By` trailers
+
+Common types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
+
+Example:
+```
+feat: Render Mermaid diagrams on service detail pages
+
+Fenced mermaid blocks in service.md are rendered client-side using
+the full Mermaid v11 library. Syntax errors surface inline without
+breaking the rest of the page.
+```
 
 ## If You Are Another Agent / Another Machine
 Assume no conversational memory.
