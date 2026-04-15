@@ -1,0 +1,23 @@
+---
+import ServiceCard from '../ui/ServiceCard.astro';
+import { normalizeCatalogKind } from '../../lib/catalog-kind-icon';
+import type { ServiceRecord } from '../../lib/catalog';
+
+export interface Props {
+  services: ServiceRecord[];
+}
+
+const { services } = Astro.props;
+---
+
+<ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+  {services.map((service) => (
+    <li
+      data-service-kind={normalizeCatalogKind(service.data.kind) || 'service'}
+      data-service-name={service.data.name.toLowerCase()}
+      data-service-id={service.data.id.toLowerCase()}
+    >
+      <ServiceCard service={service} />
+    </li>
+  ))}
+</ul>

@@ -268,7 +268,8 @@ Reusable UI building blocks currently in use:
 - `src/components/ui/MetadataPill.astro` — compact icon-plus-label chip for service attributes
 - `src/components/ui/SectionTitle.astro` — consistent section headings
 - `src/components/ui/ServiceCard.astro` — dense reusable service list card
-- `src/components/catalog/ServiceCatalogGrid.astro` — service grid plus empty-state handling for the index page
+- `src/components/catalog/ServiceCatalogGrid.astro` — catalog index shell: toolbar, view panels, empty-state handling
+- `src/components/catalog/ServiceCardGrid.astro` — card grid (`<ul>`) with per-item filter data attributes; used in both flat and grouped card view
 - `src/components/catalog/CatalogHero.astro` — index-page hero section for catalog identity and intro text
 - `src/components/catalog/CatalogStatusCard.astro` — compact catalog status summary card, now mostly a composition shell
 - `src/components/catalog/CatalogStatusTabs.astro` — icon-only tab controls for the status card
