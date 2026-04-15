@@ -11,7 +11,7 @@ const { platforms } = Astro.props;
 ---
 
 {platforms.length > 0 ? (
-  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+  <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
     {platforms.map((platform) => (
       <Card class="flex items-center justify-between gap-4 px-5 py-4">
         <a href={toAppPath(`/platforms/${platform.slug}`)} class="text-[1rem] font-medium text-slate-800 hover:text-blue-700">

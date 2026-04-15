@@ -11,7 +11,7 @@ const { tags } = Astro.props;
 ---
 
 {tags.length > 0 ? (
-  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+  <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
     {tags.map((tag) => (
       <Card class="flex items-center justify-between gap-4 px-5 py-4">
         <TagLink tag={tag.label} class="text-[1rem] text-sky-700" />

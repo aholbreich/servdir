@@ -10,7 +10,7 @@ export interface Props {
 const { services } = Astro.props;
 ---
 
-<ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+<ul class="grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
   {services.map((service) => (
     <li
       data-service-kind={normalizeCatalogKind(service.data.kind) || 'service'}
