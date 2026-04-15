@@ -10,6 +10,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 
 - [Features](#features)
 - [Current stack](#current-stack)
+- [Demo](#demo)
 - [Usage](#usage)
   - [Running locally](#running-locally)
   - [Test locally](#test-locally)
@@ -167,6 +168,7 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 See [Service Definition Reference](./docs/service-definition.md) for the supported `service.md` front matter fields, including `kind`, structured `tech_stack`, Markdown body behavior, validation, and [Discovery Rules](./docs/service-definition.md#discovery-rules).
 
 Discovery supports both:
+
 - multi-entry catalogs under `services/*/service.md`
 - single-repo entries declared at the repository root as `.servdir.md`
 
