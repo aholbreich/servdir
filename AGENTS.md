@@ -89,6 +89,9 @@ Important:
 - the default Node/server build is still the primary deployment path and must not regress silently
 - static export is a secondary mode and should be verified when relevant, not forgotten
 
+## Commit Style
+- Do not add `Co-Authored-By` trailers to commits.
+
 ## If You Are Another Agent / Another Machine
 Assume no conversational memory.
 Recover project context from the repository itself.
