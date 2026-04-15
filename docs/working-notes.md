@@ -107,6 +107,15 @@ A slim secondary row below shows the live count and the Browse tags link.
 
 On mobile the row wraps naturally.
 
+### Platform pages
+
+- `/platforms` index lists all known platforms derived from service `platform` fields, sorted alphabetically with service counts.
+- `/platforms/[slug]` shows all services on that platform using the standard `ServiceCatalogGrid`.
+- Platform slugs are normalized the same way as tag slugs (trim, lowercase, non-alphanumeric → `-`).
+- "Browse platforms" link appears on the catalog index only when at least one service has a `platform` value.
+- Data logic lives in `src/lib/catalog/platform-page.ts`, following the same shape as `tag-page.ts`.
+- `PlatformList.astro` renders the index grid, mirroring `TagCloud.astro`.
+
 ### Search
 
 - Search filters by `name` and `id`, case-insensitive, as you type.

@@ -1,0 +1,39 @@
+---
+import CatalogHero from '../../components/catalog/CatalogHero.astro';
+import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { listConfiguredPlatformPaths, loadConfiguredPlatformPage } from '../../lib/catalog';
+import { toAppPath } from '../../lib/paths';
+import { createNotFoundRedirectResponse } from '../../lib/page';
+
+// Used only by static builds. Server builds ignore this and keep request-time routing.
+export async function getStaticPaths() {
+  return listConfiguredPlatformPaths();
+}
+
+const platformSlug = Astro.params.platform;
+const platformPage = await loadConfiguredPlatformPage(platformSlug);
+
+if (!platformPage) {
+  return createNotFoundRedirectResponse();
+}
+
+const { platform, services } = platformPage;
+---
+
+<BaseLayout title={`${platform.label} — servdir`}>
+  <p class="mb-4 flex flex-wrap gap-4">
+    <a href={toAppPath('/')}>← Back to catalog</a>
+    <a href={toAppPath('/platforms')}>All platforms</a>
+  </p>
+
+  <section class="mb-7">
+    <CatalogHero
+      title={platform.label}
+      subtitle={`${platform.serviceCount} service${platform.serviceCount === 1 ? '' : 's'} on this platform.`}
+      eyebrow="Servdir - Platform view"
+    />
+  </section>
+
+  <ServiceCatalogGrid services={services} />
+</BaseLayout>

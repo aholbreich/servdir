@@ -178,8 +178,20 @@ Acceptance notes:
 
 ## Proposed
 
+### Browse services by platform
+**Status:** `supported`
+
+As an engineer, I want a `/platforms` index listing known platforms with service counts, and a per-platform page showing all services on that platform.
+
+Acceptance notes:
+- `/platforms` lists all platforms derived from service `platform` fields, sorted alphabetically
+- each platform links to `/platforms/[slug]` showing matching services
+- platforms page follows the same layout pattern as the tags index
+- "Browse platforms" link appears on the catalog index only when at least one service has a platform value
+- works in both server and static build modes
+
 ### Group services by platform in the catalog view
-**Status:** `proposed`
+**Status:** `supported`
 
 As an engineer, I want to group catalog entries by their deployment platform so I can understand at a glance which services live on AWS, on-prem, the legacy cluster, or other infrastructure contexts.
 

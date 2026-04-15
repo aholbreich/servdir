@@ -121,6 +121,9 @@ const sortedServices = [
       <div class="mb-3 flex flex-wrap items-center gap-4">
         <p class="muted text-[0.95rem]" data-catalog-count>Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
         <a href={toAppPath('/tags')} class="text-[0.95rem]">Browse tags</a>
+        {services.some((s) => s.data.platform?.trim()) && (
+          <a href={toAppPath('/platforms')} class="text-[0.95rem]">Browse platforms</a>
+        )}
       </div>
 
       {/* List view */}
