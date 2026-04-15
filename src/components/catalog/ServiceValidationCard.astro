@@ -13,10 +13,10 @@ const hasIssues = service.issues.length > 0;
 ---
 
 <Card>
-  <SectionTitle class="mb-[14px]">Validation</SectionTitle>
+  <SectionTitle class="mb-3.5">Validation</SectionTitle>
   {hasIssues ? (
     <IssueList issues={service.issues} />
   ) : (
-    <p class="leading-6 text-[var(--color-ok)]">No validation issues.</p>
+    <p class="leading-6 text-ok">No validation issues.</p>
   )}
 </Card>

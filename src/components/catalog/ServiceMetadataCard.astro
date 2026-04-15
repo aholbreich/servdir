@@ -39,20 +39,20 @@ const deliveryItems = (service.data.delivery ?? []).map((entry) => ({
 
 <>
   <Card>
-    <SectionTitle class="mb-[14px]">Metadata</SectionTitle>
+    <SectionTitle class="mb-3.5">Metadata</SectionTitle>
     <KeyValueList items={metadataItems} />
   </Card>
 
   {openApiItems.length > 0 && (
     <Card>
-      <SectionTitle class="mb-[14px]">OpenAPI</SectionTitle>
+      <SectionTitle class="mb-3.5">OpenAPI</SectionTitle>
       <KeyValueList items={openApiItems} />
     </Card>
   )}
 
   {deliveryItems.length > 0 && (
     <Card>
-      <SectionTitle class="mb-[14px]">Delivery</SectionTitle>
+      <SectionTitle class="mb-3.5">Delivery</SectionTitle>
       <KeyValueList items={deliveryItems} />
     </Card>
   )}

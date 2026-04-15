@@ -56,19 +56,19 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB', {
               <dd class="min-w-0 break-all text-slate-700"><code>{source.repoUrl}</code></dd>
 
               <dt class="muted">Scan</dt>
-              <dd class="min-w-0 break-words text-slate-700">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
+              <dd class="min-w-0 wrap-break-word text-slate-700">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
 
               {source.syncStatus?.lastSyncFinishedAt && (
                 <>
                   <dt class="muted">Last sync</dt>
-                  <dd class="min-w-0 break-words text-slate-700">{dateFormatter.format(new Date(source.syncStatus.lastSyncFinishedAt))}</dd>
+                  <dd class="min-w-0 wrap-break-word text-slate-700">{dateFormatter.format(new Date(source.syncStatus.lastSyncFinishedAt))}</dd>
                 </>
               )}
 
               {syncHint && (
                 <>
                   <dt class="muted">Issue</dt>
-                  <dd class="min-w-0 break-words text-[var(--color-warn)]">{syncHint}</dd>
+                  <dd class="min-w-0 wrap-break-word text-warn">{syncHint}</dd>
                 </>
               )}
             </dl>

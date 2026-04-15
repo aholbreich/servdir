@@ -23,7 +23,7 @@ const tagsColumnWidthCh = Astro.props.tagsColumnWidthCh ??
 ---
 
 <ul
-  class="divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] bg-white/85 shadow-sm"
+  class="divide-y divide-border rounded-2xl border border-border bg-white/85 shadow-sm"
   style={`--catalog-id-column: calc(${idColumnWidthCh}ch + 1.25rem); --catalog-tags-column: ${tagsColumnWidthCh}ch;`}
 >
   {

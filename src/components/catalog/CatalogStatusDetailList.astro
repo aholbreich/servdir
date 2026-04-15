@@ -18,7 +18,7 @@ const { items, class: className = '' } = Astro.props;
   {items.map((item) => (
     <>
       <dt class="muted font-medium">{item.label}</dt>
-      <dd class="min-w-0 break-words text-slate-700">
+      <dd class="min-w-0 wrap-break-word text-slate-700">
         {item.asCode ? <code>{item.value}</code> : item.value}
       </dd>
     </>

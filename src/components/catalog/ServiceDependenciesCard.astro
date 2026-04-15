@@ -17,9 +17,9 @@ const { dependencies } = Astro.props;
 ---
 
 <Card>
-  <SectionTitle class="mb-[14px]">Dependencies</SectionTitle>
+  <SectionTitle class="mb-3.5">Dependencies</SectionTitle>
   {dependencies.length > 0 ? (
-    <ul class="grid gap-2 pl-[18px] leading-6">
+    <ul class="grid gap-2 pl-4.5 leading-6">
       {dependencies.map((dependency) => (
         <li>
           {dependency.service ? (
