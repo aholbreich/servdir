@@ -96,15 +96,34 @@ The catalog status area was intentionally split into small Astro pieces for read
 Preserve these boundaries unless there is a clear readability win.
 Do not collapse them back into one large `.astro` file.
 
+### Catalog toolbar layout
+
+The catalog index toolbar is a single compact row (on desktop) containing:
+- A search input (`flex-1`) on the left
+- Kind filter buttons (icon-only circles, one per kind present) to the right of search
+- A view/layout pill (`List | Cards | Group`) at the far right
+
+A slim secondary row below shows the live count and the Browse tags link.
+
+On mobile the row wraps naturally.
+
+### Search
+
+- Search filters by `name` and `id`, case-insensitive, as you type.
+- Search state is held in `catalog-grid.ts` alongside kind filter and platform grouping.
+- All three filters are evaluated together in a single `applyFilters()` call — no separate per-filter visibility logic.
+- Each `[data-service-kind]` item carries `data-service-name` and `data-service-id` (both lowercased) for JS matching without DOM text traversal.
+- Search works across both list and card views, and in flat and grouped platform modes.
+
 ### Platform grouping
 
 - A `platform` field (optional free string, e.g. `aws-prod`, `on-prem`, `legacy-k8s`, `hetzner`) was added to the service schema.
 - The catalog index renders both a flat and a grouped version of both the list and card views.
-- A platform grouping toggle button (layers icon) appears in the toolbar when more than one distinct `platform` value is present.
+- The platform grouping toggle (`Group` button) lives inside the view mode pill, separated by a thin divider — clearly a layout control, not a filter.
 - Clicking the toggle switches between flat and grouped views; clicking again reverts.
 - Platform section headers show the platform name and entry count.
 - Entries without a `platform` value are grouped last under "Other".
-- The kind filter remains functional in both flat and grouped modes; empty platform sections are hidden automatically when a kind filter is active.
+- The kind filter and search remain functional in both flat and grouped modes; empty platform sections are hidden automatically.
 - The flat view maintains the existing single-list appearance unchanged.
 
 ### Service list and card conventions

@@ -67,24 +67,17 @@ const sortedServices = [
 {
   services.length > 0 ? (
     <section data-catalog-view-root>
-      <div class="mb-3">
+      <div class="mb-2 flex items-center gap-3">
         <input
           type="search"
           data-catalog-search
           placeholder="Search by name or id…"
           autocomplete="off"
           spellcheck="false"
-          class="w-full rounded-xl border border-[var(--color-border)] bg-white/85 px-4 py-2 text-[0.95rem] text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          class="min-w-0 flex-1 rounded-xl border border-[var(--color-border)] bg-white/85 px-4 py-2 text-[0.95rem] text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
-      </div>
 
-      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex flex-wrap items-center gap-4">
-          <p class="muted text-[0.95rem]" data-catalog-count>Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
-          <a href={toAppPath('/tags')} class="text-[0.95rem]">Browse tags</a>
-        </div>
-
-        <div class="flex items-center gap-3">
+        <div class="flex shrink-0 items-center gap-3">
           {showKindFilter && (
             <div class="inline-flex items-center gap-1" role="group" aria-label="Filter by kind">
               {uniqueKinds.map((kind) => (
@@ -124,6 +117,11 @@ const sortedServices = [
             )}
           </div>
         </div>
+      </div>
+
+      <div class="mb-3 flex flex-wrap items-center gap-4">
+        <p class="muted text-[0.95rem]" data-catalog-count>Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
+        <a href={toAppPath('/tags')} class="text-[0.95rem]">Browse tags</a>
       </div>
 
       {/* List view */}
