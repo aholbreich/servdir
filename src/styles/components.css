@@ -278,6 +278,26 @@
     @apply inline-flex items-center rounded-full px-1.5 py-0.25 text-[0.72rem] leading-none text-slate-500;
   }
 
+  .catalog-grouped-card-view {
+    @apply grid gap-4;
+  }
+
+  .platform-card-group {
+    @apply mb-0;
+  }
+
+  .platform-card-group-header {
+    @apply mb-2 gap-1.5 px-0.5;
+  }
+
+  .platform-card-group .platform-section-label {
+    @apply text-[0.74rem] tracking-[0.14em];
+  }
+
+  .platform-card-group .platform-section-count {
+    @apply px-1.25 py-0.25 text-[0.68rem];
+  }
+
   .catalog-list-row {
     @apply transition-all duration-150;
     color: inherit;

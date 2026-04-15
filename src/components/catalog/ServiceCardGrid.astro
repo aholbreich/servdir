@@ -5,12 +5,16 @@ import type { ServiceRecord } from '../../lib/catalog';
 
 export interface Props {
   services: ServiceRecord[];
+  grouped?: boolean;
 }
 
-const { services } = Astro.props;
+const { services, grouped = false } = Astro.props;
 ---
 
-<ul class="grid list-none gap-4 md:grid-cols-2 lg:grid-cols-3">
+<ul class:list={[
+  'grid list-none md:grid-cols-2 lg:grid-cols-3',
+  grouped ? 'gap-3 lg:gap-3.5' : 'gap-4',
+]}>
   {services.map((service) => (
     <li
       data-service-kind={normalizeCatalogKind(service.data.kind) || 'service'}

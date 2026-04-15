@@ -6,6 +6,7 @@ import Icon from '../ui/Icon.astro';
 import ServiceCardGrid from './ServiceCardGrid.astro';
 import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from '../../lib/catalog';
+import { buildPlatformGroups, flattenPlatformGroups } from '../../lib/catalog';
 import { normalizeCatalogKind } from '../../lib/catalog-kind-icon';
 import ServiceCompactList from './ServiceCompactList.astro';
 
@@ -21,31 +22,7 @@ const uniqueKinds = [...new Set(services.map((s) => normalizeCatalogKind(s.data.
 const showKindFilter = uniqueKinds.length > 1;
 const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
 
-// Platform grouping
-const platformLabel = (p: string) =>
-  p.charAt(0).toUpperCase() + p.slice(1).replace(/-/g, ' ');
-
-const platformGroups: { platform: string; label: string; services: ServiceRecord[] }[] = [];
-const platformMap = new Map<string, ServiceRecord[]>();
-const noPlatform: ServiceRecord[] = [];
-
-for (const s of services) {
-  const p = s.data.platform?.trim();
-  if (p) {
-    if (!platformMap.has(p)) platformMap.set(p, []);
-    platformMap.get(p)!.push(s);
-  } else {
-    noPlatform.push(s);
-  }
-}
-
-for (const [p, svcs] of [...platformMap.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-  platformGroups.push({ platform: p, label: platformLabel(p), services: svcs });
-}
-if (noPlatform.length > 0) {
-  platformGroups.push({ platform: '', label: 'Other', services: noPlatform });
-}
-
+const platformGroups = buildPlatformGroups(services);
 const showPlatformToggle = platformGroups.length > 1;
 
 // Pre-compute global column widths for consistent alignment across all groups
@@ -58,9 +35,7 @@ const globalTagsWidthCh = Math.max(
 );
 
 // Flat-sorted service list: by platform (alpha), then no-platform last
-const sortedServices = [
-  ...platformGroups.flatMap((g) => g.services),
-];
+const sortedServices = flattenPlatformGroups(platformGroups);
 ---
 
 {
@@ -73,7 +48,7 @@ const sortedServices = [
           placeholder="Search by name or id…"
           autocomplete="off"
           spellcheck="false"
-          class="min-w-0 flex-1 rounded-xl border border-[var(--color-border)] bg-white/85 px-4 py-2 text-[0.95rem] text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          class="min-w-0 flex-1 rounded-xl border border-border bg-white/85 px-4 py-2 text-[0.95rem] text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
 
         <div class="flex shrink-0 items-center gap-3">
@@ -93,7 +68,7 @@ const sortedServices = [
             </div>
           )}
 
-          <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
+          <div class="inline-flex rounded-full border border-border bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
             <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
               List
             </button>
@@ -102,7 +77,7 @@ const sortedServices = [
             </button>
             {showPlatformToggle && (
               <>
-                <span class="mx-1 w-px self-stretch bg-[var(--color-border)]" aria-hidden="true" />
+                <span class="mx-1 w-px self-stretch bg-border" aria-hidden="true" />
                 <button
                   type="button"
                   class="catalog-view-toggle"
@@ -163,14 +138,17 @@ const sortedServices = [
         </div>
 
         {/* Grouped grid (shown when platform grouping is active) */}
-        <div data-platform-view="grouped" hidden>
+        <div class="catalog-grouped-card-view" data-platform-view="grouped" hidden>
           {platformGroups.map((group) => (
-            <div class="platform-section" data-platform-section={group.platform || '__other__'}>
-              <div class="platform-section-header">
+            <div
+              class="platform-section platform-card-group"
+              data-platform-section={group.platform || '__other__'}
+            >
+              <div class="platform-section-header platform-card-group-header">
                 <span class="platform-section-label">{group.label}</span>
                 <span class="platform-section-count" data-platform-count>{group.services.length}</span>
               </div>
-              <ServiceCardGrid services={group.services} />
+              <ServiceCardGrid services={group.services} grouped />
             </div>
           ))}
         </div>
