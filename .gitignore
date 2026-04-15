@@ -31,3 +31,4 @@ pnpm-debug.log*
 # Vs code noise
 .vscode/
 .github/agents/
+.codex
