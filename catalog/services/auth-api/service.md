@@ -43,3 +43,23 @@ Stellt Authentifizierung und Autorisierung für interne Plattformdienste bereit.
 ## Betriebshinweise
 - Änderungen an Token-Claims müssen mit Konsumenten abgestimmt werden
 - Ausfälle wirken sich direkt auf Login und Service-zu-Service-Authentifizierung aus
+
+## Architecture
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant AuthAPI
+    participant TokenStore
+    participant DownstreamService
+
+    Client->>AuthAPI: POST /token (credentials)
+    AuthAPI->>TokenStore: validate & store session
+    TokenStore-->>AuthAPI: session id
+    AuthAPI-->>Client: JWT token
+
+    Client->>DownstreamService: request + JWT
+    DownstreamService->>AuthAPI: GET /introspect
+    AuthAPI-->>DownstreamService: token valid + claims
+    DownstreamService-->>Client: response
+```

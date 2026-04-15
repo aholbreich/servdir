@@ -6,6 +6,7 @@
 - [Required front matter fields](#required-front-matter-fields)
 - [Optional front matter fields](#optional-front-matter-fields)
 - [Markdown body](#markdown-body)
+  - [Mermaid diagrams](#mermaid-diagrams)
 - [Discovery rules](#discovery-rules)
   - [Local catalog discovery](#local-catalog-discovery)
   - [Managed Git source discovery](#managed-git-source-discovery)
@@ -454,6 +455,24 @@ Common uses:
 - architecture notes
 - onboarding information
 - links that do not belong in structured front matter
+
+### Mermaid diagrams
+
+Mermaid diagrams are supported as fenced code blocks in the body:
+
+````md
+```mermaid
+sequenceDiagram
+    Client->>API: request
+    API-->>Client: response
+```
+````
+
+The diagram is rendered client-side in the browser using the full Mermaid library.
+All Mermaid diagram types are supported: flowcharts, sequence diagrams, class diagrams, ER diagrams, state machines, C4, gitgraph, Gantt, mindmaps, timelines, and more.
+
+A collapsible "Show source" toggle is added below each rendered diagram.
+If a diagram contains a syntax error it fails clearly — an error notice is shown with the raw source expanded — without breaking the rest of the service page.
 
 ## Discovery rules
 

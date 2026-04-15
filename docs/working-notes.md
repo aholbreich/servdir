@@ -174,6 +174,19 @@ This is the preferred level of abstraction here:
 
 ## Recent implementation notes
 
+### Mermaid diagram rendering
+
+- Mermaid diagrams are authored as fenced ` ```mermaid ` code blocks in the service Markdown body
+- Rendered client-side by the full `mermaid` npm package (v11); all diagram types are supported
+- `src/scripts/mermaid-render.ts` finds `<pre><code class="language-mermaid">` blocks produced by markdown-it and replaces them with rendered SVGs
+- Each diagram gets a collapsible "Show source" toggle; syntax errors show an error notice with source expanded
+- Script is wired via `<script src="...">` in `ServiceDocumentationCard.astro` — Astro bundles it into the client
+- `securityLevel: 'strict'` is set to prevent script injection from diagram sources
+- The mermaid bundle adds ~500 KB to the client bundle; that is inherent to the library and acceptable for this use case
+- PlantUML and Structurizr remain `proposed` — they would require either a remote render endpoint (kroki.io) or a local Java process, both worth a separate decision
+
+
+
 ### Managed Git scheduler and sync behavior
 
 - Managed Git sync previously happened on the request path and caused repeated pulls, race conditions, and noisy logs.

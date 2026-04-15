@@ -260,7 +260,7 @@ Implementation notes:
 - remote `!include` dependencies may need explicit handling or restrictions so rendering stays predictable and safe
 
 ### Render Mermaid diagrams on the service detail page
-**Status:** `proposed`
+**Status:** `supported`
 
 As an engineer, I want Mermaid diagrams rendered directly on the service detail page so I can document flows, sequences, and lightweight architecture views in a simple text-based format.
 
@@ -269,6 +269,12 @@ Acceptance notes:
 - the rendered page should still provide access to the raw Mermaid source
 - rendering should work without forcing maintainers to pre-render images manually
 - invalid Mermaid should fail clearly without breaking the rest of the service page
+
+Notes:
+- fenced ` ```mermaid ` blocks in the service body are rendered client-side using the full Mermaid library
+- all Mermaid diagram types are supported: flowcharts, sequence, class, ER, state, C4, gitgraph, Gantt, mindmaps, timelines, and more
+- a collapsible raw source toggle appears below each diagram
+- syntax errors surface an inline error notice without breaking the rest of the page
 
 ### Support Structurizr DSL as an architecture source format
 **Status:** `proposed`
