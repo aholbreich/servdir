@@ -332,7 +332,8 @@
 
   .catalog-list-row-title {
     grid-area: title;
-    @apply transition-colors;
+    overflow-wrap: anywhere;
+    @apply leading-5 transition-colors;
   }
 
   .catalog-list-meta {
@@ -353,8 +354,8 @@
   @media (min-width: 768px) {
     .catalog-list-grid {
       gap: 0.75rem 1rem;
-      align-items: center;
-      grid-template-columns: var(--catalog-id-column) minmax(0, 1fr) minmax(0, var(--catalog-tags-column)) auto;
+      align-items: start;
+      grid-template-columns: var(--catalog-id-column) minmax(18rem, 1.35fr) minmax(0, 1fr) auto;
       grid-template-areas: "id title meta status";
     }
 

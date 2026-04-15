@@ -27,12 +27,6 @@ const showPlatformToggle = platformGroups.length > 1;
 
 // Pre-compute global column widths for consistent alignment across all groups
 const globalIdWidthCh = Math.max(...services.map((s) => s.data.id.length), 8);
-const globalTagsWidthCh = Math.max(
-  ...services.map((s) =>
-    (s.data.tags ?? []).reduce((total, tag, i) => total + tag.length + (i > 0 ? 4 : 1), 0),
-  ),
-  12,
-);
 
 // Flat-sorted service list: by platform (alpha), then no-platform last
 const sortedServices = flattenPlatformGroups(platformGroups);
@@ -108,7 +102,6 @@ const sortedServices = flattenPlatformGroups(platformGroups);
           <ServiceCompactList
             services={sortedServices}
             idColumnWidthCh={globalIdWidthCh}
-            tagsColumnWidthCh={globalTagsWidthCh}
           />
         </div>
 
@@ -123,7 +116,6 @@ const sortedServices = flattenPlatformGroups(platformGroups);
               <ServiceCompactList
                 services={group.services}
                 idColumnWidthCh={globalIdWidthCh}
-                tagsColumnWidthCh={globalTagsWidthCh}
               />
             </div>
           ))}
