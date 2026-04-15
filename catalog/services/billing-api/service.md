@@ -37,10 +37,12 @@ platform: legacy-k8s
 Erzeugt Rechnungen und stellt Billing-Funktionen für interne Systeme bereit.
 
 ## Hinweise
+
 - Kritischer Pfad für Invoice Creation
 - PagerDuty Rotation bei Team Payments
 
 ## Betriebswissen
+
 - Schreibt Rechnungs- und Zahlungsstatus in nachgelagerte Systeme fort
 - Nutzt `auth-api` für interne Service-Authentifizierung
 - Änderungen an Preislogik und Rechnungsformaten benötigen erhöhte Aufmerksamkeit

@@ -25,10 +25,12 @@ platform: aws-prod
 Ingests event streams from internal services and loads them into the analytics warehouse.
 
 ## Responsibilities
+
 - Consumes Kafka topics from internal services
 - Transforms and normalises event schemas
 - Loads data into the analytics warehouse
 
 ## Notes
+
 - Deployed on AWS as a managed Glue job with Step Functions orchestration
 - Early-stage service — schema contracts are not yet stable
