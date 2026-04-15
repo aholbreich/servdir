@@ -70,6 +70,7 @@ Keep this PRD focused on product scope, UX expectations, and constraints. Use th
 - `delivery`
 - `system`
 - `domain`
+- `platform` (deployment platform, e.g. `aws-prod`, `on-prem`, `legacy-k8s`)
 - future: architecture diagram references, including Pulumi-generated views, Mermaid, PlantUML, and Structurizr/C4 artifacts
 
 ### Example

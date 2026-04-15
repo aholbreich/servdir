@@ -29,6 +29,7 @@ delivery:
     text: Managed in platform-infra repository
 system: platform
 domain: identity
+platform: on-prem
 ---
 
 # Auth API

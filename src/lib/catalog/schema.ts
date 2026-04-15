@@ -50,4 +50,5 @@ export const serviceFrontmatterSchema = z.object({
   tech_stack: techStackSchema.optional(),
   system: z.string().optional(),
   domain: z.string().optional(),
+  platform: z.string().optional(),
 });

@@ -96,6 +96,17 @@ The catalog status area was intentionally split into small Astro pieces for read
 Preserve these boundaries unless there is a clear readability win.
 Do not collapse them back into one large `.astro` file.
 
+### Platform grouping
+
+- A `platform` field (optional free string, e.g. `aws-prod`, `on-prem`, `legacy-k8s`, `hetzner`) was added to the service schema.
+- The catalog index renders both a flat and a grouped version of both the list and card views.
+- A platform grouping toggle button (layers icon) appears in the toolbar when more than one distinct `platform` value is present.
+- Clicking the toggle switches between flat and grouped views; clicking again reverts.
+- Platform section headers show the platform name and entry count.
+- Entries without a `platform` value are grouped last under "Other".
+- The kind filter remains functional in both flat and grouped modes; empty platform sections are hidden automatically when a kind filter is active.
+- The flat view maintains the existing single-list appearance unchanged.
+
 ### Service list and card conventions
 
 - compact list rows now show a small kind icon before the stable service id

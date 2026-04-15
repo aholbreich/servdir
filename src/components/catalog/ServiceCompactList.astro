@@ -6,16 +6,20 @@ import type { ServiceRecord } from "../../lib/catalog";
 
 export interface Props {
   services: ServiceRecord[];
+  idColumnWidthCh?: number;
+  tagsColumnWidthCh?: number;
 }
 
 const { services } = Astro.props;
-const idColumnWidthCh = Math.max(...services.map((service) => service.data.id.length), 8);
-const tagsColumnWidthCh = Math.max(
-  ...services.map((service) =>
-    (service.data.tags ?? []).reduce((total, tag, index) => total + tag.length + (index > 0 ? 4 : 1), 0),
-  ),
-  12,
-);
+const idColumnWidthCh = Astro.props.idColumnWidthCh ??
+  Math.max(...services.map((service) => service.data.id.length), 8);
+const tagsColumnWidthCh = Astro.props.tagsColumnWidthCh ??
+  Math.max(
+    ...services.map((service) =>
+      (service.data.tags ?? []).reduce((total, tag, index) => total + tag.length + (index > 0 ? 4 : 1), 0),
+    ),
+    12,
+  );
 ---
 
 <ul

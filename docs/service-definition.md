@@ -418,6 +418,26 @@ Example:
 domain: finance
 ```
 
+### `platform`
+
+Optional deployment platform or infrastructure context.
+
+Expected:
+
+- string (free-form, lowercase-with-hyphens recommended)
+
+Example:
+
+```yaml
+platform: aws-prod
+platform: on-prem
+platform: legacy-k8s
+platform: hetzner
+```
+
+Use this field to describe where an entry is deployed or hosted.
+When more than one platform value is present in the catalog, the UI shows a platform grouping toggle that re-organises the list and card views by platform.
+
 ## Markdown body
 
 Everything after the front matter is treated as the service documentation body.

@@ -118,6 +118,20 @@ Acceptance notes:
 - omitted `kind` should default to `service`
 - `kind` should be visible in the UI and documented in the service definition reference
 
+### Filter services by kind
+**Status:** `supported`
+
+As an engineer, I want to filter the catalog by kind so I can quickly focus on services, tools, libraries, or other entry types.
+
+Acceptance notes:
+- filter controls should be icon-only — one small button per kind present in the catalog
+- the active kind should be clearly highlighted
+- clicking the active kind again resets to showing all entries
+- the filter should only appear when more than one kind is present
+- the filter should work in both list and card view
+- the visible service count should update to reflect the active filter
+- kind icons and labels should be consistent with those used on service cards and list rows
+
 ## Planned
 
 ### Search services by name or id
@@ -148,21 +162,6 @@ Acceptance notes:
 - values should map to existing service metadata
 - should work together with owner and tag filters
 
-### Filter services by kind
-**Status:** `planned`
-
-As an engineer, I want to filter the catalog by kind so I can quickly focus on services, tools, libraries, or other entry types.
-
-Acceptance notes:
-
-- filter controls should be icon-only — one small button per kind present in the catalog
-- the active kind should be clearly highlighted
-- clicking the active kind again resets to showing all entries
-- the filter should only appear when more than one kind is present
-- the filter should work in both list and card view
-- the visible service count should update to reflect the active filter
-- kind icons and labels should be consistent with those used on service cards and list rows
-
 ### Navigate by tags
 **Status:** `supported`
 
@@ -178,6 +177,27 @@ Acceptance notes:
 
 
 ## Proposed
+
+### Group services by platform in the catalog view
+**Status:** `proposed`
+
+As an engineer, I want to group catalog entries by their deployment platform so I can understand at a glance which services live on AWS, on-prem, the legacy cluster, or other infrastructure contexts.
+
+Notes:
+- a new optional `platform` field is introduced in the service frontmatter (free string, e.g. `aws-prod`, `on-prem`, `legacy-k8s`, `hetzner`)
+- omitting `platform` is valid — entries without it remain visible and are grouped under an implicit "Other" section when grouping is active
+- grouping is a view mode, not a filter — all entries stay visible, they are just reorganised under platform section headers
+- the toggle should only appear when more than one distinct `platform` value is present in the catalog
+- grouped view works in both list and card view
+- the active grouping state should be visually clear
+- within each platform group, the existing sort order is preserved
+
+Acceptance notes:
+- `platform` is optional in frontmatter; omitting it must not break validation or rendering
+- the grouping toggle should sit alongside the existing kind filter and view mode controls
+- platform section headers should be clear and visually distinct from service rows
+- entries with no `platform` value should appear last under a neutral label such as "Other"
+- the feature should work in static export mode as well as the default server build
 
 ### View the raw Markdown definition for a catalog entry
 **Status:** `proposed`

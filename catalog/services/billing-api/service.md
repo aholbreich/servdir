@@ -29,6 +29,7 @@ delivery:
     text: Managed in platform-infra repository
 system: payments
 domain: finance
+platform: legacy-k8s
 ---
 
 # Billing API

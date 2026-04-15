@@ -3,6 +3,7 @@ import Card from '../ui/Card.astro';
 import SectionTitle from '../ui/SectionTitle.astro';
 import ServiceCard from '../ui/ServiceCard.astro';
 import CatalogKindIcon from './CatalogKindIcon.astro';
+import Icon from '../ui/Icon.astro';
 import { toAppPath } from '../../lib/paths';
 import type { ServiceRecord } from '../../lib/catalog';
 import { normalizeCatalogKind } from '../../lib/catalog-kind-icon';
@@ -20,6 +21,47 @@ const effectiveKind = (s: ServiceRecord) => normalizeCatalogKind(s.data.kind) ||
 const uniqueKinds = [...new Set(services.map(effectiveKind))].sort();
 const showKindFilter = uniqueKinds.length > 1;
 const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
+
+// Platform grouping
+const platformLabel = (p: string) =>
+  p.charAt(0).toUpperCase() + p.slice(1).replace(/-/g, ' ');
+
+const platformGroups: { platform: string; label: string; services: ServiceRecord[] }[] = [];
+const platformMap = new Map<string, ServiceRecord[]>();
+const noPlatform: ServiceRecord[] = [];
+
+for (const s of services) {
+  const p = s.data.platform?.trim();
+  if (p) {
+    if (!platformMap.has(p)) platformMap.set(p, []);
+    platformMap.get(p)!.push(s);
+  } else {
+    noPlatform.push(s);
+  }
+}
+
+for (const [p, svcs] of [...platformMap.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  platformGroups.push({ platform: p, label: platformLabel(p), services: svcs });
+}
+if (noPlatform.length > 0) {
+  platformGroups.push({ platform: '', label: 'Other', services: noPlatform });
+}
+
+const showPlatformToggle = platformGroups.length > 1;
+
+// Pre-compute global column widths for consistent alignment across all groups
+const globalIdWidthCh = Math.max(...services.map((s) => s.data.id.length), 8);
+const globalTagsWidthCh = Math.max(
+  ...services.map((s) =>
+    (s.data.tags ?? []).reduce((total, tag, i) => total + tag.length + (i > 0 ? 4 : 1), 0),
+  ),
+  12,
+);
+
+// Flat-sorted service list: by platform (alpha), then no-platform last
+const sortedServices = [
+  ...platformGroups.flatMap((g) => g.services),
+];
 ---
 
 {
@@ -48,6 +90,18 @@ const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
             </div>
           )}
 
+          {showPlatformToggle && (
+            <button
+              type="button"
+              class="kind-filter-btn"
+              data-platform-group-toggle
+              title="Group by platform"
+              aria-pressed="false"
+            >
+              <Icon name="platform-group" size={15} />
+            </button>
+          )}
+
           <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
             <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
               List
@@ -59,18 +113,66 @@ const kindLabel = (k: string) => k.charAt(0).toUpperCase() + k.slice(1);
         </div>
       </div>
 
+      {/* List view */}
       <div data-catalog-view-panel data-view="list">
-        <ServiceCompactList services={services} />
+        {/* Flat list (default) */}
+        <div data-platform-view="flat">
+          <ServiceCompactList
+            services={sortedServices}
+            idColumnWidthCh={globalIdWidthCh}
+            tagsColumnWidthCh={globalTagsWidthCh}
+          />
+        </div>
+
+        {/* Grouped list (shown when platform grouping is active) */}
+        <div data-platform-view="grouped" hidden>
+          {platformGroups.map((group) => (
+            <div class="platform-section" data-platform-section={group.platform || '__other__'}>
+              <div class="platform-section-header">
+                <span class="platform-section-label">{group.label}</span>
+                <span class="platform-section-count" data-platform-count>{group.services.length}</span>
+              </div>
+              <ServiceCompactList
+                services={group.services}
+                idColumnWidthCh={globalIdWidthCh}
+                tagsColumnWidthCh={globalTagsWidthCh}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
+      {/* Card view */}
       <div data-catalog-view-panel data-view="cards" hidden>
-        <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {services.map((service) => (
-            <li data-service-kind={effectiveKind(service)}>
-              <ServiceCard service={service} />
-            </li>
+        {/* Flat grid (default) */}
+        <div data-platform-view="flat">
+          <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {sortedServices.map((service) => (
+              <li data-service-kind={effectiveKind(service)}>
+                <ServiceCard service={service} />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Grouped grid (shown when platform grouping is active) */}
+        <div data-platform-view="grouped" hidden>
+          {platformGroups.map((group) => (
+            <div class="platform-section" data-platform-section={group.platform || '__other__'}>
+              <div class="platform-section-header">
+                <span class="platform-section-label">{group.label}</span>
+                <span class="platform-section-count" data-platform-count>{group.services.length}</span>
+              </div>
+              <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {group.services.map((service) => (
+                  <li data-service-kind={effectiveKind(service)}>
+                    <ServiceCard service={service} />
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
 
       <script src="../../scripts/catalog-grid.ts"></script>

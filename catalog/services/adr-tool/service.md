@@ -20,6 +20,7 @@ links:
     url: https://github.com/joelparkerhenderson/architecture-decision-record
 system: platform
 domain: engineering-productivity
+platform: gcp
 delivery:
   - label: GitHub Actions
     url: https://github.com/aholbreich/adr-tool/actions

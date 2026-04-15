@@ -26,6 +26,7 @@ delivery:
     url: https://aholbreich.github.io/servdir/
 system: platform
 domain: developer-experience
+platform: gcp
 ---
 
 # Servdir

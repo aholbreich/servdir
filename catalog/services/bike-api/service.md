@@ -46,6 +46,7 @@ tech_stack:
     - github-actions
 system: swing
 domain: care
+platform: legacy-k8s
 ---
 
 # Bike API
