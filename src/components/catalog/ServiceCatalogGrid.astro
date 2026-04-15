@@ -90,18 +90,6 @@ const sortedServices = [
             </div>
           )}
 
-          {showPlatformToggle && (
-            <button
-              type="button"
-              class="kind-filter-btn"
-              data-platform-group-toggle
-              title="Group by platform"
-              aria-pressed="false"
-            >
-              <Icon name="platform-group" size={15} />
-            </button>
-          )}
-
           <div class="inline-flex rounded-full border border-[var(--color-border)] bg-white/80 p-1 shadow-sm" role="group" aria-label="Catalog view mode" id={toggleId}>
             <button type="button" class="catalog-view-toggle is-active" data-catalog-view-button data-view="list" aria-pressed="true">
               List
@@ -109,6 +97,20 @@ const sortedServices = [
             <button type="button" class="catalog-view-toggle" data-catalog-view-button data-view="cards" aria-pressed="false">
               Cards
             </button>
+            {showPlatformToggle && (
+              <>
+                <span class="mx-1 w-px self-stretch bg-[var(--color-border)]" aria-hidden="true" />
+                <button
+                  type="button"
+                  class="catalog-view-toggle"
+                  data-platform-group-toggle
+                  title="Group by platform"
+                  aria-pressed="false"
+                >
+                  Group
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
