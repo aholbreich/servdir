@@ -177,6 +177,14 @@
     @apply rounded px-1.5 py-0.5 text-sm text-slate-900;
   }
 
+  .catalog-status-card {
+    @apply relative z-10;
+  }
+
+  .catalog-status-card:has(.catalog-status-popover[open]) {
+    z-index: 30;
+  }
+
   .catalog-status-popover {
     @apply relative inline-block;
   }
