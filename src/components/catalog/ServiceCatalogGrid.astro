@@ -67,6 +67,17 @@ const sortedServices = [
 {
   services.length > 0 ? (
     <section data-catalog-view-root>
+      <div class="mb-3">
+        <input
+          type="search"
+          data-catalog-search
+          placeholder="Search by name or id…"
+          autocomplete="off"
+          spellcheck="false"
+          class="w-full rounded-xl border border-[var(--color-border)] bg-white/85 px-4 py-2 text-[0.95rem] text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
+
       <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-4">
           <p class="muted text-[0.95rem]" data-catalog-count>Showing {services.length} service{services.length === 1 ? '' : 's'}</p>
@@ -150,7 +161,11 @@ const sortedServices = [
         <div data-platform-view="flat">
           <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
             {sortedServices.map((service) => (
-              <li data-service-kind={effectiveKind(service)}>
+              <li
+                data-service-kind={effectiveKind(service)}
+                data-service-name={service.data.name.toLowerCase()}
+                data-service-id={service.data.id.toLowerCase()}
+              >
                 <ServiceCard service={service} />
               </li>
             ))}
@@ -167,7 +182,11 @@ const sortedServices = [
               </div>
               <ul class="grid list-none gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {group.services.map((service) => (
-                  <li data-service-kind={effectiveKind(service)}>
+                  <li
+                    data-service-kind={effectiveKind(service)}
+                    data-service-name={service.data.name.toLowerCase()}
+                    data-service-id={service.data.id.toLowerCase()}
+                  >
                     <ServiceCard service={service} />
                   </li>
                 ))}

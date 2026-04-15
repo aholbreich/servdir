@@ -135,7 +135,7 @@ Acceptance notes:
 ## Planned
 
 ### Search services by name or id
-**Status:** `planned`
+**Status:** `supported`
 
 As an engineer, I want to search services by name or id so I can find a service quickly in larger catalogs.
 

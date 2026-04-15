@@ -1,4 +1,4 @@
-// Handles view toggle (list/cards), kind filter, and platform grouping for the catalog index.
+// Handles view toggle (list/cards), kind filter, search, and platform grouping for the catalog index.
 // Runs once per [data-catalog-view-root] found on the page.
 
 const storageKey = 'servdir:catalog-view';
@@ -8,15 +8,16 @@ function setupCatalogGrid(root: HTMLElement): void {
   const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-catalog-view-panel]'));
   const kindButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-kind-filter-btn]'));
   const platformToggle = root.querySelector<HTMLButtonElement>('[data-platform-group-toggle]');
+  const searchInput = root.querySelector<HTMLInputElement>('[data-catalog-search]');
   const countEl = root.querySelector<HTMLElement>('[data-catalog-count]');
 
   let activeKind: string | null = null;
+  let searchQuery = '';
   let platformGrouped = false;
 
   // --- Platform view helpers ---
 
   const activePlatformViews = (): HTMLElement[] => {
-    // Return the [data-platform-view] elements that are currently visible
     const activePanel = panels.find((p) => !p.hidden);
     if (!activePanel) return [];
     const mode = platformGrouped ? 'grouped' : 'flat';
@@ -37,7 +38,17 @@ function setupCatalogGrid(root: HTMLElement): void {
     }
   };
 
-  // --- Kind filter ---
+  // --- Combined filter logic ---
+
+  const itemVisible = (el: HTMLElement): boolean => {
+    const kindMatch = !activeKind || el.dataset.serviceKind === activeKind;
+    const q = searchQuery.trim().toLowerCase();
+    const searchMatch =
+      !q ||
+      (el.dataset.serviceName ?? '').includes(q) ||
+      (el.dataset.serviceId ?? '').includes(q);
+    return kindMatch && searchMatch;
+  };
 
   const updateCount = (): void => {
     if (!countEl) return;
@@ -50,29 +61,25 @@ function setupCatalogGrid(root: HTMLElement): void {
   };
 
   const updatePlatformSectionVisibility = (): void => {
-    // When kind filter is active in grouped view, hide sections where all items are hidden
     root.querySelectorAll<HTMLElement>('[data-platform-section]').forEach((section) => {
       const items = Array.from(section.querySelectorAll<HTMLElement>('[data-service-kind]'));
       if (items.length === 0) return;
-      const allHidden = items.every((el) => el.hidden);
-      section.hidden = allHidden;
+      section.hidden = items.every((el) => el.hidden);
     });
   };
 
-  const applyKindFilter = (kind: string | null): void => {
-    activeKind = kind;
-
+  const applyFilters = (): void => {
+    // Update kind button state
     kindButtons.forEach((btn) => {
-      const active = btn.dataset.kindFilterBtn === kind;
+      const active = btn.dataset.kindFilterBtn === activeKind;
       btn.classList.toggle('is-active', active);
       btn.setAttribute('aria-pressed', String(active));
     });
 
-    // Apply to ALL [data-service-kind] items in the root (both flat and grouped views)
+    // Apply visibility to ALL items in both views
     const allItems = Array.from(root.querySelectorAll<HTMLElement>('[data-service-kind]'));
     allItems.forEach((item) => {
-      const match = !kind || item.dataset.serviceKind === kind;
-      item.hidden = !match;
+      item.hidden = !itemVisible(item);
     });
 
     updatePlatformSectionVisibility();
@@ -97,16 +104,21 @@ function setupCatalogGrid(root: HTMLElement): void {
 
   // --- Wire up events ---
 
+  searchInput?.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    applyFilters();
+  });
+
   kindButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
-      applyKindFilter(activeKind === btn.dataset.kindFilterBtn ? null : (btn.dataset.kindFilterBtn ?? null));
+      activeKind = activeKind === btn.dataset.kindFilterBtn ? null : (btn.dataset.kindFilterBtn ?? null);
+      applyFilters();
     });
   });
 
   platformToggle?.addEventListener('click', () => {
     applyPlatformView(!platformGrouped);
-    // Re-apply kind filter visibility in the new view
-    applyKindFilter(activeKind);
+    applyFilters();
   });
 
   viewButtons.forEach((button) => {
