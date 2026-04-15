@@ -132,8 +132,6 @@ Acceptance notes:
 - the visible service count should update to reflect the active filter
 - kind icons and labels should be consistent with those used on service cards and list rows
 
-## Planned
-
 ### Search services by name or id
 **Status:** `supported`
 
@@ -143,6 +141,21 @@ Acceptance notes:
 - should work from the list page
 - should match both `name` and `id`
 - should combine cleanly with filters
+
+### Navigate by tags
+**Status:** `supported`
+
+As an engineer, I want to navigate the catalog by tag so I can explore services by technology, domain, or concern.
+
+Acceptance notes:
+- visible tags should be clickable
+- every tag should have a dedicated page listing matching services
+- there should be a tag index page listing all known tags
+- tag pages should show the number of matching services
+- tag navigation should reuse the existing service list presentation where possible
+- unknown tag routes should return 404
+
+## Planned
 
 ### Filter services by owner
 **Status:** `planned`
@@ -161,19 +174,6 @@ As an engineer, I want to filter services by lifecycle so I can focus on product
 Acceptance notes:
 - values should map to existing service metadata
 - should work together with owner and tag filters
-
-### Navigate by tags
-**Status:** `supported`
-
-As an engineer, I want to navigate the catalog by tag so I can explore services by technology, domain, or concern.
-
-Acceptance notes:
-- visible tags should be clickable
-- every tag should have a dedicated page listing matching services
-- there should be a tag index page listing all known tags
-- tag pages should show the number of matching services
-- tag navigation should reuse the existing service list presentation where possible
-- unknown tag routes should return 404
 
 
 ## Proposed
