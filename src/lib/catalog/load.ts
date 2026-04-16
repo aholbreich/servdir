@@ -4,12 +4,14 @@ import type { GitSourceConfig } from '../config';
 import { getConfig } from '../config';
 import { startGitSyncScheduler, waitForInitialGitSync } from '../git-sync';
 import { isStaticBuildMode } from '../build-mode';
+import { createLogger } from '../logger';
 
 type LoadCatalogOptions = {
   gitSources?: GitSourceConfig[];
 };
 
 let schedulerStartup: Promise<void> | undefined;
+const logger = createLogger('catalog');
 
 function ensureGitSchedulerStarted(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): Promise<void> {
   if (gitSources.length === 0) {
@@ -21,10 +23,10 @@ function ensureGitSchedulerStarted(localCatalogRoot: string | undefined, gitSour
     schedulerStartup = startGitSyncScheduler(gitSources, config.gitSyncIntervalMs, async () => {
       try {
         await refreshCatalogCache(localCatalogRoot, gitSources);
-        console.info('[catalog] refreshed in-memory snapshot after git sync cycle');
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(`[catalog] failed to refresh in-memory snapshot after git sync cycle: ${message}`);
+        logger.error('Catalog snapshot refresh failed after git sync cycle', {
+          error: error instanceof Error ? error : new Error(String(error)),
+        });
       }
     });
   }

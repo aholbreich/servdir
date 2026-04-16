@@ -8,6 +8,9 @@ describe('getConfig', () => {
     delete process.env.GIT_SYNC_INTERVAL;
     delete process.env.GIT_SOURCE_CATALOG_MAIN;
     delete process.env.LOCAL_CATALOG_PATH;
+    delete process.env.LOG_FORMAT;
+    delete process.env.LOG_LEVEL;
+    delete process.env.LOG_COLOR;
     delete process.env.BASIC_AUTH_ENABLED;
     delete process.env.BASIC_AUTH_USERNAME;
     delete process.env.BASIC_AUTH_PASSWORD;
@@ -19,6 +22,9 @@ describe('getConfig', () => {
     expect(getConfig().appBuildVersion).toBe('v0.0.1 · sha-local');
     expect(getConfig().catalogTitle).toBe('Service Catalog');
     expect(getConfig().gitSyncIntervalMs).toBe(60000);
+    expect(getConfig().logFormat).toBe('text');
+    expect(getConfig().logLevel).toBe('info');
+    expect(getConfig().logColor).toBe('auto');
   });
 
   it('parses a custom build version, catalog title and git sync interval', async () => {
@@ -44,6 +50,30 @@ describe('getConfig', () => {
         scanPaths: ['services'],
       },
     ]);
+  });
+
+  it('parses an optional LOG_FORMAT setting', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.LOG_FORMAT = 'json';
+    const { getConfig } = await import('./config');
+
+    expect(getConfig().logFormat).toBe('json');
+  });
+
+  it('parses an optional LOG_LEVEL setting', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.LOG_LEVEL = 'debug';
+    const { getConfig } = await import('./config');
+
+    expect(getConfig().logLevel).toBe('debug');
+  });
+
+  it('parses an optional LOG_COLOR setting', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.LOG_COLOR = 'false';
+    const { getConfig } = await import('./config');
+
+    expect(getConfig().logColor).toBe('false');
   });
 
   it('parses GIT_SOURCE_* without scanPaths as undefined', async () => {

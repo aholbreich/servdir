@@ -1,4 +1,13 @@
 import path from 'node:path';
+import {
+  createLogger,
+  type LogColor,
+  type LogFormat,
+  type LogLevel,
+  resolveLogColor,
+  resolveLogFormat,
+  resolveLogLevel,
+} from './logger';
 
 export type GitSourceConfig = {
   name: string;
@@ -20,6 +29,9 @@ export type AppConfig = {
   localCatalogPath?: string;
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
+  logFormat: LogFormat;
+  logLevel: LogLevel;
+  logColor: LogColor;
   basicAuth: BasicAuthConfig;
 };
 
@@ -28,6 +40,7 @@ type ConfigResolution =
   | { ok: false; error: Error };
 
 let cachedConfig: AppConfig | undefined;
+const logger = createLogger('config');
 
 function readEnv(name: keyof ImportMetaEnv): string | undefined {
   return process.env[name] ?? import.meta.env[name];
@@ -77,7 +90,9 @@ function defaultCheckoutPath(name: string, index: number): string {
 
 function parseGitSources(): GitSourceConfig[] {
   if (process.env.GIT_SOURCES) {
-    console.warn('[config] GIT_SOURCES is no longer supported — migrate to GIT_SOURCE_<NAME>=repoUrl|branch[|scanPath1,scanPath2]');
+    logger.warn('Deprecated GIT_SOURCES env var ignored', {
+      replacement: 'GIT_SOURCE_<NAME>=repoUrl|branch[|scanPath1,scanPath2]',
+    });
   }
 
   // Merge process.env and import.meta.env — Astro/Vite may inject .env vars into
@@ -127,7 +142,7 @@ function buildConfig(): AppConfig {
   const appBuildVersion = readEnv('APP_BUILD_VERSION') ?? 'v0.0.1 · sha-local';
 
   if (!basicAuthEnabled && (basicAuthUsername || basicAuthPassword)) {
-    console.warn('[config] BASIC_AUTH_USERNAME or BASIC_AUTH_PASSWORD are set but BASIC_AUTH_ENABLED is not true, credentials will be ignored.');
+    logger.warn('Basic auth credentials ignored because BASIC_AUTH_ENABLED is not true');
   }
 
   return {
@@ -136,6 +151,9 @@ function buildConfig(): AppConfig {
     localCatalogPath,
     gitSources,
     gitSyncIntervalMs: parseDurationMs(readEnv('GIT_SYNC_INTERVAL'), 60000),
+    logFormat: resolveLogFormat(),
+    logLevel: resolveLogLevel(),
+    logColor: resolveLogColor(),
     basicAuth: {
       enabled: basicAuthEnabled,
       username: basicAuthEnabled ? basicAuthUsername : undefined,
@@ -163,14 +181,17 @@ function validateConfig(config: AppConfig): AppConfig {
 }
 
 function logConfig(config: AppConfig): void {
-  console.info('[config] ==========================================');
-  console.info(`[config] app build version: ${config.appBuildVersion}`);
-  console.info(`[config] catalog title: ${config.catalogTitle}`);
-  console.info(`[config] configured local catalog path: ${config.localCatalogPath ?? 'disabled'}`);
-  console.info(`[config] configured git sources: ${config.gitSources.length}`);
-  console.info(`[config] git sync interval: ${config.gitSyncIntervalMs}ms`);
-  console.info(`[config] basic auth: ${config.basicAuth.enabled ? 'enabled' : 'disabled'}`);
-  console.info('[config] ==========================================');
+  logger.info('Resolved runtime configuration', {
+    appBuildVersion: config.appBuildVersion,
+    catalogTitle: config.catalogTitle,
+    localCatalogPath: config.localCatalogPath ?? 'disabled',
+    gitSourceCount: config.gitSources.length,
+    gitSyncIntervalMs: config.gitSyncIntervalMs,
+    logFormat: config.logFormat,
+    logLevel: config.logLevel,
+    logColor: config.logColor,
+    basicAuthEnabled: config.basicAuth.enabled,
+  });
 }
 
 function resolveConfig(): ConfigResolution {
@@ -185,7 +206,9 @@ function resolveConfig(): ConfigResolution {
     return { ok: true, config };
   } catch (error) {
     const resolvedError = toError(error);
-    console.error(`[config] invalid configuration: ${resolvedError.message}`);
+    logger.error('Invalid runtime configuration', {
+      error: resolvedError,
+    });
     return { ok: false, error: resolvedError };
   }
 }

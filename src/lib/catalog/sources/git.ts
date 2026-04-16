@@ -6,10 +6,12 @@ import { promisify } from 'node:util';
 import { parseServiceFile } from '../parse';
 import type { ServiceRecord } from '../types';
 import type { GitSourceConfig } from '../../config';
+import { createLogger } from '../../logger';
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_SSH_KEY_PATH = '/etc/servdir/ssh/id_ed25519';
 const DEFAULT_KNOWN_HOSTS_PATH = '/etc/servdir/ssh/known_hosts';
+const logger = createLogger('catalog-git');
 
 export type GitCatalogSource = GitSourceConfig;
 
@@ -69,7 +71,9 @@ async function removeCheckoutIfInvalid(checkoutPath: string): Promise<void> {
   const hasGitDir = await pathExists(path.join(checkoutPath, '.git'));
 
   if (!hasGitDir && await pathExists(checkoutPath)) {
-    console.warn(`[catalog:git] removing invalid checkout at ${checkoutPath}`);
+    logger.warn('Removing invalid git checkout directory', {
+      checkoutPath,
+    });
     await fs.rm(checkoutPath, { recursive: true, force: true });
   }
 }
@@ -82,12 +86,21 @@ async function ensureCheckout(source: GitCatalogSource): Promise<void> {
   await removeCheckoutIfInvalid(source.checkoutPath);
 
   if (!hasCheckout) {
-    console.info(`[catalog:git] source ${source.name} cloning ${source.repoUrl} into ${source.checkoutPath}`);
+    logger.info('Cloning managed git source', {
+      sourceName: source.name,
+      repoUrl: source.repoUrl,
+      branch: source.branch,
+      checkoutPath: source.checkoutPath,
+    });
     await runGit(['clone', '--branch', source.branch, '--single-branch', source.repoUrl, source.checkoutPath]);
     return;
   }
 
-  console.info(`[catalog:git] source ${source.name} fetching ${source.branch}`);
+  logger.info('Refreshing managed git source checkout', {
+    sourceName: source.name,
+    branch: source.branch,
+    checkoutPath: source.checkoutPath,
+  });
   await runGit(['fetch', 'origin', source.branch], source.checkoutPath);
   await runGit(['checkout', source.branch], source.checkoutPath);
   await runGit(['reset', '--hard', `origin/${source.branch}`], source.checkoutPath);
@@ -98,12 +111,19 @@ async function scanCheckout(source: GitCatalogSource): Promise<ServiceRecord[]> 
   const allFiles = await Promise.all(paths.map(async (scanPath) => {
     const pattern = path.join(source.checkoutPath, scanPath, '*', 'service.md').replaceAll('\\', '/');
     const singleRepoDefinitionPath = path.join(source.checkoutPath, scanPath, '.servdir.md');
-    console.info(`[catalog:git] scanning ${source.name} with pattern: ${pattern}`);
+    logger.debug('Scanning managed git source path', {
+      sourceName: source.name,
+      scanPath: scanPath || '.',
+      pattern,
+    });
 
     const matchedPaths = await glob(pattern);
 
     if (await pathExists(singleRepoDefinitionPath)) {
-      console.info(`[catalog:git] discovered single-repo definition in ${source.name}: ${singleRepoDefinitionPath}`);
+      logger.debug('Discovered single-repo catalog definition in managed git source', {
+        sourceName: source.name,
+        filePath: singleRepoDefinitionPath,
+      });
       matchedPaths.push(singleRepoDefinitionPath);
     }
 
@@ -111,23 +131,38 @@ async function scanCheckout(source: GitCatalogSource): Promise<ServiceRecord[]> 
   }));
 
   const filePaths = Array.from(new Set(allFiles.flat()));
-  console.info(`[catalog:git] discovered ${filePaths.length} service definition file(s) in ${source.name}`);
+  logger.debug('Discovered managed git catalog definition files', {
+    sourceName: source.name,
+    fileCount: filePaths.length,
+  });
 
   const parsedServices = await Promise.all(filePaths.map(async (filePath) => {
     try {
       const service = await parseServiceFile(filePath);
 
       if (service.issues.length > 0) {
-        console.warn(`[catalog:git] parsed ${filePath} from ${source.name} with ${service.issues.length} validation issue(s)`);
+        logger.warn('Parsed managed git catalog entry with validation issues', {
+          sourceName: source.name,
+          filePath,
+          issueCount: service.issues.length,
+        });
         for (const issue of service.issues) {
-          console.warn(`[catalog:git] ${filePath}: [${issue.level}] ${issue.message}`);
+          logger.warn('Managed git catalog validation issue', {
+            sourceName: source.name,
+            filePath,
+            issueLevel: issue.level,
+            issueMessage: issue.message,
+          });
         }
       }
 
       return service;
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(`[catalog:git] failed to parse ${filePath} from ${source.name}: ${message}`);
+      logger.error('Failed to parse catalog definition from managed git source', {
+        sourceName: source.name,
+        filePath,
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
       throw error;
     }
   }));
@@ -152,7 +187,11 @@ export async function syncGitSource(source: GitCatalogSource): Promise<void> {
   const startedAt = new Date();
   const startMs = Date.now();
   const run = (async () => {
-    console.info(`[catalog:git] source ${source.name} sync started`);
+    logger.info('Managed git source sync started', {
+      sourceName: source.name,
+      branch: source.branch,
+      checkoutPath: source.checkoutPath,
+    });
     syncStatus.set(source.checkoutPath, {
       sourceName: source.name,
       repoUrl: source.repoUrl,
@@ -175,10 +214,14 @@ export async function syncGitSource(source: GitCatalogSource): Promise<void> {
         lastSyncDurationMs: durationMs,
         lastSyncSucceeded: true,
       });
-      console.info(`[catalog:git] source ${source.name} sync completed in ${durationMs}ms`);
+      logger.info('Managed git source sync completed', {
+        sourceName: source.name,
+        durationMs,
+      });
     } catch (error) {
       const durationMs = Date.now() - startMs;
-      const message = error instanceof Error ? error.message : String(error);
+      const resolvedError = error instanceof Error ? error : new Error(String(error));
+      const message = resolvedError.message;
       syncStatus.set(source.checkoutPath, {
         sourceName: source.name,
         repoUrl: source.repoUrl,
@@ -190,7 +233,11 @@ export async function syncGitSource(source: GitCatalogSource): Promise<void> {
         lastSyncSucceeded: false,
         lastError: message,
       });
-      console.error(`[catalog:git] source ${source.name} sync failed after ${durationMs}ms: ${message}`);
+      logger.error('Managed git source sync failed', {
+        sourceName: source.name,
+        durationMs,
+        error: resolvedError,
+      });
       throw error;
     } finally {
       inFlightSyncs.delete(source.checkoutPath);
@@ -206,7 +253,10 @@ export async function loadGitServices(sources: GitCatalogSource[]): Promise<Serv
 
   for (const source of sources) {
     if (!await pathExists(path.join(source.checkoutPath, '.git'))) {
-      console.warn(`[catalog:git] source ${source.name} has no checkout yet, skipping scan`);
+      logger.warn('Skipping managed git source scan because checkout is missing', {
+        sourceName: source.name,
+        checkoutPath: source.checkoutPath,
+      });
       continue;
     }
 

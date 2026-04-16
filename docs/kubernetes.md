@@ -32,6 +32,9 @@ metadata:
 data:
   CATALOG_TITLE: "Swing Service Catalog"
   GIT_SYNC_INTERVAL: "1m"
+  LOG_FORMAT: "json"
+  LOG_LEVEL: "info"
+  LOG_COLOR: "false"
 
   GIT_SOURCE_CATALOG_MAIN: "git@bitbucket.org:myneva/servdir-catalog.git|main|services"
   GIT_SOURCE_FLUX_GITOPS: "git@bitbucket.org:myneva/flux-gitops.git|main"
@@ -195,6 +198,9 @@ Review the fingerprint before using it.
 CATALOG_TITLE=Service Catalog
 LOCAL_CATALOG_PATH=/data/catalog
 GIT_SYNC_INTERVAL=1m
+LOG_FORMAT=json
+LOG_LEVEL=info
+LOG_COLOR=false
 ```
 
 `GIT_SYNC_INTERVAL` accepts:
@@ -202,6 +208,28 @@ GIT_SYNC_INTERVAL=1m
 - `5m`
 - `1h`
 - plain numbers, treated as seconds
+
+`LOG_FORMAT` accepts:
+- `text` for human-readable logs during local development
+- `json` for structured one-line logs that work better with Kubernetes log collectors
+
+`LOG_LEVEL` accepts:
+- `debug` for detailed scan/build chatter
+- `info` for normal operations
+- `warn` for only warnings and errors
+- `error` for errors only
+
+`LOG_COLOR` accepts:
+- `auto` to enable color only when stdout is a TTY
+- `true` to always enable color in text mode
+- `false` to always disable color in text mode
+
+For Kubernetes, `LOG_FORMAT=json` is the recommended default because it
+produces one structured log event per line for collectors such as Loki
+or Elasticsearch. Use `LOG_LEVEL=info` for normal operation and switch
+to `debug` temporarily when you need more detail during rollout or sync
+troubleshooting. `LOG_COLOR` only affects `LOG_FORMAT=text` and should
+normally stay `false` or unused in Kubernetes.
 
 ### Managed Git sources
 

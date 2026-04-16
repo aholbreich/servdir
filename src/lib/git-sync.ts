@@ -1,9 +1,11 @@
 import type { GitSourceConfig } from './config';
 import { getGitSourceStatuses, syncGitSource } from './catalog/sources';
+import { createLogger } from './logger';
 
 let started = false;
 let startupSyncPromise: Promise<void> | undefined;
 let timer: NodeJS.Timeout | undefined;
+const logger = createLogger('git-sync');
 
 export function startGitSyncScheduler(sources: GitSourceConfig[], intervalMs: number, onCycleComplete?: () => Promise<void> | void,): Promise<void> {
   if (started || sources.length === 0) {
@@ -11,7 +13,10 @@ export function startGitSyncScheduler(sources: GitSourceConfig[], intervalMs: nu
   }
 
   started = true;
-  console.info(`[git-sync] scheduler starting for ${sources.length} source(s), interval ${intervalMs}ms`);
+  logger.info('Starting git sync scheduler', {
+    sourceCount: sources.length,
+    intervalMs,
+  });
 
   startupSyncPromise = runScheduledSync(sources, 'startup', onCycleComplete).finally(() => {
     timer = setInterval(() => {
@@ -24,7 +29,10 @@ export function startGitSyncScheduler(sources: GitSourceConfig[], intervalMs: nu
 
 async function runScheduledSync(sources: GitSourceConfig[], trigger: 'startup' | 'interval', onCycleComplete?: () => Promise<void> | void,): Promise<void> {
   const startedAt = Date.now();
-  console.info(`[git-sync] ${trigger} sync cycle started for ${sources.length} source(s)`);
+  logger.info('Git sync cycle started', {
+    trigger,
+    sourceCount: sources.length,
+  });
 
   for (const source of sources) {
     try {
@@ -35,10 +43,20 @@ async function runScheduledSync(sources: GitSourceConfig[], trigger: 'startup' |
   }
 
   if (onCycleComplete) {
-    await onCycleComplete();
+    try {
+      await onCycleComplete();
+    } catch (error) {
+      logger.error('Git sync cycle callback failed', {
+        trigger,
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+    }
   }
 
-  console.info(`[git-sync] ${trigger} sync cycle finished in ${Date.now() - startedAt}ms`);
+  logger.info('Git sync cycle finished', {
+    trigger,
+    durationMs: Date.now() - startedAt,
+  });
 }
 
 export async function waitForInitialGitSync(): Promise<void> {

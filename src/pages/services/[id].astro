@@ -15,11 +15,9 @@ export async function getStaticPaths() {
 }
 
 const id = Astro.params.id;
-console.info(`[page:/services/[id]] rendering service route for id=${id}`);
 const servicePage = await loadConfiguredServicePage(id);
 
 if (!servicePage) {
-  console.warn(`[page:/services/[id]] service not found for id=${id}`);
   return createNotFoundRedirectResponse();
 }
 

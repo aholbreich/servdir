@@ -61,6 +61,13 @@ Then open `http://localhost:4321` to see the catalog running on your machine.
 For local file-based catalog development, set `LOCAL_CATALOG_PATH=./catalog` in `.env`.
 The app requires at least one configured source, either `LOCAL_CATALOG_PATH` or a `GIT_SOURCE_<NAME>` variable.
 
+Optional logging setting:
+
+- `LOG_FORMAT=text` for readable local logs
+- `LOG_FORMAT=json` for structured one-line logs, useful in Kubernetes and other log aggregation environments
+- `LOG_LEVEL=debug|info|warn|error` to control verbosity, default is `info`
+- `LOG_COLOR=auto|true|false` to control ANSI colors in text mode, default is `auto`
+
 ### Test locally
 
 ```bash
@@ -162,6 +169,12 @@ Managed Git uses sensible SSH defaults in container environments when keys are m
 
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
+
+Structured logs:
+
+- set `LOG_FORMAT=json` when you want machine-friendly logs for tools such as Kubernetes, Loki, or Elasticsearch
+- `LOG_COLOR` only affects `LOG_FORMAT=text`; `auto` enables color only when stdout is a TTY
+- the default remains readable text logs for local development
 
 ## Service definition format
 

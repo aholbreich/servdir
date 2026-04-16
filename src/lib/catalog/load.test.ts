@@ -106,8 +106,7 @@ describe('loadCatalogFromSources', () => {
     expect(catalog.snapshotStatus).toBe('fresh');
   });
 
-  it('logs validation issues when parsing git-backed services', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('keeps git-backed services with validation issues in the catalog snapshot', async () => {
     process.env.GIT_SOURCE_CATALOG_MAIN = 'git@bitbucket.org:example/service-catalog.git|main|services';
 
     await writeService(
@@ -130,10 +129,12 @@ describe('loadCatalogFromSources', () => {
 
     expect(catalog.services).toHaveLength(1);
     expect(catalog.snapshotStatus).toBe('fresh');
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('parsed'));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[error] repo: Invalid URL'));
-
-    warnSpy.mockRestore();
+    expect(catalog.services[0]?.issues).toEqual([
+      {
+        level: 'error',
+        message: 'repo: Invalid URL',
+      },
+    ]);
   });
 
   it('reuses the in-memory snapshot between repeated loads', async () => {

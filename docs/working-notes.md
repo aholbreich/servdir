@@ -41,6 +41,7 @@ See:
 - `.adr/006-add-app-managed-git-checkout-for-multiple-catalog-sources.md`
 - `.adr/007-protect-the-catalog-with-basic-auth.md`
 - `.adr/008-add-an-in-process-git-sync-scheduler.md`
+- `.adr/010-adopt-pino-for-application-logging.md`
 
 ## Important design reminders
 
@@ -204,13 +205,17 @@ This is the preferred level of abstraction here:
 
 - Startup/config logs were too noisy when config was recomputed per request.
 - Config is now cached so those logs are emitted once per process instead of on every page render.
+- Logging now goes through a small shared helper instead of raw `console.*` calls spread across runtime modules.
+- Default log output stays human-readable text for local development.
+- `LOG_FORMAT=json` enables structured one-line logs for Kubernetes-style environments and log aggregation.
 - Useful log categories now include:
   - scheduler startup
   - startup sync cycle start/finish
   - interval sync cycle start/finish
   - per-source sync start/success/failure with duration
-  - scan patterns and discovered file counts
-  - git-backed parse warnings with per-file validation details
+  - snapshot build/refresh success and stale fallback behavior
+  - scan scope and discovered file counts
+  - parse/validation warnings with per-file details for both local and Git-backed sources
 - The system now keeps a validated in-memory catalog snapshot and serves requests from that snapshot instead of rescanning and reparsing on each page render.
 - After sync cycles, servdir refreshes the snapshot in the background and keeps serving the last known good catalog if a refresh fails.
 - The cache/snapshot logic now lives as an explicit catalog cache subsystem instead of being hidden inside `load.ts`, to make later stats, debug views, and observability easier to extend.

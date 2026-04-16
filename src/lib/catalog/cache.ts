@@ -2,6 +2,7 @@ import { loadGitServices, loadLocalServices } from './sources';
 import { validateCatalog } from './validate';
 import type { Catalog, ServiceRecord } from './types';
 import type { GitSourceConfig } from '../config';
+import { createLogger } from '../logger';
 
 export type CatalogCacheEntry = {
   sourceSignature: string;
@@ -14,6 +15,7 @@ export type CatalogCacheEntry = {
 };
 
 let cacheEntry: CatalogCacheEntry | undefined;
+const logger = createLogger('catalog-cache');
 
 function getSourceSignature(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): string {
   return JSON.stringify({
@@ -61,6 +63,10 @@ function createCatalog(services: ServiceRecord[], snapshotStatus: Catalog['snaps
 }
 
 async function buildCatalog(localCatalogRoot: string | undefined, gitSources: GitSourceConfig[]): Promise<Catalog> {
+  logger.debug('Building catalog snapshot', {
+    localCatalogEnabled: Boolean(localCatalogRoot),
+    gitSourceCount: gitSources.length,
+  });
   const sources = [];
 
   if (localCatalogRoot) {
@@ -72,7 +78,12 @@ async function buildCatalog(localCatalogRoot: string | undefined, gitSources: Gi
   }
 
   const loaded = await Promise.all(sources);
-  return createCatalog(loaded.flat(), 'fresh');
+  const catalog = createCatalog(loaded.flat(), 'fresh');
+  logger.debug('Built catalog snapshot', {
+    serviceCount: catalog.services.length,
+    snapshotStatus: catalog.snapshotStatus,
+  });
+  return catalog;
 }
 
 export async function refreshCatalogCache(
@@ -97,6 +108,10 @@ export async function refreshCatalogCache(
       entry.lastRefreshFinishedAt = new Date().toISOString();
       entry.lastSuccessfulRefreshAt = entry.lastRefreshFinishedAt;
       entry.lastRefreshError = undefined;
+      logger.info('Catalog snapshot refreshed', {
+        serviceCount: catalog.services.length,
+        snapshotStatus: catalog.snapshotStatus,
+      });
       return catalog;
     })
     .catch((error) => {
@@ -105,6 +120,9 @@ export async function refreshCatalogCache(
       entry.lastRefreshError = message;
 
       if (entry.catalog) {
+        logger.warn('Catalog refresh failed, serving stale snapshot', {
+          error: message,
+        });
         entry.catalog = {
           ...entry.catalog,
           snapshotStatus: 'stale',
@@ -113,6 +131,9 @@ export async function refreshCatalogCache(
         return entry.catalog;
       }
 
+      logger.error('Catalog refresh failed without a previous snapshot', {
+        error: message,
+      });
       throw error;
     })
     .finally(() => {
