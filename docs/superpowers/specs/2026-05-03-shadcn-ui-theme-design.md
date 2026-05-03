@@ -106,18 +106,24 @@ Adding a third theme requires a new CSS variable block under a new selector
 |---|---|---|
 | `ServiceCard.astro` | `ServiceCard.tsx` | `Card`, `Badge` |
 | `ServiceCardGrid.astro` | `ServiceCardGrid.tsx` | layout wrapper only |
-| `ServiceHeader.astro` | `ServiceHeader.tsx` | `Badge` for lifecycle/status |
-| `CatalogHero.astro` | `CatalogHero.tsx` | |
-| `TagCloud.astro` + `TagLink.astro` | `TagCloud.tsx` | `Badge` with `asChild` for links |
-| `IssueList.astro` | `IssueList.tsx` | `Alert` for errors/warnings |
+| `ServiceCardLinkIcon.astro` | `ServiceCardLinkIcon.tsx` | `Button` variant (ghost/icon) |
+| `ServiceCatalogGrid.astro` | `ServiceCatalogGrid.tsx` | layout wrapper only |
 | `ServiceCompactList.astro` | `ServiceCompactList.tsx` | |
-| `CatalogStatusPanel.astro` + tabs/cards | `CatalogStatusPanel.tsx` | `Tabs`, `Card` |
-| `CatalogStatusGitSourcesPopover.astro` | `CatalogStatusGitSourcesPopover.tsx` | `Popover` — needs `client:load` |
 | `ServiceDependenciesCard.astro` | `ServiceDependenciesCard.tsx` | `Card` |
 | `ServiceDocumentationCard.astro` | `ServiceDocumentationCard.tsx` | `Card` |
+| `ServiceHeader.astro` | `ServiceHeader.tsx` | `Badge` for lifecycle/status |
 | `ServiceMetadataCard.astro` | `ServiceMetadataCard.tsx` | `Card` |
 | `ServiceValidationCard.astro` | `ServiceValidationCard.tsx` | `Alert`, `Card` |
+| `CatalogHero.astro` | `CatalogHero.tsx` | |
+| `CatalogKindIcon.astro` | `CatalogKindIcon.tsx` | lucide icon wrapper |
+| `CatalogStatusCard.astro` | `CatalogStatusCard.tsx` | `Card` |
+| `CatalogStatusDetailList.astro` | `CatalogStatusDetailList.tsx` | |
+| `CatalogStatusGitSourcesPopover.astro` | `CatalogStatusGitSourcesPopover.tsx` | `Popover` — needs `client:load` |
+| `CatalogStatusPanel.astro` | `CatalogStatusPanel.tsx` | `Card` wrapper |
+| `CatalogStatusTabs.astro` | subsumed into `CatalogStatusPanel.tsx` | shadcn `Tabs` |
+| `IssueList.astro` | `IssueList.tsx` | `Alert` for errors/warnings |
 | `PlatformList.astro` | `PlatformList.tsx` | |
+| `TagCloud.astro` + `TagLink.astro` | `TagCloud.tsx` | `Badge` with `asChild` for links |
 
 ## Data Flow & Astro/React Integration
 
