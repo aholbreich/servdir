@@ -21,16 +21,16 @@ export function PlatformList({ platforms }: Props) {
   }
 
   return (
-    <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <section className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
       {platforms.map((platform) => (
-        <Card key={platform.slug} className="flex items-center justify-between gap-4 px-5 py-4">
+        <Card key={platform.slug} className="flex items-center justify-between gap-3 px-4 py-2">
           <a
             href={toAppPath(`/platforms/${platform.slug}`)}
-            className="text-base font-medium hover:underline"
+            className="font-medium hover:underline"
           >
             {platform.label}
           </a>
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="shrink-0">
             {platform.serviceCount} service{platform.serviceCount === 1 ? '' : 's'}
           </Badge>
         </Card>
