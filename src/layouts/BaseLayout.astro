@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { toAppPath } from '../lib/paths';
 
 export interface Props {
@@ -17,10 +18,22 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href={toAppPath('/favicon.svg')} />
     <link rel="icon" type="image/x-icon" href={toAppPath('/favicon.ico')} sizes="any" />
     <title>{title}</title>
+    <script is:inline>
+      const theme = localStorage.getItem('theme') ?? 'system';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
   <body>
-    <main class="app-shell">
-      <slot />
-    </main>
+    <div class="relative">
+      <div class="absolute top-4 right-5 z-50">
+        <ThemeToggle client:load />
+      </div>
+      <main class="mx-auto max-w-7xl px-5 py-9 md:px-6 md:pb-18">
+        <slot />
+      </main>
+    </div>
   </body>
 </html>

@@ -1,15 +1,14 @@
 ---
-import ServiceDependenciesCard from '../../components/catalog/ServiceDependenciesCard.astro';
-import ServiceDocumentationCard from '../../components/catalog/ServiceDocumentationCard.astro';
-import ServiceHeader from '../../components/catalog/ServiceHeader.astro';
-import ServiceMetadataCard from '../../components/catalog/ServiceMetadataCard.astro';
-import ServiceValidationCard from '../../components/catalog/ServiceValidationCard.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { listConfiguredServicePaths, loadConfiguredServicePage } from '../../lib/catalog';
-import { toAppPath } from '../../lib/paths';
-import { createNotFoundRedirectResponse } from '../../lib/page';
+import { ServiceDependenciesCard } from '@/components/catalog/ServiceDependenciesCard';
+import { ServiceDocumentationCard } from '@/components/catalog/ServiceDocumentationCard';
+import { ServiceHeader } from '@/components/catalog/ServiceHeader';
+import { ServiceMetadataCard } from '@/components/catalog/ServiceMetadataCard';
+import { ServiceValidationCard } from '@/components/catalog/ServiceValidationCard';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { listConfiguredServicePaths, loadConfiguredServicePage } from '@/lib/catalog';
+import { toAppPath } from '@/lib/paths';
+import { createNotFoundRedirectResponse } from '@/lib/page';
 
-// Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
   return listConfiguredServicePaths();
 }
@@ -30,7 +29,7 @@ const { service, dependencies } = servicePage;
   <ServiceHeader service={service} />
 
   <section class="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
-    <ServiceDocumentationCard html={service.html} />
+    <ServiceDocumentationCard client:load html={service.html} />
 
     <aside class="grid gap-[18px]">
       <ServiceMetadataCard service={service} />
