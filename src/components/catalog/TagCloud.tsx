@@ -21,11 +21,11 @@ export function TagCloud({ tags }: Props) {
   }
 
   return (
-    <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <section className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
       {tags.map((tag) => (
-        <Card key={tag.label} className="flex items-center justify-between gap-4 px-5 py-4">
-          <TagLink tag={tag.label} className="text-base" />
-          <Badge variant="secondary">
+        <Card key={tag.label} className="flex items-center justify-between gap-3 px-4 py-2">
+          <TagLink tag={tag.label} />
+          <Badge variant="secondary" className="shrink-0">
             {tag.serviceCount} service{tag.serviceCount === 1 ? '' : 's'}
           </Badge>
         </Card>
