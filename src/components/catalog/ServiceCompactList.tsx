@@ -28,11 +28,7 @@ export function ServiceCompactList({ services, idColumnWidthCh }: Props) {
         >
           <div className="group/row px-4 py-3 transition-all duration-150 hover:bg-primary/[0.03] sm:px-5">
             <div
-              className="grid items-start gap-[0.5rem_0.875rem] md:gap-[0.75rem_1rem]"
-              style={{
-                gridTemplateColumns: 'minmax(0, 1fr) auto',
-                gridTemplateAreas: '"title status" "id status" "meta meta"',
-              } as CSSProperties}
+              className="grid items-start gap-[0.5rem_0.875rem] [grid-template-columns:minmax(0,1fr)_auto] [grid-template-areas:'title_status'_'id_status'_'meta_meta'] md:gap-[0.75rem_1rem] md:[grid-template-columns:var(--catalog-id-column)_minmax(18rem,1.35fr)_minmax(0,1fr)_auto] md:[grid-template-areas:'id_title_meta_status']"
             >
               <a
                 href={toAppPath(`/services/${service.slug}`)}
