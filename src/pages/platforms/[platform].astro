@@ -1,12 +1,11 @@
 ---
-import CatalogHero from '../../components/catalog/CatalogHero.astro';
-import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { listConfiguredPlatformPaths, loadConfiguredPlatformPage } from '../../lib/catalog';
-import { toAppPath } from '../../lib/paths';
-import { createNotFoundRedirectResponse } from '../../lib/page';
+import { CatalogHero } from '@/components/catalog/CatalogHero';
+import { ServiceCatalogGrid } from '@/components/catalog/ServiceCatalogGrid';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { listConfiguredPlatformPaths, loadConfiguredPlatformPage } from '@/lib/catalog';
+import { toAppPath } from '@/lib/paths';
+import { createNotFoundRedirectResponse } from '@/lib/page';
 
-// Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
   return listConfiguredPlatformPaths();
 }
@@ -26,14 +25,8 @@ const { platform, services } = platformPage;
     <a href={toAppPath('/')}>← Back to catalog</a>
     <a href={toAppPath('/platforms')}>All platforms</a>
   </p>
-
   <section class="mb-7">
-    <CatalogHero
-      title={platform.label}
-      subtitle={`${platform.serviceCount} service${platform.serviceCount === 1 ? '' : 's'} on this platform.`}
-      eyebrow="Servdir - Platform view"
-    />
+    <CatalogHero title={platform.label} subtitle={`${platform.serviceCount} service${platform.serviceCount === 1 ? '' : 's'} on this platform.`} eyebrow="Servdir - Platform view" />
   </section>
-
-  <ServiceCatalogGrid services={services} />
+  <ServiceCatalogGrid client:load services={services} />
 </BaseLayout>

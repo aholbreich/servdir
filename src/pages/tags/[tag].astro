@@ -1,12 +1,11 @@
 ---
-import CatalogHero from '../../components/catalog/CatalogHero.astro';
-import ServiceCatalogGrid from '../../components/catalog/ServiceCatalogGrid.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { listConfiguredTagPaths, loadConfiguredTagPage } from '../../lib/catalog';
-import { toAppPath } from '../../lib/paths';
-import { createNotFoundRedirectResponse } from '../../lib/page';
+import { CatalogHero } from '@/components/catalog/CatalogHero';
+import { ServiceCatalogGrid } from '@/components/catalog/ServiceCatalogGrid';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { listConfiguredTagPaths, loadConfiguredTagPage } from '@/lib/catalog';
+import { toAppPath } from '@/lib/paths';
+import { createNotFoundRedirectResponse } from '@/lib/page';
 
-// Used only by static builds. Server builds ignore this and keep request-time routing.
 export async function getStaticPaths() {
   return listConfiguredTagPaths();
 }
@@ -22,15 +21,12 @@ const { tag, services } = tagPage;
 ---
 
 <BaseLayout title={`#${tag.label} — servdir`}>
-  <p class="mb-4 flex flex-wrap gap-4"><a href={toAppPath('/')}>← Back to catalog</a><a href={toAppPath('/tags')}>All tags</a></p>
-
+  <p class="mb-4 flex flex-wrap gap-4">
+    <a href={toAppPath('/')}>← Back to catalog</a>
+    <a href={toAppPath('/tags')}>All tags</a>
+  </p>
   <section class="mb-7">
-    <CatalogHero
-      title={`#${tag.label}`}
-      subtitle={`${tag.serviceCount} service${tag.serviceCount === 1 ? '' : 's'} tagged with ${tag.label}.`}
-      eyebrow="Servdir - Tag view"
-    />
+    <CatalogHero title={`#${tag.label}`} subtitle={`${tag.serviceCount} service${tag.serviceCount === 1 ? '' : 's'} tagged with ${tag.label}.`} eyebrow="Servdir - Tag view" />
   </section>
-
-  <ServiceCatalogGrid services={services} />
+  <ServiceCatalogGrid client:load services={services} />
 </BaseLayout>

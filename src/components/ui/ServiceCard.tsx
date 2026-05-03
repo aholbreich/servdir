@@ -3,8 +3,8 @@ import { IssueList } from '@/components/ui/IssueList';
 import { CatalogKindIcon } from '@/components/catalog/CatalogKindIcon';
 import { ServiceCardLinkIcon } from '@/components/catalog/ServiceCardLinkIcon';
 import { TagLink } from '@/components/catalog/TagLink';
-import { getServiceSummary } from '@/lib/catalog';
-import type { ServiceRecord } from '@/lib/catalog';
+import { getServiceSummary } from '@/lib/catalog/service-summary';
+import type { ServiceRecord } from '@/lib/catalog/types';
 import { toAppPath } from '@/lib/paths';
 import { getServiceCardLinks } from '@/lib/service-card-links';
 

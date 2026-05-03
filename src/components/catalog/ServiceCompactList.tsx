@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { CatalogKindIcon } from './CatalogKindIcon';
 import { TagLink } from './TagLink';
 import type { CSSProperties } from 'react';
-import type { ServiceRecord } from '@/lib/catalog';
+import type { ServiceRecord } from '@/lib/catalog/types';
 import { toAppPath } from '@/lib/paths';
 import { cn } from '@/lib/utils';
 

@@ -14,8 +14,20 @@ import {
   getGitSourceSyncBadge,
   summarizeGitSourceError,
 } from '@/lib/catalog-status';
-import type { GitSourceSyncStatus } from '@/lib/catalog/sources';
-import type { GitSourceConfig } from '@/lib/config';
+interface GitSourceSyncStatus {
+  checkoutPath: string;
+  lastSyncSucceeded: boolean;
+  lastSyncFinishedAt?: string;
+  lastError?: string;
+}
+
+interface GitSourceConfig {
+  name: string;
+  repoUrl: string;
+  branch: string;
+  checkoutPath: string;
+  scanPaths?: string[];
+}
 
 interface GitSourceItem extends GitSourceConfig {
   syncStatus?: GitSourceSyncStatus;

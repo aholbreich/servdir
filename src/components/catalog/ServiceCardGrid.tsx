@@ -1,5 +1,5 @@
 import { ServiceCard } from '@/components/ui/ServiceCard';
-import type { ServiceRecord } from '@/lib/catalog';
+import type { ServiceRecord } from '@/lib/catalog/types';
 import { normalizeCatalogKind } from '@/lib/catalog-kind-icon';
 import { cn } from '@/lib/utils';
 

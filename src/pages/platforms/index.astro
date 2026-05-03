@@ -1,19 +1,17 @@
 ---
-import CatalogHero from '../../components/catalog/CatalogHero.astro';
-import PlatformList from '../../components/catalog/PlatformList.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadConfiguredPlatformsIndex } from '../../lib/catalog';
-import { toAppPath } from '../../lib/paths';
+import { CatalogHero } from '@/components/catalog/CatalogHero';
+import { PlatformList } from '@/components/catalog/PlatformList';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { loadConfiguredPlatformsIndex } from '@/lib/catalog';
+import { toAppPath } from '@/lib/paths';
 
 const { platforms } = await loadConfiguredPlatformsIndex();
 ---
 
 <BaseLayout title="Platforms — servdir">
   <p class="mb-4"><a href={toAppPath('/')}>← Back to catalog</a></p>
-
   <section class="mb-7">
     <CatalogHero title="Browse by platform" subtitle="Explore services by deployment platform." eyebrow="Servdir - Platforms" />
   </section>
-
   <PlatformList platforms={platforms} />
 </BaseLayout>

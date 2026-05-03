@@ -1,16 +1,16 @@
 ---
-import CatalogHero from '../components/catalog/CatalogHero.astro';
-import CatalogStatusCard from '../components/catalog/CatalogStatusCard.astro';
-import ServiceCatalogGrid from '../components/catalog/ServiceCatalogGrid.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getConfig } from '../lib/config';
-import { loadConfiguredCatalog } from '../lib/catalog';
-import { getGitSyncStatuses } from '../lib/git-sync';
+import { CatalogHero } from '@/components/catalog/CatalogHero';
+import { CatalogStatusCard } from '@/components/catalog/CatalogStatusCard';
+import { ServiceCatalogGrid } from '@/components/catalog/ServiceCatalogGrid';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getConfig } from '@/lib/config';
+import { loadConfiguredCatalog } from '@/lib/catalog';
+import { getGitSyncStatuses } from '@/lib/git-sync';
 
 const config = getConfig();
 const catalog = await loadConfiguredCatalog();
 const gitSourceStatuses = getGitSyncStatuses();
-const servicesWithIssues = catalog.services.filter((service) => service.issues.length > 0).length;
+const servicesWithIssues = catalog.services.filter((s) => s.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;
 ---
 
@@ -19,6 +19,7 @@ const servicesValid = catalog.services.length - servicesWithIssues;
     <CatalogHero title={config.catalogTitle} />
 
     <CatalogStatusCard
+      client:load
       servicesCount={catalog.services.length}
       servicesValid={servicesValid}
       servicesWithIssues={servicesWithIssues}
@@ -35,5 +36,5 @@ const servicesValid = catalog.services.length - servicesWithIssues;
     />
   </section>
 
-  <ServiceCatalogGrid services={catalog.services} />
+  <ServiceCatalogGrid client:load services={catalog.services} />
 </BaseLayout>

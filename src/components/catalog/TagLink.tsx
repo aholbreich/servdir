@@ -1,6 +1,9 @@
-import { toTagSlug } from '@/lib/catalog/tag-page';
 import { toAppPath } from '@/lib/paths';
 import { cn } from '@/lib/utils';
+
+function toTagSlug(tag: string): string {
+  return tag.trim().toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
+}
 
 interface Props {
   tag: string;

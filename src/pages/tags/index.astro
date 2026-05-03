@@ -1,19 +1,17 @@
 ---
-import CatalogHero from '../../components/catalog/CatalogHero.astro';
-import TagCloud from '../../components/catalog/TagCloud.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { loadConfiguredTagsIndex } from '../../lib/catalog';
-import { toAppPath } from '../../lib/paths';
+import { CatalogHero } from '@/components/catalog/CatalogHero';
+import { TagCloud } from '@/components/catalog/TagCloud';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { loadConfiguredTagsIndex } from '@/lib/catalog';
+import { toAppPath } from '@/lib/paths';
 
 const { tags } = await loadConfiguredTagsIndex();
 ---
 
 <BaseLayout title="Tags — servdir">
   <p class="mb-4"><a href={toAppPath('/')}>← Back to catalog</a></p>
-
   <section class="mb-7">
     <CatalogHero title="Browse by tag" subtitle="Explore services by technology, domain, or concern." eyebrow="Servdir - Tags" />
   </section>
-
   <TagCloud tags={tags} />
 </BaseLayout>
