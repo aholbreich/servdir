@@ -14,7 +14,7 @@ import openapiIcon from '../../icons/card-link/openapi.svg?raw';
 import deliveryIcon from '../../icons/card-link/delivery.svg?raw';
 import platformGroupIcon from '../../icons/platform-group.svg?raw';
 
-const icons: Record<string, string> = {
+const icons = {
   'kind/service': serviceIcon,
   'kind/tool': toolIcon,
   'kind/application': applicationIcon,
@@ -30,10 +30,12 @@ const icons: Record<string, string> = {
   'card-link/openapi': openapiIcon,
   'card-link/delivery': deliveryIcon,
   'platform-group': platformGroupIcon,
-};
+} as const;
+
+type IconName = keyof typeof icons;
 
 interface Props {
-  name: string;
+  name: IconName;
   size?: number | string;
   className?: string;
   label?: string;
@@ -46,7 +48,7 @@ export function SvgIcon({ name, size = 16, className, label }: Props) {
     <span
       role={label ? 'img' : undefined}
       aria-label={label}
-      aria-hidden={label ? undefined : 'true'}
+      aria-hidden={label ? undefined : true}
       className={className}
       style={{ width: size, height: size, display: 'inline-flex', flexShrink: 0 }}
       dangerouslySetInnerHTML={{ __html: svg }}
