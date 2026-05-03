@@ -1,4 +1,8 @@
 /// <reference types="astro/client" />
+declare module '*.svg?raw' {
+  const content: string;
+  export default content;
+}
 
 interface ImportMetaEnv {
   readonly APP_BUILD_VERSION?: string;
