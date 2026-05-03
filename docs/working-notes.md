@@ -19,7 +19,7 @@ Use it for:
 - Git is the database
 - Markdown with YAML frontmatter is the source of truth
 - TypeScript is the main language
-- Astro is the chosen MVP framework
+- Astro 6 is the chosen MVP framework
 - Tailwind 4 for styling
 - Production should ship as a Docker image (Kubernetes and Gitops ready)
 - Local test should work directly without Docker

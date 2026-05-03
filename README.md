@@ -37,7 +37,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 
 ## Current stack
 
-- Astro
+- Astro 6
 - TypeScript
   - gray-matter
   - Zod
