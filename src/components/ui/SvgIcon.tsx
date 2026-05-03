@@ -32,7 +32,7 @@ const icons = {
   'platform-group': platformGroupIcon,
 } as const;
 
-type IconName = keyof typeof icons;
+export type IconName = keyof typeof icons;
 
 interface Props {
   name: IconName;
