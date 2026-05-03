@@ -15,8 +15,18 @@ export function ThemeToggle() {
   useEffect(() => {
     const saved = (localStorage.getItem('theme') as Theme) ?? 'system';
     setTheme(saved);
+    applyTheme(saved);
+
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => {
+      const current = (localStorage.getItem('theme') as Theme) ?? 'system';
+      if (current === 'system') applyTheme('system');
+    };
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
+  // Intentional two-state toggle: system preference is used on load but toggle locks to light/dark
   function toggle() {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
