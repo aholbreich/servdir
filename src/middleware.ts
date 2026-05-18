@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getConfig, tryGetConfig } from './lib/config';
-import { isAuthorized } from './lib/auth';
+import { isAuthorized } from './lib/auth/basic';
 import { isStaticBuildMode } from './lib/build-mode';
 
 function misconfiguredResponse(): Response {

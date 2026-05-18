@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isAuthorized, parseBasicAuthHeader } from './auth';
+import { isAuthorized, parseBasicAuthHeader } from './basic';
 
 describe('parseBasicAuthHeader', () => {
   it('parses a valid basic auth header', () => {

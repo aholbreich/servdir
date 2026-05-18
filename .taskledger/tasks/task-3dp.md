@@ -1,19 +1,19 @@
 ---
 id: task-3dp
 title: Relocate basic auth to src/lib/auth/basic.ts
-status: in_progress
+status: done
 priority: medium
 type: refactor
 created_at: 2026-05-18T21:18:11Z
-updated_at: 2026-05-18T21:37:15Z
+updated_at: 2026-05-18T21:39:33Z
 created_by: claude
 assignee: null
 depends_on: []
 claim:
-  actor: claude
-  claimed_at: 2026-05-18T21:35:05Z
-  expires_at: 2026-05-18T22:35:05Z
-  heartbeat_at: 2026-05-18T21:35:05Z
+  actor: null
+  claimed_at: null
+  expires_at: null
+  heartbeat_at: null
 tags:
   - sso
   - auth
@@ -31,3 +31,6 @@ Build initially failed with 'Cannot find module @astrojs/react' — unrelated to
 ### 2026-05-18T21:37:15Z - claude
 
 Discovery: 'pnpm build' fails on main today with: Rollup failed to resolve import 'tslib' from react-remove-scroll. Verified pre-existing (git stash + build still fails). Test suite is green. The task-3dp move itself is correct — auth tests pass after the move. Build verification blocked by this unrelated tslib issue.
+### 2026-05-18T21:39:33Z - claude
+
+Move + import updates done. Verified: pnpm test 73/73 pass; pnpm build (server) and pnpm build:static both succeed (after task-jiy unblocked the build). No behavior change — pure relocation.
