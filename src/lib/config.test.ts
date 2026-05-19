@@ -176,7 +176,7 @@ describe('getConfig', () => {
     process.env.AUTH_OIDC_CLIENT_ID = 'client-1';
     process.env.AUTH_OIDC_CLIENT_SECRET = 'super-secret';
     process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
-    process.env.AUTH_SESSION_SECRET = 'a-very-long-base64-session-secret-value!';
+    process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
     const { getConfig } = await import('./config');
     expect(getConfig().auth).toEqual({
       mode: 'oidc',
@@ -184,22 +184,62 @@ describe('getConfig', () => {
       clientId: 'client-1',
       clientSecret: 'super-secret',
       redirectUri: 'https://example.com/auth/callback',
-      sessionSecret: 'a-very-long-base64-session-secret-value!',
+      sessionSecret: 'a'.repeat(44),
     });
   });
 
-  it('accepts AUTH_MODE=oidc without env vars (validation in task-sbi)', async () => {
+  it('rejects AUTH_MODE=oidc when required env vars are missing', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
     process.env.AUTH_MODE = 'oidc';
     const { getConfig } = await import('./config');
-    expect(getConfig().auth).toEqual({
-      mode: 'oidc',
-      tenantId: undefined,
-      clientId: undefined,
-      clientSecret: undefined,
-      redirectUri: undefined,
-      sessionSecret: undefined,
-    });
+    expect(() => getConfig()).toThrow(/Missing required OIDC config: AUTH_OIDC_TENANT_ID, AUTH_OIDC_CLIENT_ID, AUTH_OIDC_CLIENT_SECRET, AUTH_OIDC_REDIRECT_URI, AUTH_SESSION_SECRET/);
+  });
+
+  it('rejects AUTH_MODE=oidc when only some required env vars are missing', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 's';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow(/Missing required OIDC config: AUTH_SESSION_SECRET/);
+  });
+
+  it('rejects AUTH_MODE=oidc with a too-short AUTH_SESSION_SECRET', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 's';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    process.env.AUTH_SESSION_SECRET = 'too-short';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow(/AUTH_SESSION_SECRET must decode to at least 32 bytes/);
+  });
+
+  it('rejects AUTH_MODE=oidc with an invalid AUTH_OIDC_REDIRECT_URI', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 's';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'not-a-url';
+    process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow(/AUTH_OIDC_REDIRECT_URI is not a valid URL/);
+  });
+
+  it('rejects AUTH_MODE=oidc when secrets are still encrypted placeholders', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 'ENC[AES256_GCM,data:example]';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow(/Encrypted secret placeholder detected/);
   });
 
   it('rejects unknown AUTH_MODE values', async () => {

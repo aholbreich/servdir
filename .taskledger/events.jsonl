@@ -35,3 +35,6 @@
 {"time":"2026-05-19T10:42:37Z","event":"claimed","task_id":"task-6hv","actor":"claude"}
 {"time":"2026-05-19T10:43:23Z","event":"note_added","task_id":"task-6hv","actor":"claude"}
 {"time":"2026-05-19T10:43:23Z","event":"closed","task_id":"task-6hv","actor":"claude"}
+{"time":"2026-05-19T10:44:46Z","event":"claimed","task_id":"task-sbi","actor":"claude"}
+{"time":"2026-05-19T10:48:39Z","event":"note_added","task_id":"task-sbi","actor":"claude"}
+{"time":"2026-05-19T10:48:39Z","event":"closed","task_id":"task-sbi","actor":"claude"}

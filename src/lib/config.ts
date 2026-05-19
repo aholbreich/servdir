@@ -24,12 +24,11 @@ export type AuthConfig =
   | { mode: 'basic'; username: string; password: string }
   | {
       mode: 'oidc';
-      // Validated and tightened to required strings in task-sbi.
-      tenantId: string | undefined;
-      clientId: string | undefined;
-      clientSecret: string | undefined;
-      redirectUri: string | undefined;
-      sessionSecret: string | undefined;
+      tenantId: string;
+      clientId: string;
+      clientSecret: string;
+      redirectUri: string;
+      sessionSecret: string;
     };
 
 export type AppConfig = {
@@ -164,25 +163,82 @@ function resolveAuthMode(): AuthMode {
   throw new Error(`Invalid AUTH_MODE "${raw}": expected one of none, basic, oidc`);
 }
 
+function readNonEmpty(name: keyof ImportMetaEnv): string | undefined {
+  const value = readEnv(name)?.trim();
+  return value ? value : undefined;
+}
+
+function buildBasicAuth(): Extract<AuthConfig, { mode: 'basic' }> {
+  const username = readNonEmpty('BASIC_AUTH_USERNAME');
+  const password = readNonEmpty('BASIC_AUTH_PASSWORD');
+
+  if (!username || !password) {
+    throw new Error('Basic auth enabled, but username/password missing');
+  }
+
+  if (looksEncryptedPlaceholder(username) || looksEncryptedPlaceholder(password)) {
+    throw new Error('Encrypted secret placeholder detected in runtime env');
+  }
+
+  return { mode: 'basic', username, password };
+}
+
+const OIDC_REQUIRED: Array<{ envName: keyof ImportMetaEnv; field: keyof Extract<AuthConfig, { mode: 'oidc' }> }> = [
+  { envName: 'AUTH_OIDC_TENANT_ID', field: 'tenantId' },
+  { envName: 'AUTH_OIDC_CLIENT_ID', field: 'clientId' },
+  { envName: 'AUTH_OIDC_CLIENT_SECRET', field: 'clientSecret' },
+  { envName: 'AUTH_OIDC_REDIRECT_URI', field: 'redirectUri' },
+  { envName: 'AUTH_SESSION_SECRET', field: 'sessionSecret' },
+];
+
+function buildOidcAuth(): Extract<AuthConfig, { mode: 'oidc' }> {
+  const values: Partial<Record<keyof Extract<AuthConfig, { mode: 'oidc' }>, string>> = {};
+  const missing: string[] = [];
+
+  for (const { envName, field } of OIDC_REQUIRED) {
+    const value = readNonEmpty(envName);
+    if (!value) {
+      missing.push(envName);
+    } else {
+      values[field] = value;
+    }
+  }
+
+  if (missing.length) {
+    throw new Error(`Missing required OIDC config: ${missing.join(', ')}`);
+  }
+
+  const config = values as Required<typeof values> & { mode: 'oidc' };
+  config.mode = 'oidc';
+
+  if ([config.tenantId, config.clientId, config.clientSecret, config.sessionSecret].some(looksEncryptedPlaceholder)) {
+    throw new Error('Encrypted secret placeholder detected in runtime env');
+  }
+
+  try {
+    new URL(config.redirectUri);
+  } catch {
+    throw new Error(`AUTH_OIDC_REDIRECT_URI is not a valid URL: "${config.redirectUri}"`);
+  }
+
+  const decodedSecretBytes = Buffer.from(config.sessionSecret, 'base64').length;
+  if (decodedSecretBytes < 32) {
+    throw new Error(
+      `AUTH_SESSION_SECRET must decode to at least 32 bytes (got ${decodedSecretBytes}); generate with: openssl rand -base64 32`,
+    );
+  }
+
+  return config;
+}
+
 function buildAuthConfig(mode: AuthMode): AuthConfig {
   switch (mode) {
     case 'none':
       return { mode: 'none' };
     case 'basic':
-      return {
-        mode: 'basic',
-        username: readEnv('BASIC_AUTH_USERNAME') ?? '',
-        password: readEnv('BASIC_AUTH_PASSWORD') ?? '',
-      };
+      return buildBasicAuth();
     case 'oidc':
-      return {
-        mode: 'oidc',
-        tenantId: readEnv('AUTH_OIDC_TENANT_ID'),
-        clientId: readEnv('AUTH_OIDC_CLIENT_ID'),
-        clientSecret: readEnv('AUTH_OIDC_CLIENT_SECRET'),
-        redirectUri: readEnv('AUTH_OIDC_REDIRECT_URI'),
-        sessionSecret: readEnv('AUTH_SESSION_SECRET'),
-      };
+      return buildOidcAuth();
   }
 }
 
@@ -208,16 +264,6 @@ function buildConfig(): AppConfig {
 function validateConfig(config: AppConfig): AppConfig {
   if (!config.localCatalogPath && config.gitSources.length === 0) {
     throw new Error('at least one catalog source must be configured: set LOCAL_CATALOG_PATH or GIT_SOURCE_<NAME>');
-  }
-
-  if (config.auth.mode === 'basic') {
-    if (!config.auth.username || !config.auth.password) {
-      throw new Error('Basic auth enabled, but username/password missing');
-    }
-
-    if (looksEncryptedPlaceholder(config.auth.username) || looksEncryptedPlaceholder(config.auth.password)) {
-      throw new Error('Encrypted secret placeholder detected in runtime env');
-    }
   }
 
   return config;
