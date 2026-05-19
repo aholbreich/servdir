@@ -36,6 +36,8 @@ data:
   LOG_LEVEL: "info"
   LOG_COLOR: "false"
 
+  AUTH_MODE: "basic"
+
   GIT_SOURCE_CATALOG_MAIN: "git@bitbucket.org:myneva/servdir-catalog.git|main|services"
   GIT_SOURCE_FLUX_GITOPS: "git@bitbucket.org:myneva/flux-gitops.git|main"
 ```
@@ -95,9 +97,6 @@ spec:
           image: ghcr.io/aholbreich/servdir:main
           ports:
             - containerPort: 4321
-          env:
-            - name: BASIC_AUTH_ENABLED
-              value: "true"
           envFrom:
             - configMapRef:
                 name: servdir-config
@@ -253,18 +252,37 @@ Rules:
 - when `scanPaths` is omitted, servdir scans from the repo root
 - checkout paths are derived automatically by the app
 
-### Basic Auth
+### Authentication
+
+Servdir supports `AUTH_MODE=none|basic|oidc` in the server runtime.
+Static exports are unauthenticated at the app layer.
+
+For Basic Auth:
 
 ```env
-BASIC_AUTH_ENABLED=true
+AUTH_MODE=basic
 BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=secret
+```
+
+For Microsoft Entra OIDC:
+
+```env
+AUTH_MODE=oidc
+AUTH_OIDC_TENANT_ID=00000000-0000-0000-0000-000000000000
+AUTH_OIDC_CLIENT_ID=00000000-0000-0000-0000-000000000000
+AUTH_OIDC_CLIENT_SECRET=<entra-client-secret-value>
+AUTH_OIDC_REDIRECT_URI=https://servdir.example.com/auth/callback
+AUTH_SESSION_SECRET=<output-of-openssl-rand-base64-32>
 ```
 
 Notes:
 - Basic Auth realm is fixed to `servdir`
 - use HTTPS in front of the app
-- store credentials in a Kubernetes `Secret`
+- store credentials and OIDC secrets in Kubernetes `Secret` objects
+- `AUTH_SESSION_SECRET` is mandatory only for `AUTH_MODE=oidc`; it signs servdir's transaction and session cookies
+- use the Entra client secret **Value** for `AUTH_OIDC_CLIENT_SECRET`, not the Secret ID
+- see [Authentication Guide](./authentication.md) for Entra setup and troubleshooting
 
 ### SSH defaults
 
@@ -280,7 +298,7 @@ Servdir exposes two probe-friendly endpoints:
 - `/health/live`
 - `/health/ready`
 
-These endpoints bypass Basic Auth.
+These endpoints bypass app auth in every mode.
 
 Recommended usage:
 - `startupProbe` → `/health/ready`
@@ -333,12 +351,23 @@ The Kubernetes example in this document is for the normal server runtime.
 
 ### `Encrypted secret placeholder detected in runtime env`
 
-This usually means the pod started before the final Secret value was available.
+This means the pod received a SOPS `ENC[...]` placeholder instead of a decrypted secret value.
 
 What to do:
 1. confirm the Secret really contains decrypted values
-2. make sure the workload rolls when the Secret changes
-3. keep the probes configured so bad pods do not receive traffic
+2. make sure every Flux `Kustomization` path applying encrypted Secret manifests has SOPS decryption configured
+3. reconcile Flux after fixing decryption
+4. roll the workload so the container reads the updated env vars
+5. keep the probes configured so bad pods do not receive traffic
+
+### OIDC login fails with `token_exchange_failed`
+
+Check the pod logs for the Entra error. Common causes:
+- `AADSTS500112`: `AUTH_OIDC_REDIRECT_URI` does not exactly match the Entra Web redirect URI, or an old image exchanged the code with an internal URL such as `http://localhost:4321/auth/callback`
+- `invalid_client`: wrong client ID/secret, expired secret, or the Entra Secret ID was used instead of the Secret Value
+- `tx_missing` or `state_mismatch`: stale callback URL, expired login transaction cookie, or multiple login attempts mixed together
+
+Start a fresh login from `/auth/login` after changing config; do not reuse old callback URLs.
 
 ### Git source not loading
 

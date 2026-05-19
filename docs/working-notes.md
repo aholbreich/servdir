@@ -395,7 +395,7 @@ Potential later additions:
 
 `AUTH_MODE` (`none` | `basic` | `oidc`) replaced the boolean
 `basicAuth.enabled` config flag. The three modes are documented in
-ADR 012 and the README "Authentication" section. New env vars on
+ADR 012, `docs/authentication.md`, and the README "Authentication" section. New env vars on
 top of the existing `BASIC_AUTH_*`:
 
 - `AUTH_MODE`

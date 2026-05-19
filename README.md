@@ -27,7 +27,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
 - Nice looking and comprehensive out of the box
 - Service descriptions are written in Markdown
 - Git can be the source of truth, and multiple Git repos can be mixed in
-- Basic Auth protection
+- App-level auth modes: open access, Basic Auth, or Microsoft Entra OIDC
 - Dual deployment support:
   - Default Node server runtime (Selfupdating)
   - Render the serdir as static catalog and host it on CDN
@@ -212,6 +212,8 @@ Legacy compatibility: if `AUTH_MODE` is unset but
 
 ### oidc (Microsoft Entra)
 
+See the [Authentication Guide](./docs/authentication.md) for Entra setup, Kubernetes/GitOps notes, and troubleshooting.
+
 Requires a registered Entra application with redirect URI
 `https://<your-host>/auth/callback` and the `openid profile email`
 scopes.
@@ -220,11 +222,16 @@ scopes.
 AUTH_MODE=oidc
 AUTH_OIDC_TENANT_ID=...
 AUTH_OIDC_CLIENT_ID=...
-AUTH_OIDC_CLIENT_SECRET=...
+AUTH_OIDC_CLIENT_SECRET=... # Entra client secret Value, not Secret ID
 AUTH_OIDC_REDIRECT_URI=https://servdir.example.com/auth/callback
 AUTH_SESSION_SECRET=$(openssl rand -base64 32)
 #AUTH_SESSION_TTL_HOURS=8   # optional, default 8, range 1..168
 ```
+
+`AUTH_SESSION_SECRET` is mandatory for `AUTH_MODE=oidc`. It is a
+servdir-owned signing key for the login transaction cookie and the
+stateless session cookie; it is not an Entra value. Use the same value
+for all replicas.
 
 What it does:
 
@@ -245,20 +252,13 @@ What it does:
 ### Diagnosing OIDC issues
 
 The auth modules emit one structured log line per decision point.
-For a first-time deploy, run with:
+For a first-time deploy, run with `LOG_LEVEL=debug LOG_FORMAT=json`
+and filter for components starting with `auth-`.
 
-```bash
-LOG_LEVEL=debug LOG_FORMAT=json
-```
-
-Every failure path emits a `WARN` with a discriminated `reason`
-field — `expired | invalid_signature | malformed | tx_missing |
-tx_invalid | state_mismatch | tenant_mismatch | token_exchange_failed
-| missing_claims`. Grep by component name:
-
-```bash
-| jq 'select(.component | startswith("auth-"))'
-```
+Common failures such as missing `AUTH_SESSION_SECRET`, SOPS `ENC[...]`
+placeholders, `AADSTS500112` redirect URI mismatches, and using an
+Entra Secret ID instead of the Secret Value are covered in the
+[Authentication troubleshooting guide](./docs/authentication.md#troubleshooting).
 
 ## Kubernetes
 
@@ -296,6 +296,7 @@ Developer relevant docs in the project:
 
 - [docs/prd.md](./docs/prd.md)
 - [docs/user-stories.md](./docs/user-stories.md)
+- [docs/authentication.md](./docs/authentication.md)
 - `.adr/`
 - [docs/working-notes.md](./docs/working-notes.md) — includes cross-session handoff context for future agents and maintainers
 - [docs/release.md](./docs/release.md)

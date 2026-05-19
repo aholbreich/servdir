@@ -112,7 +112,10 @@ Three new Astro server endpoints (all `prerender = false`):
 - **`GET /auth/callback`** — reads + verifies `__servdir_oidc_tx`, fails
   with `400` on missing or invalid. Validates query `state` matches the
   tx cookie. Calls `openid-client.authorizationCodeGrant()` with the
-  PKCE verifier. Verifies ID token (signature against JWKS, issuer ==
+  configured `AUTH_OIDC_REDIRECT_URI` plus the callback query string
+  and the PKCE verifier. This avoids reverse-proxy/internal origins
+  such as `http://localhost:4321` leaking into token exchange.
+  Verifies ID token (signature against JWKS, issuer ==
   `https://login.microsoftonline.com/<tenantId>/v2.0`, audience ==
   clientId, nonce matches, `exp` in future, `tid` claim ==
   configured tenantId — the tenant pin is the day-one authorization
@@ -185,7 +188,7 @@ URL or an as-needed separate dev app registration.
 | `AUTH_OIDC_CLIENT_ID`     | `AUTH_MODE=oidc`        | UUID. For staging: `fc2f3e48-7e37-4ad3-b222-0fadf2b6715a`.            |
 | `AUTH_OIDC_CLIENT_SECRET` | `AUTH_MODE=oidc`        | Provided by IT, rotated independently. **Never logged.**              |
 | `AUTH_OIDC_REDIRECT_URI`  | `AUTH_MODE=oidc`        | Must match the value registered in Entra. Staging: `https://servdir.staging.swing.aws.myneva.cloud/auth/callback`. |
-| `AUTH_SESSION_SECRET`     | `AUTH_MODE=oidc`        | ≥ 32 bytes of entropy, base64 / hex. Generated with `openssl rand -base64 32`. |
+| `AUTH_SESSION_SECRET`     | `AUTH_MODE=oidc`        | Servdir-owned cookie signing key. Generate with `openssl rand -base64 32`; rotating it invalidates sessions. |
 
 `getConfig()` performs presence + length validation at startup. Missing
 or short values cause a misconfigured response (same 500 path as
