@@ -22,6 +22,10 @@ BASIC_AUTH_USERNAME=admin
 BASIC_AUTH_PASSWORD=replace-me
 ```
 
+Legacy compatibility: if `AUTH_MODE` is unset but
+`BASIC_AUTH_ENABLED=true` is present, the runtime infers
+`AUTH_MODE=basic` and logs a one-line warning.
+
 Use HTTPS in front of servdir. Store credentials in a Secret in production.
 
 ## Microsoft Entra OIDC
@@ -104,7 +108,6 @@ Load both with `envFrom` in the Deployment. If you split secrets across multiple
 
 Secret updates do not change the environment of an already-running container. Roll the Deployment after changing `AUTH_OIDC_CLIENT_SECRET` or `AUTH_SESSION_SECRET`. Tools such as Reloader, Helm checksum annotations, or Flux image/config rollouts are fine.
 
-For SOPS/Flux setups, every Flux `Kustomization` path that applies encrypted Secret manifests must have SOPS decryption configured. If a pod sees values beginning with `ENC[`, Flux applied encrypted placeholders instead of decrypted Secret values.
 
 ## Health endpoints and unauthenticated behavior
 

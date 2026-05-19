@@ -198,67 +198,7 @@ always unauthenticated at the app layer.
 | `basic` | Single-tenant install without an identity provider. Shared credential, no per-user identity. See ADR 007. |
 | `oidc` | Internal deployments with a Microsoft Entra ID tenant. Real per-user login. See ADR 012. |
 
-### basic
-
-```bash
-AUTH_MODE=basic
-BASIC_AUTH_USERNAME=alice
-BASIC_AUTH_PASSWORD=...
-```
-
-Legacy compatibility: if `AUTH_MODE` is unset but
-`BASIC_AUTH_ENABLED=true` is present, the runtime infers
-`AUTH_MODE=basic` and logs a one-line warning.
-
-### oidc (Microsoft Entra)
-
-See the [Authentication Guide](./docs/authentication.md) for Entra setup, Kubernetes/GitOps notes, and troubleshooting.
-
-Requires a registered Entra application with redirect URI
-`https://<your-host>/auth/callback` and the `openid profile email`
-scopes.
-
-```bash
-AUTH_MODE=oidc
-AUTH_OIDC_TENANT_ID=...
-AUTH_OIDC_CLIENT_ID=...
-AUTH_OIDC_CLIENT_SECRET=... # Entra client secret Value, not Secret ID
-AUTH_OIDC_REDIRECT_URI=https://servdir.example.com/auth/callback
-AUTH_SESSION_SECRET=$(openssl rand -base64 32)
-#AUTH_SESSION_TTL_HOURS=8   # optional, default 8, range 1..168
-```
-
-`AUTH_SESSION_SECRET` is mandatory for `AUTH_MODE=oidc`. It is a
-servdir-owned signing key for the login transaction cookie and the
-stateless session cookie; it is not an Entra value. Use the same value
-for all replicas.
-
-What it does:
-
-- Any successfully authenticated user from the configured tenant
-  is allowed in (`claims.tid` is pinned as the day-one
-  authorization check).
-- Browser GET requests without a session redirect to
-  `/auth/login?return_to=<original-path>`. API requests get
-  `401 {"error":"unauthenticated"}` instead.
-- The session is a stateless signed JWT cookie
-  (`__servdir_session`). Rotating `AUTH_SESSION_SECRET` instantly
-  invalidates every live session — a re-login wave is expected,
-  not a bug.
-- `/health/live` and `/health/ready` always bypass auth so
-  Kubernetes probes keep working regardless of the configured
-  mode (pinned by `src/middleware.test.ts`).
-
-### Diagnosing OIDC issues
-
-The auth modules emit one structured log line per decision point.
-For a first-time deploy, run with `LOG_LEVEL=debug LOG_FORMAT=json`
-and filter for components starting with `auth-`.
-
-Common failures such as missing `AUTH_SESSION_SECRET`, SOPS `ENC[...]`
-placeholders, `AADSTS500112` redirect URI mismatches, and using an
-Entra Secret ID instead of the Secret Value are covered in the
-[Authentication troubleshooting guide](./docs/authentication.md#troubleshooting).
+Check all [Authentication configruation options](./docs/authentication.md)
 
 ## Kubernetes
 
