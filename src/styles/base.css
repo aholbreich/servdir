@@ -1,10 +1,10 @@
 @layer components {
   .text-headline {
-    @apply text-4xl font-semibold leading-tight tracking-tight md:text-5xl;
+    @apply font-heading text-4xl font-semibold leading-tight tracking-tight md:text-5xl;
   }
 
   .text-title {
-    @apply text-xl font-semibold leading-tight;
+    @apply font-heading text-xl font-semibold leading-tight;
   }
 
   .text-body {
@@ -58,6 +58,7 @@
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   font-weight: 600;
+  font-family: var(--font-heading);
   color: var(--foreground);
 }
 

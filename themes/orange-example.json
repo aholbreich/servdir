@@ -66,6 +66,7 @@
     "sidebarRing": "oklch(0.74 0.19 50)"
   },
   "fonts": {
+    "body": "'Lato', sans-serif",
     "sans": "'Lato', sans-serif",
     "heading": "'Montserrat', sans-serif",
     "cssImportHref": "https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;700&display=swap"

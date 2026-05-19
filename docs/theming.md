@@ -34,7 +34,8 @@ example.
   "light": { /* tokens */ },   // required: light-mode CSS variable values
   "dark":  { /* tokens */ },   // optional: dark-mode overrides
   "fonts": {                   // optional
-    "sans":    "'Lato', sans-serif",
+    "body":    "'Lato', sans-serif",            // body / page text
+    "sans":    "'Lato', sans-serif",            // generic sans-serif token
     "heading": "'Montserrat', sans-serif",
     "mono":    "'JetBrains Mono', monospace",
     "cssImportHref": "https://fonts.googleapis.com/css2?family=Lato&display=swap"
@@ -74,9 +75,16 @@ or for `radius` any CSS length.
 ### Fonts
 
 When `cssImportHref` is set, servdir injects a `<link rel="stylesheet">` for
-that URL (typically a Google Fonts URL). `sans`, `heading`, and `mono` populate
-the `--font-sans`, `--font-heading`, and `--font-mono` CSS variables, which the
-default stylesheet wires into Tailwind/shadcn usage.
+that URL (typically a Google Fonts URL). `body`, `sans`, `heading`, and `mono`
+populate the `--font-body`, `--font-sans`, `--font-heading`, and `--font-mono`
+CSS variables.
+
+`body` is what the page actually renders body text in (`html { font-family:
+var(--font-body) }`). The default theme binds `--font-body` to
+`var(--font-mono)` — JetBrains Mono Variable — for a dev-tool aesthetic out
+of the box. Themes that want a sans or serif body should set `body`
+explicitly (and usually `sans` too, since shadcn primitives reference
+`--font-sans` for component labels).
 
 ### Brand
 

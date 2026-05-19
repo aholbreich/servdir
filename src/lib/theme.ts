@@ -37,6 +37,7 @@ export type ThemeTokens = Partial<{
 }>;
 
 export type ThemeFonts = Partial<{
+  body: string;
   sans: string;
   mono: string;
   heading: string;
@@ -119,7 +120,7 @@ function validateFonts(value: unknown): ThemeFonts {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new Error('fonts: expected an object');
   }
-  const allowed = new Set(['sans', 'mono', 'heading', 'cssImportHref']);
+  const allowed = new Set(['body', 'sans', 'mono', 'heading', 'cssImportHref']);
   const out: Record<string, string> = {};
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
     if (!allowed.has(key)) {
@@ -220,6 +221,7 @@ function tokensToDeclarations(tokens: ThemeTokens, fonts?: ThemeFonts): string {
     lines.push(`  ${TOKEN_CSS_VAR[key]}: ${value};`);
   }
   if (fonts) {
+    if (fonts.body) lines.push(`  --font-body: ${fonts.body};`);
     if (fonts.sans) lines.push(`  --font-sans: ${fonts.sans};`);
     if (fonts.mono) lines.push(`  --font-mono: ${fonts.mono};`);
     if (fonts.heading) lines.push(`  --font-heading: ${fonts.heading};`);
