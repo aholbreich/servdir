@@ -207,16 +207,20 @@ export async function handleCallback(oidcConfig: OidcRuntimeConfig, request: Req
   if (!txResult.ok) return fail('tx_invalid', 400);
 
   const tx = txResult.payload;
-  const url = new URL(request.url);
-  const queryState = url.searchParams.get('state');
+  const requestUrl = new URL(request.url);
+  const queryState = requestUrl.searchParams.get('state');
   if (!queryState) return fail('state_missing', 400);
   if (queryState !== tx.state) return fail('state_mismatch', 400);
+
+  const callbackUrl = new URL(oidcConfig.redirectUri);
+  callbackUrl.search = requestUrl.search;
+  callbackUrl.hash = requestUrl.hash;
 
   const configuration = await getDiscoveredConfiguration(oidcConfig);
 
   let tokenResponse: Awaited<ReturnType<typeof authorizationCodeGrant>>;
   try {
-    tokenResponse = await authorizationCodeGrant(configuration, url, {
+    tokenResponse = await authorizationCodeGrant(configuration, callbackUrl, {
       pkceCodeVerifier: tx.codeVerifier,
       expectedNonce: tx.nonce,
       expectedState: tx.state,

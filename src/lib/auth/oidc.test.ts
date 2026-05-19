@@ -235,6 +235,24 @@ describe('handleCallback', () => {
     }
   });
 
+  it('uses the configured redirect URI when exchanging codes behind a reverse proxy', async () => {
+    mockTokenResponse({
+      sub: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Example',
+      tid: 'test-tenant',
+    });
+    const request = new Request('http://localhost:4321/auth/callback?code=fake-code&state=fake-state', {
+      headers: { cookie: await validTxCookie() },
+    });
+
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+
+    expect(result.ok).toBe(true);
+    const callbackUrl = authorizationCodeGrantMock.mock.calls[0][1] as URL;
+    expect(callbackUrl.toString()).toBe(`${RUNTIME_CONFIG.redirectUri}?code=fake-code&state=fake-state`);
+  });
+
   it('rejects when the tx cookie is missing', async () => {
     const request = await makeRequest({ code: 'fake-code', state: TX.state });
     const result = await handleCallback(RUNTIME_CONFIG, request);

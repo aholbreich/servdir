@@ -416,6 +416,11 @@ Operator gotchas to keep in mind:
   pinned by `src/middleware.test.ts`.
 - Static export mode (`SERVDIR_BUILD_MODE=static`) is unauthenticated
   by design — host it behind whatever the static target provides.
+- OIDC callback token exchange must use the configured
+  `AUTH_OIDC_REDIRECT_URI`, not the internal adapter request origin;
+  otherwise reverse-proxied Node deployments can exchange a code with
+  `http://localhost:<port>/auth/callback` and Entra rejects it with
+  `AADSTS500112`.
 
 ## Working assumption
 
