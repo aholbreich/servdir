@@ -248,4 +248,5 @@ Developer relevant docs in the project:
 - `AGENTS.md`
 
 ## Other
+
 - Project usrs simple taks management with [TaskLedger](https://github.com/aholbreich/taskledger)

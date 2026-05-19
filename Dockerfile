@@ -16,5 +16,6 @@ ENV PORT=4321
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/themes ./themes
 EXPOSE 4321
 CMD ["node", "./dist/server/entry.mjs"]
