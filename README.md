@@ -246,3 +246,6 @@ Developer relevant docs in the project:
 - [docs/working-notes.md](./docs/working-notes.md) — includes cross-session handoff context for future agents and maintainers
 - [docs/release.md](./docs/release.md)
 - `AGENTS.md`
+
+## Other
+- Project usrs simple taks management with [TaskLedger](https://github.com/aholbreich/taskledger)
