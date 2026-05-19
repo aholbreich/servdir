@@ -159,7 +159,7 @@ export function ServiceCatalogGrid({ services }: Props) {
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-4">
-        <p className="text-muted-foreground text-[0.95rem]">
+        <p className="text-[0.95rem]">
           Showing {filteredServices.length} service{filteredServices.length === 1 ? '' : 's'}
         </p>
         <a href={toAppPath('/tags')} className="text-[0.95rem]">Browse tags</a>

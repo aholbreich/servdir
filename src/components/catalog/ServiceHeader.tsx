@@ -32,7 +32,7 @@ export function ServiceHeader({ service }: Props) {
               {attributeItems.map((value, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-2.5 py-1 text-muted-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-2.5 py-1"
                 >
                   {value}
                 </span>

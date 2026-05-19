@@ -48,7 +48,7 @@
 .prose-catalog ol {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  color: var(--muted-foreground);
+  color: var(--foreground);
 }
 
 .prose-catalog ul,
@@ -94,7 +94,7 @@
   padding-left: 1rem;
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-  color: var(--muted-foreground);
+  color: var(--foreground);
 }
 
 .mermaid-block { margin-block: 1.25rem; }

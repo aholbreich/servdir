@@ -3,6 +3,7 @@ import { CatalogHero } from '@/components/catalog/CatalogHero';
 import { CatalogStatusCard } from '@/components/catalog/CatalogStatusCard';
 import { ServiceCatalogGrid } from '@/components/catalog/ServiceCatalogGrid';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { isStaticBuildMode } from '@/lib/build-mode';
 import { getConfig } from '@/lib/config';
 import { loadConfiguredCatalog } from '@/lib/catalog';
 import { getGitSyncStatuses } from '@/lib/git-sync';
@@ -12,6 +13,15 @@ const catalog = await loadConfiguredCatalog();
 const gitSourceStatuses = getGitSyncStatuses();
 const servicesWithIssues = catalog.services.filter((s) => s.issues.length > 0).length;
 const servicesValid = catalog.services.length - servicesWithIssues;
+
+const showEmptySnapshotBanner =
+  !isStaticBuildMode() && config.gitSources.length > 0 && catalog.services.length === 0;
+const initialSyncStillRunning =
+  showEmptySnapshotBanner && gitSourceStatuses.some((s) => !s.lastSyncFinishedAt);
+const allSourcesFailed =
+  showEmptySnapshotBanner &&
+  gitSourceStatuses.length > 0 &&
+  gitSourceStatuses.every((s) => s.lastSyncFinishedAt && !s.lastSyncSucceeded);
 ---
 
 <BaseLayout title="servdir — Service Catalog">
@@ -35,6 +45,37 @@ const servicesValid = catalog.services.length - servicesWithIssues;
       authMode={config.auth.mode}
     />
   </section>
+
+  {showEmptySnapshotBanner && (
+    <div
+      role="status"
+      aria-live="polite"
+      class:list={[
+        'mb-5 rounded-lg border px-4 py-3 text-sm',
+        initialSyncStillRunning
+          ? 'border-border bg-muted text-muted-foreground'
+          : 'border-destructive/40 bg-card text-destructive',
+      ]}
+    >
+      {initialSyncStillRunning ? (
+        <>
+          <strong class="font-medium">Catalog is loading…</strong>
+          <span class="ml-1">Git sources are still syncing. This page will refresh automatically.</span>
+          <script is:inline>{`setTimeout(function(){location.reload()},4000)`}</script>
+        </>
+      ) : allSourcesFailed ? (
+        <>
+          <strong class="font-medium">Catalog sync failed</strong>
+          <span class="ml-1">All configured Git sources failed their initial sync. See the catalog status card above for details.</span>
+        </>
+      ) : (
+        <>
+          <strong class="font-medium">Catalog is empty</strong>
+          <span class="ml-1">Configured Git sources returned no service entries.</span>
+        </>
+      )}
+    </div>
+  )}
 
   <ServiceCatalogGrid client:load services={catalog.services} />
 </BaseLayout>

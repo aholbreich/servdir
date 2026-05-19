@@ -40,12 +40,12 @@ export function ServiceCompactList({ services, idColumnWidthCh }: Props) {
 
               <a
                 href={toAppPath(`/services/${service.slug}`)}
-                className="inline-flex items-center gap-1.5 text-[0.84rem] text-muted-foreground"
+                className="inline-flex items-center gap-1.5 text-[0.84rem]"
                 style={{ gridArea: 'id', width: 'fit-content' }}
               >
                 <CatalogKindIcon
                   kind={service.data.kind}
-                  className="shrink-0 text-muted-foreground transition-colors group-hover/row:text-primary"
+                  className="shrink-0 transition-colors group-hover/row:text-primary"
                 />
                 <span>{service.data.id}</span>
               </a>
