@@ -391,6 +391,32 @@ Potential later additions:
 8. Consider a cleaner application startup hook for operational subsystems like the scheduler instead of relying on module initialization.
 9. Extend the explicit catalog cache subsystem with stats/debug surfaces if operational visibility becomes important.
 
+## Authentication mode (2026-05-19)
+
+`AUTH_MODE` (`none` | `basic` | `oidc`) replaced the boolean
+`basicAuth.enabled` config flag. The three modes are documented in
+ADR 012 and the README "Authentication" section. New env vars on
+top of the existing `BASIC_AUTH_*`:
+
+- `AUTH_MODE`
+- `AUTH_OIDC_TENANT_ID`, `AUTH_OIDC_CLIENT_ID`,
+  `AUTH_OIDC_CLIENT_SECRET`, `AUTH_OIDC_REDIRECT_URI`
+- `AUTH_SESSION_SECRET` (>= 32 bytes after base64 decode)
+- `AUTH_SESSION_TTL_HOURS` (optional, default 8, range 1..168)
+
+Backwards compatibility: if `AUTH_MODE` is unset but the legacy
+`BASIC_AUTH_ENABLED=true` is present, the runtime infers
+`AUTH_MODE=basic` with a one-line warning. Existing basic-auth
+deployments continue to work without a config change.
+
+Operator gotchas to keep in mind:
+- Rotating `AUTH_SESSION_SECRET` invalidates every live session
+  instantly. A re-login wave is expected.
+- `/health/live` and `/health/ready` bypass auth in every mode;
+  pinned by `src/middleware.test.ts`.
+- Static export mode (`SERVDIR_BUILD_MODE=static`) is unauthenticated
+  by design — host it behind whatever the static target provides.
+
 ## Working assumption
 
 The catalog is the product.

@@ -18,6 +18,7 @@ The catalog title defaults to `Service Catalog`, but can be overridden with `CAT
   - [Running locally, but closer to prod setup Docker / Podman](#running-locally-but-closer-to-prod-setup-docker--podman)
 - [Managed Git behavior](#managed-git-behavior)
 - [Service definition and Discovery](#service-definition-format)
+- [Authentication](#authentication)
 - [Kubernetes Guide](#kubernetes)
 - [Development docs](#development-docs)
 
@@ -185,6 +186,80 @@ Discovery supports both:
 - multi-entry catalogs under `services/*/service.md`
 - single-repo entries declared at the repository root as `.servdir.md`
 
+## Authentication
+
+The server runtime supports three auth modes, selected at startup via
+`AUTH_MODE`. Pick exactly one per deployment. Static export mode is
+always unauthenticated at the app layer.
+
+| `AUTH_MODE` | When to use |
+|---|---|
+| `none` (default) | Local dev, trusted networks, or fronted by a separate proxy that handles auth. |
+| `basic` | Single-tenant install without an identity provider. Shared credential, no per-user identity. See ADR 007. |
+| `oidc` | Internal deployments with a Microsoft Entra ID tenant. Real per-user login. See ADR 012. |
+
+### basic
+
+```bash
+AUTH_MODE=basic
+BASIC_AUTH_USERNAME=alice
+BASIC_AUTH_PASSWORD=...
+```
+
+Legacy compatibility: if `AUTH_MODE` is unset but
+`BASIC_AUTH_ENABLED=true` is present, the runtime infers
+`AUTH_MODE=basic` and logs a one-line warning.
+
+### oidc (Microsoft Entra)
+
+Requires a registered Entra application with redirect URI
+`https://<your-host>/auth/callback` and the `openid profile email`
+scopes.
+
+```bash
+AUTH_MODE=oidc
+AUTH_OIDC_TENANT_ID=...
+AUTH_OIDC_CLIENT_ID=...
+AUTH_OIDC_CLIENT_SECRET=...
+AUTH_OIDC_REDIRECT_URI=https://servdir.example.com/auth/callback
+AUTH_SESSION_SECRET=$(openssl rand -base64 32)
+#AUTH_SESSION_TTL_HOURS=8   # optional, default 8, range 1..168
+```
+
+What it does:
+
+- Any successfully authenticated user from the configured tenant
+  is allowed in (`claims.tid` is pinned as the day-one
+  authorization check).
+- Browser GET requests without a session redirect to
+  `/auth/login?return_to=<original-path>`. API requests get
+  `401 {"error":"unauthenticated"}` instead.
+- The session is a stateless signed JWT cookie
+  (`__servdir_session`). Rotating `AUTH_SESSION_SECRET` instantly
+  invalidates every live session — a re-login wave is expected,
+  not a bug.
+- `/health/live` and `/health/ready` always bypass auth so
+  Kubernetes probes keep working regardless of the configured
+  mode (pinned by `src/middleware.test.ts`).
+
+### Diagnosing OIDC issues
+
+The auth modules emit one structured log line per decision point.
+For a first-time deploy, run with:
+
+```bash
+LOG_LEVEL=debug LOG_FORMAT=json
+```
+
+Every failure path emits a `WARN` with a discriminated `reason`
+field — `expired | invalid_signature | malformed | tx_missing |
+tx_invalid | state_mismatch | tenant_mismatch | token_exchange_failed
+| missing_claims`. Grep by component name:
+
+```bash
+| jq 'select(.component | startswith("auth-"))'
+```
+
 ## Kubernetes
 
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
@@ -201,7 +276,7 @@ Characteristics:
 - Docker-friendly
 - request-time routing
 - managed Git sync scheduler
-- runtime Basic Auth support
+- runtime auth: `none` | `basic` | `oidc` (see [Authentication](#authentication))
 
 ### Static export mode
 

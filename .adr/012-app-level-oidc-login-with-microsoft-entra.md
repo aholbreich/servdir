@@ -1,0 +1,157 @@
+# 12. App-level OIDC Login with Microsoft Entra
+
+Status: Accepted
+Status Date: 2026-05-19
+Driver: Alexander
+Supersedes (partial): 007-protect-the-catalog-with-basic-auth.md
+
+## Context
+
+ADR 007 wired basic auth as a deliberately simple stopgap. The first
+real internal deployment (`servdir.staging.swing.aws.myneva.cloud`)
+runs inside a corporate environment that has a Microsoft Entra ID
+tenant and a clear ask: "all myneva users should be able to log in".
+A shared basic-auth credential cannot express that — it has no
+identity, no rotation story, and no audit trail. The product needs
+real per-user authentication.
+
+We deliberately want to keep basic auth available as a deployment
+mode so that small, single-tenant installs without an Entra app
+registration can still protect the catalog without spinning up
+identity infrastructure.
+
+## Decision
+
+Add Microsoft Entra ID OIDC login as a third app-level
+authentication mode, alongside `none` and `basic`. The mode is
+selected at startup by `AUTH_MODE`. Each deployment picks exactly
+one strategy.
+
+The basic-auth code path from ADR 007 stays valid and unchanged for
+deployments running `AUTH_MODE=basic`. ADR 012 supersedes ADR 007
+only with respect to the choice of strategy — not the basic-auth
+implementation itself.
+
+### Strategy
+
+| `AUTH_MODE` | Behavior |
+|---|---|
+| `none` (default) | Open access. Suitable for local dev and trusted networks. |
+| `basic` | HTTP Basic Auth via `BASIC_AUTH_*` env vars. ADR 007. |
+| `oidc` | OIDC Authorization Code + PKCE against Microsoft Entra ID. |
+
+For backward compatibility, when `AUTH_MODE` is unset but
+`BASIC_AUTH_ENABLED=true` is present, the runtime infers
+`AUTH_MODE=basic` and logs a one-line warning recommending the
+explicit setting.
+
+### OIDC flow
+
+- Library: `openid-client` (v6, Node-native, thin wrapper over
+  `oauth4webapi`). Chosen for explicit control over the small flow
+  we need; deliberately not adopting Auth.js / `auth-astro`.
+- Discovery: lazy, cached for the process lifetime, keyed by
+  `${tenantId}:${clientId}`.
+- Endpoints (server-rendered, prerendered as a 404 stub in static
+  builds so the static export does not break):
+  - `GET /auth/login` — generates PKCE verifier + state + nonce,
+    stores them in a signed `__servdir_oidc_tx` cookie (10 minutes,
+    `HttpOnly`, `Secure`, `SameSite=Lax`), 302s to Entra
+    `authorize` with `response_type=code`, `scope=openid profile
+    email`, `code_challenge_method=S256`.
+  - `GET /auth/callback` — verifies the tx cookie, matches `state`,
+    exchanges the code via `authorizationCodeGrant`, validates the
+    ID token (signature, issuer, audience, nonce, exp — all by
+    `openid-client`), then explicitly pins `claims.tid` to the
+    configured tenant as the day-one authorization check, mints
+    the session cookie, clears the tx cookie, and 302s to a
+    re-validated `returnTo`.
+  - `POST /auth/logout` — clears the session cookie and 302s to
+    `/`. Local logout only; no RP-initiated end-session call to
+    Entra in v1.
+- Session: signed JWT (`HS256` via `jose`) in `__servdir_session`,
+  `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`. Default TTL 8
+  hours, tunable via `AUTH_SESSION_TTL_HOURS` (1–168 h). Stateless;
+  no database, no in-memory session store. The middleware verifies
+  the cookie on every request and populates `context.locals.user`
+  on success.
+- Unauthenticated handling: for `GET` requests that accept
+  `text/html` (browsers) the middleware redirects to
+  `/auth/login?return_to=<encoded path+query>`. For everything
+  else it returns `401 {"error":"unauthenticated"}` so curl and
+  API clients get a clean error instead of an HTML redirect.
+
+### Authorization model (v1)
+
+Any user from the configured Entra tenant is allowed in. The
+tenant pin (`claims.tid === configured tenantId`) is the only
+authorization check. Group-based or role-based gating is out of
+scope for v1 and will get its own ADR if and when we need it.
+
+### Health endpoints
+
+`/health/live` and `/health/ready` bypass the entire auth stack in
+all modes — pinned by `src/middleware.test.ts` so a future
+refactor cannot silently break Kubernetes probes.
+
+## Consequences
+
+- Real per-user identity, audit-friendly login events, easy to
+  revoke (deactivate the Entra user).
+- Operational dependency on Entra: an outage of
+  `login.microsoftonline.com` makes the staging site unloggable-in
+  (but `/health/ready` keeps reporting ready, so k8s does not
+  start tearing down pods).
+- Rotating `AUTH_SESSION_SECRET` invalidates every live session at
+  once. Expected behavior; document the re-login wave in the
+  rotation runbook.
+- Static builds remain auth-less by design. Anyone hosting the
+  static export must put their own auth at the hosting layer.
+
+## Options considered
+
+### Option 1: Adopt OIDC via `openid-client` (chosen)
+
+Pros:
+- Small surface, no framework lock-in.
+- Pure ESM, Node-native, works under the Astro Node adapter
+  without polyfills.
+- The flow we need (auth-code + PKCE, validate ID token) is
+  exactly what `openid-client` does well.
+
+Cons:
+- We hand-write the route shells. Acceptable — the routes are
+  thin and the explicit code is testable.
+
+### Option 2: Adopt Auth.js / `auth-astro`
+
+Pros:
+- Higher-level provider abstractions, sessions out of the box,
+  large ecosystem.
+
+Cons:
+- Heavier dep tree, more conventions to learn, and locks the
+  project into Auth.js's session and middleware model.
+- We don't need the multi-provider abstraction — Entra is the
+  only identity we will ever wire here.
+
+### Option 3: Stay on basic auth, layer auth at the reverse proxy
+
+Pros:
+- No app changes needed.
+- Works with whatever the corporate proxy supports.
+
+Cons:
+- Couples the deployment to a specific ingress stack.
+- No per-user identity inside the app, so `locals.user` and
+  audit-friendly login events are not possible.
+- Pushes the auth story off the product surface.
+
+## Advice
+
+- To operators: set `LOG_LEVEL=debug LOG_FORMAT=json` and grep
+  `auth-` if anything goes wrong during the first staging login.
+  Every decision point logs a structured `reason` field.
+- To future-me: keep authorization (group/role) out of the
+  middleware. When we need it, it belongs in a separate ADR with
+  its own configuration model.
