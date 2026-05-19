@@ -1,3 +1,25 @@
+@layer components {
+  .text-headline {
+    @apply text-4xl font-semibold leading-tight tracking-tight md:text-5xl;
+  }
+
+  .text-title {
+    @apply text-xl font-semibold leading-tight;
+  }
+
+  .text-body {
+    @apply text-base leading-7;
+  }
+
+  .text-meta {
+    @apply text-sm leading-5;
+  }
+
+  .text-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-wider;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

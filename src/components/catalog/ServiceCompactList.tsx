@@ -32,7 +32,7 @@ export function ServiceCompactList({ services, idColumnWidthCh }: Props) {
             >
               <a
                 href={toAppPath(`/services/${service.slug}`)}
-                className="min-w-0 text-[1rem] font-semibold leading-5 transition-colors group-hover/row:text-primary"
+                className="min-w-0 text-base font-semibold leading-5 transition-colors group-hover/row:text-primary"
                 style={{ gridArea: 'title' }}
               >
                 {service.data.name}
@@ -40,7 +40,7 @@ export function ServiceCompactList({ services, idColumnWidthCh }: Props) {
 
               <a
                 href={toAppPath(`/services/${service.slug}`)}
-                className="inline-flex items-center gap-1.5 text-[0.84rem]"
+                className="text-meta inline-flex items-center gap-1.5"
                 style={{ gridArea: 'id', width: 'fit-content' }}
               >
                 <CatalogKindIcon
@@ -64,11 +64,11 @@ export function ServiceCompactList({ services, idColumnWidthCh }: Props) {
               </span>
 
               <span
-                className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[0.9rem]"
+                className="text-meta flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1"
                 style={{ gridArea: 'meta', marginTop: '0.125rem' }}
               >
                 {service.data.tags && service.data.tags.length > 0 && (
-                  <span className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-[0.83rem] leading-5">
+                  <span className="text-meta flex min-w-0 flex-wrap gap-x-3 gap-y-1">
                     {service.data.tags.map((tag) => (
                       <TagLink key={tag} tag={tag} />
                     ))}

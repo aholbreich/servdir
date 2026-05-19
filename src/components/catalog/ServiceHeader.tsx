@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Chip } from '@/components/ui/Chip';
 import { TagLink } from './TagLink';
 import type { ServiceRecord } from '@/lib/catalog';
 
@@ -22,20 +23,17 @@ export function ServiceHeader({ service }: Props) {
 
   return (
     <Card className="mb-5">
-      <CardContent className="p-6.5">
+      <CardContent className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="mb-3 text-4xl font-semibold leading-tight md:text-5xl">
+            <h1 className="text-headline mb-3">
               {service.data.name}
             </h1>
-            <div className="mt-0.5 flex flex-wrap gap-2 text-[0.9rem] leading-5">
+            <div className="text-meta mt-0.5 flex flex-wrap gap-2">
               {attributeItems.map((value, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-muted/60 px-2.5 py-1"
-                >
+                <Chip key={i} variant="label">
                   {value}
-                </span>
+                </Chip>
               ))}
             </div>
           </div>

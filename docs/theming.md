@@ -62,6 +62,8 @@ keys you omit fall back to the default theme's values.
 | `muted` / `mutedForeground`  | `--muted` / `--muted-foreground` |
 | `accent` / `accentForeground` | `--accent` / `--accent-foreground` |
 | `destructive`                | `--destructive`                 |
+| `warning` / `warningForeground` | `--warning` / `--warning-foreground` |
+| `success` / `successForeground` | `--success` / `--success-foreground` |
 | `border` / `input` / `ring`  | `--border` / `--input` / `--ring` |
 | `sidebar*` (7 keys)          | `--sidebar*`                    |
 | `radius`                     | `--radius`                      |

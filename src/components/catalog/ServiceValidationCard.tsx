@@ -18,7 +18,7 @@ export function ServiceValidationCard({ service }: Props) {
         {hasIssues ? (
           <IssueList issues={service.issues} />
         ) : (
-          <p className="leading-6 text-green-700 dark:text-green-400">No validation issues.</p>
+          <p className="leading-6 text-success">No validation issues.</p>
         )}
       </CardContent>
     </Card>

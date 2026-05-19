@@ -13,12 +13,12 @@ export function CatalogHero({
 }: Props) {
   return (
     <Card>
-      <CardContent className="p-7">
-        <p className="text-muted-foreground mb-2.5 text-[0.82rem] tracking-[0.02em]">{eyebrow}</p>
-        <h1 className="mb-3 text-4xl font-semibold leading-tight tracking-[-0.03em] md:text-5xl">
+      <CardContent className="p-6">
+        <p className="text-eyebrow mb-2.5 text-muted-foreground">{eyebrow}</p>
+        <h1 className="text-headline mb-3">
           {title}
         </h1>
-        <p className="text-muted-foreground max-w-5xl leading-7">{subtitle}</p>
+        <p className="text-body text-muted-foreground max-w-5xl">{subtitle}</p>
       </CardContent>
     </Card>
   );

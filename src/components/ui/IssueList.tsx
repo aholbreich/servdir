@@ -12,7 +12,7 @@ export function IssueList({ issues, className }: Props) {
       {issues.map((issue, i) => (
         <li
           key={i}
-          className={issue.level === 'error' ? 'text-destructive' : 'text-amber-700 dark:text-amber-400'}
+          className={issue.level === 'error' ? 'text-destructive' : 'text-warning'}
         >
           {issue.message}
         </li>

@@ -16,7 +16,7 @@ interface Props {
 export function CatalogStatusDetailList({ items, className, children }: Props) {
   return (
     <dl
-      className={cn('grid gap-x-4 gap-y-2 text-[0.95rem] leading-6', className)}
+      className={cn('grid gap-x-4 gap-y-2 text-sm leading-6', className)}
       style={{ gridTemplateColumns: 'auto minmax(0, 1fr)' } as CSSProperties}
     >
       {items.map((item) => (

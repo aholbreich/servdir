@@ -178,7 +178,7 @@ function GitSourcesPopover({ gitSources, summaryLabel, countLabel }: GitSourcesP
   return (
     <Popover>
       <PopoverTrigger
-        className="inline-flex items-center text-[0.88rem] font-medium text-muted-foreground underline underline-offset-2 transition-colors hover:text-primary"
+        className="inline-flex items-center text-sm font-medium text-muted-foreground underline underline-offset-2 transition-colors hover:text-primary"
         aria-label={summaryLabel}
         title={summaryLabel}
       >
@@ -192,21 +192,21 @@ function GitSourcesPopover({ gitSources, summaryLabel, countLabel }: GitSourcesP
             return (
               <section key={i} className="rounded-lg border bg-muted/40 px-2.5 py-2">
                 <div className="mb-1 flex items-center justify-between gap-2">
-                  <h3 className="text-[0.78rem] font-semibold">{source.name}</h3>
+                  <h3 className="text-sm font-semibold">{source.name}</h3>
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     <Badge variant={syncBadge.tone === 'ok' ? 'secondary' : syncBadge.tone === 'warn' ? 'destructive' : 'outline'}>
                       {syncBadge.label}
                     </Badge>
-                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[0.66rem] font-medium text-muted-foreground">
+                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                       {source.branch}
                     </span>
                   </div>
                 </div>
-                <dl className="grid gap-x-2 gap-y-0.5 text-[0.75rem] leading-4.5"
+                <dl className="grid gap-x-2 gap-y-0.5 text-xs leading-4"
                   style={{ gridTemplateColumns: 'auto minmax(0, 1fr)' }}
                 >
                   <dt className="text-muted-foreground">Repo</dt>
-                  <dd className="min-w-0 break-all"><code className="text-[0.72rem]">{source.repoUrl}</code></dd>
+                  <dd className="min-w-0 break-all"><code className="text-xs">{source.repoUrl}</code></dd>
                   <dt className="text-muted-foreground">Scan</dt>
                   <dd className="min-w-0 break-words">{source.scanPaths ? source.scanPaths.join(', ') : '(repo root)'}</dd>
                   {source.syncStatus?.lastSyncFinishedAt && (

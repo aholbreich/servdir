@@ -18,6 +18,10 @@ export type ThemeTokens = Partial<{
   accent: string;
   accentForeground: string;
   destructive: string;
+  warning: string;
+  warningForeground: string;
+  success: string;
+  successForeground: string;
   border: string;
   input: string;
   ring: string;
@@ -68,6 +72,10 @@ const TOKEN_CSS_VAR: Record<keyof ThemeTokens, string> = {
   accent: '--accent',
   accentForeground: '--accent-foreground',
   destructive: '--destructive',
+  warning: '--warning',
+  warningForeground: '--warning-foreground',
+  success: '--success',
+  successForeground: '--success-foreground',
   border: '--border',
   input: '--input',
   ring: '--ring',

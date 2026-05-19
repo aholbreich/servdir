@@ -15,7 +15,7 @@ export function TagLink({ tag, className }: Props) {
   return (
     <a
       href={toAppPath(`/tags/${slug}`)}
-      className={cn('font-medium text-sky-700 dark:text-sky-400 hover:underline', className)}
+      className={cn('font-medium text-primary hover:underline', className)}
     >
       #{tag}
     </a>

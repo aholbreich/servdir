@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/Chip';
 import { ServiceCardGrid } from './ServiceCardGrid';
 import { ServiceCompactList } from './ServiceCompactList';
 import { CatalogKindIcon } from './CatalogKindIcon';
@@ -97,27 +98,23 @@ export function ServiceCatalogGrid({ services }: Props) {
           placeholder="Search by name or id…"
           autoComplete="off"
           spellCheck={false}
-          className="min-w-0 flex-1 rounded-xl border border-border bg-background/85 px-4 py-2 text-[0.95rem] shadow-sm placeholder:text-muted-foreground focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="min-w-0 flex-1 rounded-xl border border-border bg-background/85 px-4 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
 
         <div className="flex shrink-0 items-center gap-3">
           {showKindFilter && (
             <div className="inline-flex items-center gap-1" role="group" aria-label="Filter by kind">
               {uniqueKinds.map((kind) => (
-                <button
-                  key={kind}
-                  type="button"
-                  onClick={() => toggleKind(kind)}
-                  aria-pressed={activeKind === kind}
-                  title={kind.charAt(0).toUpperCase() + kind.slice(1)}
-                  className={cn(
-                    'inline-flex size-7 items-center justify-center rounded-full border bg-background/72 text-muted-foreground transition-colors',
-                    'hover:bg-primary/8 hover:text-foreground border-border',
-                    activeKind === kind && 'border-primary/38 bg-primary/12 text-primary',
-                  )}
-                >
-                  <CatalogKindIcon kind={kind} size={15} />
-                </button>
+                <Chip key={kind} variant="icon-button" asChild>
+                  <button
+                    type="button"
+                    onClick={() => toggleKind(kind)}
+                    aria-pressed={activeKind === kind}
+                    title={kind.charAt(0).toUpperCase() + kind.slice(1)}
+                  >
+                    <CatalogKindIcon kind={kind} size={15} />
+                  </button>
+                </Chip>
               ))}
             </div>
           )}
@@ -130,7 +127,7 @@ export function ServiceCatalogGrid({ services }: Props) {
                 onClick={() => handleViewMode(mode)}
                 aria-pressed={viewMode === mode}
                 className={cn(
-                  'rounded-full px-3 py-1.5 text-[0.92rem] font-medium transition-colors',
+                  'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
                   viewMode === mode ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/8 hover:text-foreground',
                 )}
               >
@@ -146,7 +143,7 @@ export function ServiceCatalogGrid({ services }: Props) {
                   aria-pressed={platformGrouped}
                   title="Group by platform"
                   className={cn(
-                    'rounded-full px-3 py-1.5 text-[0.92rem] font-medium transition-colors',
+                    'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
                     platformGrouped ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-primary/8 hover:text-foreground',
                   )}
                 >
@@ -159,12 +156,12 @@ export function ServiceCatalogGrid({ services }: Props) {
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-4">
-        <p className="text-[0.95rem]">
+        <p className="text-sm">
           Showing {filteredServices.length} service{filteredServices.length === 1 ? '' : 's'}
         </p>
-        <a href={toAppPath('/tags')} className="text-[0.95rem]">Browse tags</a>
+        <a href={toAppPath('/tags')} className="text-sm">Browse tags</a>
         {services.some((s) => s.data.platform?.trim()) && (
-          <a href={toAppPath('/platforms')} className="text-[0.95rem]">Browse platforms</a>
+          <a href={toAppPath('/platforms')} className="text-sm">Browse platforms</a>
         )}
       </div>
 
@@ -174,10 +171,8 @@ export function ServiceCatalogGrid({ services }: Props) {
             {filteredGroups.map((group) => (
               <div key={group.platform ?? '__other__'}>
                 <div className="mb-2 flex items-center gap-1.5 px-0.5">
-                  <span className="text-[0.82rem] font-semibold uppercase tracking-wide text-muted-foreground">{group.label}</span>
-                  <span className="inline-flex items-center rounded-full border border-border bg-muted px-1.5 py-0.25 text-[0.72rem] leading-none text-muted-foreground">
-                    {group.services.length}
-                  </span>
+                  <span className="text-eyebrow text-muted-foreground">{group.label}</span>
+                  <Chip variant="count">{group.services.length}</Chip>
                 </div>
                 <ServiceCompactList services={group.services} idColumnWidthCh={globalIdWidthCh} />
               </div>
@@ -194,10 +189,8 @@ export function ServiceCatalogGrid({ services }: Props) {
             {filteredGroups.map((group) => (
               <div key={group.platform ?? '__other__'}>
                 <div className="mb-2 flex items-center gap-1.5 px-0.5">
-                  <span className="text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{group.label}</span>
-                  <span className="inline-flex items-center rounded-full border border-border bg-muted px-1.25 py-0.25 text-[0.68rem] leading-none text-muted-foreground">
-                    {group.services.length}
-                  </span>
+                  <span className="text-eyebrow text-muted-foreground">{group.label}</span>
+                  <Chip variant="count">{group.services.length}</Chip>
                 </div>
                 <ServiceCardGrid services={group.services} grouped />
               </div>
