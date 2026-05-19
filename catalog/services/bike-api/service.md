@@ -44,7 +44,7 @@ tech_stack:
   tooling:
     - maven
     - github-actions
-system: swing
+system: bikes-be
 domain: care
 platform: aws-prod
 ---

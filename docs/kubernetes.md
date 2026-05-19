@@ -6,6 +6,7 @@
 - [What this setup expects](#what-this-setup-expects)
 - [SSH Access Key setup](#ssh-access-key-setup)
 - [Configuration reference](#configuration-reference)
+- [Theming](#theming)
 - [Health checks](#health-checks)
 - [Operational notes](#operational-notes)
 - [Troubleshooting](#troubleshooting)
@@ -40,8 +41,7 @@ data:
 
   AUTH_MODE: "basic"
 
-  GIT_SOURCE_CATALOG_MAIN: "git@bitbucket.org:myneva/servdir-catalog.git|main|services"
-  GIT_SOURCE_FLUX_GITOPS: "git@bitbucket.org:myneva/flux-gitops.git|main"
+  GIT_SOURCE_CATALOG_MAIN: "git@bit...org:<org>/servdir-catalog.git|main|services"
 ```
 
 ### Secret
@@ -293,6 +293,75 @@ Notes:
 - `AUTH_SESSION_SECRET` is mandatory only for `AUTH_MODE=oidc`; it signs servdir's transaction and session cookies
 - use the Entra client secret **Value** for `AUTH_OIDC_CLIENT_SECRET`, not the Secret ID
 - see [Authentication Guide](./authentication.md) for Entra setup and troubleshooting
+
+### Theming
+
+A deployment can override colors, radius, fonts, and brand assets via a single
+JSON theme file pointed at by `UI_THEME_CONFIG`. The default theme ships
+built-in; with `UI_THEME_CONFIG` unset, the UI looks like a stock servdir
+install. See [Theming guide](./theming.md) and ADR 013 for the full schema.
+
+The cleanest k8s pattern is a dedicated ConfigMap mounted into the pod:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servdir-theme
+data:
+  theme.json: |
+    {
+      "name": "mycompany",
+      "light": {
+        "primary": "oklch(0.7 0.18 50)",
+        "secondary": "oklch(0.35 0.1 250)",
+        "radius": "0.5rem"
+      },
+      "fonts": {
+        "sans": "'Lato', sans-serif",
+        "heading": "'Montserrat', sans-serif",
+        "cssImportHref": "https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;700&display=swap"
+      },
+      "brand": {
+        "logoUrl": "/branding/logo.svg"
+      }
+    }
+```
+
+Mount it and set the env var in the Deployment:
+
+```yaml
+          env:
+            - name: UI_THEME_CONFIG
+              value: /etc/servdir/theme/theme.json
+          volumeMounts:
+            - name: theme
+              mountPath: /etc/servdir/theme
+              readOnly: true
+      volumes:
+        - name: theme
+          configMap:
+            name: servdir-theme
+```
+
+If the deployment carries `reloader.stakater.com/auto: "true"` (as in the
+example above), editing the ConfigMap rolls the pods automatically — no image
+rebuild.
+
+Notes:
+
+- An invalid or missing theme file logs an error and falls back to the default
+  theme; the app always boots.
+- `CATALOG_TITLE` stays in `servdir-config`. Themes only carry logo and
+  favicon — titles are a deployment-level concern.
+- Logo and favicon URLs can be:
+  - absolute (`https://cdn.example.com/logo.svg`) — simplest, no extra mounts
+  - app-relative paths starting with `/` (e.g. `/branding/logo.svg`) — must be
+    served by the container. Bake them into the image under `public/branding/`,
+    or mount an extra ConfigMap/PVC at the matching path.
+- Static export mode (`SERVDIR_BUILD_MODE=static`) bakes the theme at `astro
+  build` time, not at pod startup. To change the theme for a static deployment,
+  rebuild the image with a different `UI_THEME_CONFIG` in CI.
 
 ### SSH defaults
 

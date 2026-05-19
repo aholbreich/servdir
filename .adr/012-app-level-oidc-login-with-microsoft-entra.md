@@ -8,10 +8,10 @@ Supersedes (partial): 007-protect-the-catalog-with-basic-auth.md
 ## Context
 
 ADR 007 wired basic auth as a deliberately simple stopgap. The first
-real internal deployment (`servdir.staging.swing.aws.myneva.cloud`)
+real internal deployment (`servdir.test.cloud`)
 runs inside a corporate environment that has a Microsoft Entra ID
-tenant and a clear ask: "all myneva users should be able to log in".
-A shared basic-auth credential cannot express that — it has no
+tenant and a clear ask: "all test.cloud users should be able to log in".
+A shared basic-auth credential cannot express that - it has no
 identity, no rotation story, and no audit trail. The product needs
 real per-user authentication.
 

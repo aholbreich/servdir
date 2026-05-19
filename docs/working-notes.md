@@ -186,8 +186,6 @@ This is the preferred level of abstraction here:
 - The mermaid bundle adds ~500 KB to the client bundle; that is inherent to the library and acceptable for this use case
 - PlantUML and Structurizr remain `proposed` — they would require either a remote render endpoint (kroki.io) or a local Java process, both worth a separate decision
 
-
-
 ### Managed Git scheduler and sync behavior
 
 - Managed Git sync previously happened on the request path and caused repeated pulls, race conditions, and noisy logs.
@@ -421,6 +419,35 @@ Operator gotchas to keep in mind:
   otherwise reverse-proxied Node deployments can exchange a code with
   `http://localhost:<port>/auth/callback` and Entra rejects it with
   `AADSTS500112`.
+
+## Deploy-time theming (2026-05-19)
+
+ADR 013 introduces a single deploy-time theme file selected via
+`UI_THEME_CONFIG`. Default behavior is unchanged when the variable
+is unset.
+
+Key implementation details to remember:
+
+- `src/lib/theme.ts` is a separate module, deliberately not part of
+  `AppConfig`. Theming is a layout concern; mixing it into the
+  domain config would log entire token objects through the config
+  dump.
+- `BaseLayout.astro` sets `<html data-theme="custom">` and injects
+  `:root[data-theme="custom"] { … }` rules. The `[data-theme]`
+  selector bumps specificity above the baseline `:root` rules in
+  `src/styles/tokens.css`, so the override wins regardless of where
+  Astro emits the bundled stylesheet `<link>`.
+- App title stays on `CATALOG_TITLE`. The theme schema covers logo
+  and favicon only; titles are deployment-level and we kept a single
+  source of truth.
+- If a theme provides no `dark` block, the boot script does not auto-
+  apply dark from system prefs and `ThemeToggle` returns `null`.
+- Static export bakes the theme at build time. To switch themes on a
+  static deployment, rebuild with a different `UI_THEME_CONFIG`. This
+  is documented in `docs/theming.md` and ADR 013.
+- Token validation is strict: unknown keys reject the whole file and
+  fall back to default. Adding a new token requires extending
+  `TOKEN_CSS_VAR` in `src/lib/theme.ts`.
 
 ## Working assumption
 

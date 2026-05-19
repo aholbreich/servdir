@@ -57,3 +57,10 @@
 {"time":"2026-05-19T11:29:00Z","event":"claimed","task_id":"task-ep4","actor":"claude"}
 {"time":"2026-05-19T11:31:55Z","event":"note_added","task_id":"task-ep4","actor":"claude"}
 {"time":"2026-05-19T11:31:55Z","event":"closed","task_id":"task-ep4","actor":"claude"}
+{"time":"2026-05-19T15:26:42Z","event":"created","task_id":"task-y13","actor":"pi"}
+{"time":"2026-05-19T15:31:22Z","event":"note_added","task_id":"task-y13","actor":"pi"}
+{"time":"2026-05-19T15:42:25Z","event":"note_added","task_id":"task-tsu","actor":"claude"}
+{"time":"2026-05-19T15:42:25Z","event":"closed","task_id":"task-tsu","actor":"claude"}
+{"time":"2026-05-19T15:45:13Z","event":"claimed","task_id":"task-y13","actor":"claude"}
+{"time":"2026-05-19T15:56:16Z","event":"note_added","task_id":"task-y13","actor":"claude"}
+{"time":"2026-05-19T15:56:16Z","event":"closed","task_id":"task-y13","actor":"claude"}

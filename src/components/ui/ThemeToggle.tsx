@@ -9,7 +9,11 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', isDark);
 }
 
-export function ThemeToggle() {
+export interface ThemeToggleProps {
+  darkAvailable?: boolean;
+}
+
+export function ThemeToggle({ darkAvailable = true }: ThemeToggleProps = {}) {
   const [theme, setTheme] = useState<Theme>('system');
 
   useEffect(() => {
@@ -33,6 +37,8 @@ export function ThemeToggle() {
     localStorage.setItem('theme', next);
     applyTheme(next);
   }
+
+  if (!darkAvailable) return null;
 
   return (
     <Button

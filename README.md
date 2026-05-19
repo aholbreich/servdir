@@ -204,6 +204,10 @@ Check all [Authentication configruation options](./docs/authentication.md)
 
 See [Kubernetes Deployment Guide](./docs/kubernetes.md) to design your Kubernetes deployments.
 
+## Theming
+
+Override colors, radius, fonts, and brand assets per deployment via a single JSON file pointed at by `UI_THEME_CONFIG`. See [Theming guide](./docs/theming.md) and ADR 013 for the schema and a worked example.
+
 ## Deployment modes
 
 ### Default server mode
@@ -237,6 +241,7 @@ Developer relevant docs in the project:
 - [docs/prd.md](./docs/prd.md)
 - [docs/user-stories.md](./docs/user-stories.md)
 - [docs/authentication.md](./docs/authentication.md)
+- [docs/theming.md](./docs/theming.md)
 - `.adr/`
 - [docs/working-notes.md](./docs/working-notes.md) — includes cross-session handoff context for future agents and maintainers
 - [docs/release.md](./docs/release.md)

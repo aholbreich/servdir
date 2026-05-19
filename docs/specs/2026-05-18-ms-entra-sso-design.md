@@ -187,7 +187,7 @@ URL or an as-needed separate dev app registration.
 | `AUTH_OIDC_TENANT_ID`     | `AUTH_MODE=oidc`        | UUID. For staging: `0696ad1c-a986-4600-a72c-7e0a5502930c`.            |
 | `AUTH_OIDC_CLIENT_ID`     | `AUTH_MODE=oidc`        | UUID. For staging: `fc2f3e48-7e37-4ad3-b222-0fadf2b6715a`.            |
 | `AUTH_OIDC_CLIENT_SECRET` | `AUTH_MODE=oidc`        | Provided by IT, rotated independently. **Never logged.**              |
-| `AUTH_OIDC_REDIRECT_URI`  | `AUTH_MODE=oidc`        | Must match the value registered in Entra. Staging: `https://servdir.staging.swing.aws.myneva.cloud/auth/callback`. |
+| `AUTH_OIDC_REDIRECT_URI`  | `AUTH_MODE=oidc`        | Must match the value registered in Entra. Staging: `https://servdir.your domain/auth/callback`. |
 | `AUTH_SESSION_SECRET`     | `AUTH_MODE=oidc`        | Servdir-owned cookie signing key. Generate with `openssl rand -base64 32`; rotating it invalidates sessions. |
 
 `getConfig()` performs presence + length validation at startup. Missing
@@ -259,8 +259,7 @@ applies. Default left empty (= `none`).
 - **Nonce** binds the ID token to the auth request. Verified during ID
   token validation.
 - **Tenant pin** — `tid` claim must equal the configured tenant ID.
-  This is the v1 authorization check ("only myneva users"). Without
-  this pin an attacker with any Microsoft account could log in.
+  This is the v1 authorization check . Without this pin an attacker with any Microsoft account could log in.
 - **`returnTo` validation** — must be a same-origin relative path
   starting with `/`. Reject scheme-relative (`//evil`) and absolute
   URLs to prevent open redirect.
