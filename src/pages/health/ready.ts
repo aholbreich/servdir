@@ -20,7 +20,8 @@ export const GET: APIRoute = async () => {
   return new Response(JSON.stringify({
     status: 'ready',
     gitSources: configResolution.config.gitSources.length,
-    basicAuthEnabled: configResolution.config.basicAuth.enabled,
+    authMode: configResolution.config.auth.mode,
+    basicAuthEnabled: configResolution.config.auth.mode === 'basic',
   }), {
     status: 200,
     headers: {

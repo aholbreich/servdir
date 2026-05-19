@@ -37,21 +37,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const config = getConfig();
 
-  if (!config.basicAuth.enabled) {
-    return next();
+  switch (config.auth.mode) {
+    case 'none':
+      return next();
+    case 'basic': {
+      const authorization = context.request.headers.get('authorization');
+      const authorized = isAuthorized(
+        { enabled: true, username: config.auth.username, password: config.auth.password },
+        authorization,
+      );
+      if (authorized) {
+        return next();
+      }
+      return new Response('Authentication required', {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Basic realm="servdir"',
+        },
+      });
+    }
+    case 'oidc':
+      return new Response('OIDC authentication is not yet implemented', {
+        status: 501,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
   }
-
-  const authorization = context.request.headers.get('authorization');
-  const authorized = isAuthorized(config.basicAuth, authorization);
-
-  if (authorized) {
-    return next();
-  }
-
-  return new Response('Authentication required', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="servdir"',
-    },
-  });
 });

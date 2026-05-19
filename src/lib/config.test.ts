@@ -11,9 +11,15 @@ describe('getConfig', () => {
     delete process.env.LOG_FORMAT;
     delete process.env.LOG_LEVEL;
     delete process.env.LOG_COLOR;
+    delete process.env.AUTH_MODE;
     delete process.env.BASIC_AUTH_ENABLED;
     delete process.env.BASIC_AUTH_USERNAME;
     delete process.env.BASIC_AUTH_PASSWORD;
+    delete process.env.AUTH_OIDC_TENANT_ID;
+    delete process.env.AUTH_OIDC_CLIENT_ID;
+    delete process.env.AUTH_OIDC_CLIENT_SECRET;
+    delete process.env.AUTH_OIDC_REDIRECT_URI;
+    delete process.env.AUTH_SESSION_SECRET;
   });
 
   it('uses a default build version, catalog title and git sync interval', async () => {
@@ -95,16 +101,31 @@ describe('getConfig', () => {
     expect(() => getConfig()).toThrow('at least one catalog source must be configured');
   });
 
-  it('fails when basic auth is enabled but credentials are missing', async () => {
+  it('defaults auth mode to none when AUTH_MODE is unset', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
-    process.env.BASIC_AUTH_ENABLED = 'true';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({ mode: 'none' });
+  });
+
+  it('parses AUTH_MODE=basic with credentials', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'basic';
+    process.env.BASIC_AUTH_USERNAME = 'dev';
+    process.env.BASIC_AUTH_PASSWORD = 'secret';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({ mode: 'basic', username: 'dev', password: 'secret' });
+  });
+
+  it('fails when AUTH_MODE=basic but credentials are missing', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'basic';
     const { getConfig } = await import('./config');
     expect(() => getConfig()).toThrow('Basic auth enabled, but username/password missing');
   });
 
   it('fails when encrypted secret placeholders reach runtime env', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
-    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.AUTH_MODE = 'basic';
     process.env.BASIC_AUTH_USERNAME = 'dev';
     process.env.BASIC_AUTH_PASSWORD = 'ENC[AES256_GCM,data:example]';
     const { getConfig } = await import('./config');
@@ -113,7 +134,7 @@ describe('getConfig', () => {
 
   it('recovers after an earlier invalid config once env values become valid', async () => {
     process.env.LOCAL_CATALOG_PATH = './catalog';
-    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.AUTH_MODE = 'basic';
     process.env.BASIC_AUTH_USERNAME = 'dev';
     process.env.BASIC_AUTH_PASSWORD = 'ENC[AES256_GCM,data:example]';
     const { getConfig } = await import('./config');
@@ -122,10 +143,69 @@ describe('getConfig', () => {
 
     process.env.BASIC_AUTH_PASSWORD = 'real-secret';
 
-    expect(getConfig().basicAuth).toEqual({
-      enabled: true,
+    expect(getConfig().auth).toEqual({
+      mode: 'basic',
       username: 'dev',
       password: 'real-secret',
     });
+  });
+
+  it('infers AUTH_MODE=basic from legacy BASIC_AUTH_ENABLED=true', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.BASIC_AUTH_USERNAME = 'dev';
+    process.env.BASIC_AUTH_PASSWORD = 'secret';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({ mode: 'basic', username: 'dev', password: 'secret' });
+  });
+
+  it('does not infer basic mode when AUTH_MODE is explicitly none', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'none';
+    process.env.BASIC_AUTH_ENABLED = 'true';
+    process.env.BASIC_AUTH_USERNAME = 'dev';
+    process.env.BASIC_AUTH_PASSWORD = 'secret';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({ mode: 'none' });
+  });
+
+  it('parses AUTH_MODE=oidc carrying all env vars through', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 'tenant-1';
+    process.env.AUTH_OIDC_CLIENT_ID = 'client-1';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 'super-secret';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    process.env.AUTH_SESSION_SECRET = 'a-very-long-base64-session-secret-value!';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({
+      mode: 'oidc',
+      tenantId: 'tenant-1',
+      clientId: 'client-1',
+      clientSecret: 'super-secret',
+      redirectUri: 'https://example.com/auth/callback',
+      sessionSecret: 'a-very-long-base64-session-secret-value!',
+    });
+  });
+
+  it('accepts AUTH_MODE=oidc without env vars (validation in task-sbi)', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    const { getConfig } = await import('./config');
+    expect(getConfig().auth).toEqual({
+      mode: 'oidc',
+      tenantId: undefined,
+      clientId: undefined,
+      clientSecret: undefined,
+      redirectUri: undefined,
+      sessionSecret: undefined,
+    });
+  });
+
+  it('rejects unknown AUTH_MODE values', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'kerberos';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow('Invalid AUTH_MODE');
   });
 });

@@ -46,8 +46,14 @@ interface Props {
   gitSources: GitSourceConfig[];
   gitSyncIntervalMs: number;
   gitSourceStatuses: GitSourceSyncStatus[];
-  basicAuthEnabled: boolean;
+  authMode: 'none' | 'basic' | 'oidc';
 }
+
+const AUTH_MODE_LABEL: Record<Props['authMode'], string> = {
+  none: 'disabled',
+  basic: 'basic',
+  oidc: 'OIDC (Microsoft Entra)',
+};
 
 export function CatalogStatusCard({
   servicesCount,
@@ -62,7 +68,7 @@ export function CatalogStatusCard({
   gitSources,
   gitSyncIntervalMs,
   gitSourceStatuses,
-  basicAuthEnabled,
+  authMode,
 }: Props) {
   const dateFormatter = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -78,7 +84,7 @@ export function CatalogStatusCard({
     { label: 'Source mode', value: describeSourceMode(localCatalogPath, gitSourcesCount) },
     { label: 'Local catalog', value: localCatalogPath ?? 'disabled', asCode: Boolean(localCatalogPath) },
     { label: 'Git sync health', value: describeGitSourceHealth(gitSourcesCount, gitSourceFailureCount, gitSourceKnownStatusCount) },
-    { label: 'Basic auth', value: basicAuthEnabled ? 'enabled' : 'disabled' },
+    { label: 'Auth', value: AUTH_MODE_LABEL[authMode] },
   ];
 
   const runtimeItems: DetailItem[] = [

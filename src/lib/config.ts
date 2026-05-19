@@ -17,11 +17,20 @@ export type GitSourceConfig = {
   scanPaths?: string[];
 };
 
-export type BasicAuthConfig = {
-  enabled: boolean;
-  username?: string;
-  password?: string;
-};
+export type AuthMode = 'none' | 'basic' | 'oidc';
+
+export type AuthConfig =
+  | { mode: 'none' }
+  | { mode: 'basic'; username: string; password: string }
+  | {
+      mode: 'oidc';
+      // Validated and tightened to required strings in task-sbi.
+      tenantId: string | undefined;
+      clientId: string | undefined;
+      clientSecret: string | undefined;
+      redirectUri: string | undefined;
+      sessionSecret: string | undefined;
+    };
 
 export type AppConfig = {
   appBuildVersion: string;
@@ -32,7 +41,7 @@ export type AppConfig = {
   logFormat: LogFormat;
   logLevel: LogLevel;
   logColor: LogColor;
-  basicAuth: BasicAuthConfig;
+  auth: AuthConfig;
 };
 
 type ConfigResolution =
@@ -133,17 +142,55 @@ function parseGitSources(): GitSourceConfig[] {
   }).filter((source) => source.repoUrl);
 }
 
+function resolveAuthMode(): AuthMode {
+  const raw = readEnv('AUTH_MODE')?.trim().toLowerCase();
+  const legacyBasic = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));
+
+  if (!raw) {
+    if (legacyBasic) {
+      logger.warn('Inferring AUTH_MODE=basic from legacy BASIC_AUTH_ENABLED — set AUTH_MODE=basic explicitly to silence');
+      return 'basic';
+    }
+    return 'none';
+  }
+
+  if (raw === 'none' || raw === 'basic' || raw === 'oidc') {
+    if (raw !== 'basic' && legacyBasic) {
+      logger.warn(`AUTH_MODE=${raw} is set; ignoring legacy BASIC_AUTH_ENABLED=true`);
+    }
+    return raw;
+  }
+
+  throw new Error(`Invalid AUTH_MODE "${raw}": expected one of none, basic, oidc`);
+}
+
+function buildAuthConfig(mode: AuthMode): AuthConfig {
+  switch (mode) {
+    case 'none':
+      return { mode: 'none' };
+    case 'basic':
+      return {
+        mode: 'basic',
+        username: readEnv('BASIC_AUTH_USERNAME') ?? '',
+        password: readEnv('BASIC_AUTH_PASSWORD') ?? '',
+      };
+    case 'oidc':
+      return {
+        mode: 'oidc',
+        tenantId: readEnv('AUTH_OIDC_TENANT_ID'),
+        clientId: readEnv('AUTH_OIDC_CLIENT_ID'),
+        clientSecret: readEnv('AUTH_OIDC_CLIENT_SECRET'),
+        redirectUri: readEnv('AUTH_OIDC_REDIRECT_URI'),
+        sessionSecret: readEnv('AUTH_SESSION_SECRET'),
+      };
+  }
+}
+
 function buildConfig(): AppConfig {
   const localCatalogPath = readEnv('LOCAL_CATALOG_PATH');
   const gitSources = parseGitSources();
-  const basicAuthEnabled = parseBoolean(readEnv('BASIC_AUTH_ENABLED'));
-  const basicAuthUsername = readEnv('BASIC_AUTH_USERNAME');
-  const basicAuthPassword = readEnv('BASIC_AUTH_PASSWORD');
   const appBuildVersion = readEnv('APP_BUILD_VERSION') ?? 'v0.0.1 · sha-local';
-
-  if (!basicAuthEnabled && (basicAuthUsername || basicAuthPassword)) {
-    logger.warn('Basic auth credentials ignored because BASIC_AUTH_ENABLED is not true');
-  }
+  const auth = buildAuthConfig(resolveAuthMode());
 
   return {
     appBuildVersion,
@@ -154,11 +201,7 @@ function buildConfig(): AppConfig {
     logFormat: resolveLogFormat(),
     logLevel: resolveLogLevel(),
     logColor: resolveLogColor(),
-    basicAuth: {
-      enabled: basicAuthEnabled,
-      username: basicAuthEnabled ? basicAuthUsername : undefined,
-      password: basicAuthEnabled ? basicAuthPassword : undefined,
-    },
+    auth,
   };
 }
 
@@ -167,12 +210,12 @@ function validateConfig(config: AppConfig): AppConfig {
     throw new Error('at least one catalog source must be configured: set LOCAL_CATALOG_PATH or GIT_SOURCE_<NAME>');
   }
 
-  if (config.basicAuth.enabled) {
-    if (!config.basicAuth.username || !config.basicAuth.password) {
+  if (config.auth.mode === 'basic') {
+    if (!config.auth.username || !config.auth.password) {
       throw new Error('Basic auth enabled, but username/password missing');
     }
 
-    if (looksEncryptedPlaceholder(config.basicAuth.username) || looksEncryptedPlaceholder(config.basicAuth.password)) {
+    if (looksEncryptedPlaceholder(config.auth.username) || looksEncryptedPlaceholder(config.auth.password)) {
       throw new Error('Encrypted secret placeholder detected in runtime env');
     }
   }
@@ -190,7 +233,7 @@ function logConfig(config: AppConfig): void {
     logFormat: config.logFormat,
     logLevel: config.logLevel,
     logColor: config.logColor,
-    basicAuthEnabled: config.basicAuth.enabled,
+    authMode: config.auth.mode,
   });
 }
 
