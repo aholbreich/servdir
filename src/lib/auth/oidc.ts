@@ -1,4 +1,5 @@
 import {
+  authorizationCodeGrant,
   buildAuthorizationUrl,
   calculatePKCECodeChallenge,
   discovery,
@@ -9,7 +10,8 @@ import {
 } from 'openid-client';
 import { SignJWT, errors, jwtVerify } from 'jose';
 import { createLogger } from '../logger';
-import { mintTxCookie } from './cookies';
+import { clearTxCookie, mintSessionCookie, mintTxCookie, parseTxCookie } from './cookies';
+import { signSession } from './session';
 
 const logger = createLogger('auth-oidc');
 
@@ -26,6 +28,7 @@ export type OidcRuntimeConfig = {
   clientSecret: string;
   redirectUri: string;
   sessionSecret: string;
+  sessionTtlHours: number;
 };
 
 export type TxPayload = {
@@ -156,4 +159,108 @@ export async function buildLoginRedirect(
 
   logger.info('login redirect built', { statePrefix: state.slice(0, 8), returnTo: safeReturnTo });
   return { txCookie, redirectUrl: authUrl.toString() };
+}
+
+export type CallbackUser = {
+  sub: string;
+  email: string;
+  name: string;
+  oid?: string;
+};
+
+export type CallbackFailureReason =
+  | 'tx_missing'
+  | 'tx_invalid'
+  | 'state_missing'
+  | 'state_mismatch'
+  | 'token_exchange_failed'
+  | 'tenant_mismatch'
+  | 'missing_claims';
+
+export type CallbackResult =
+  | {
+      ok: true;
+      sessionToken: string;
+      sessionCookie: string;
+      txCookieClear: string;
+      returnTo: string;
+      user: CallbackUser;
+    }
+  | { ok: false; reason: CallbackFailureReason; status: number };
+
+function fail(reason: CallbackFailureReason, status: number): CallbackResult {
+  logger.warn('callback rejected', { reason });
+  return { ok: false, reason, status };
+}
+
+function readClaimString(claims: Record<string, unknown>, key: string): string | undefined {
+  const value = claims[key];
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+export async function handleCallback(oidcConfig: OidcRuntimeConfig, request: Request): Promise<CallbackResult> {
+  const cookieHeader = request.headers.get('cookie');
+  const txTokenRaw = parseTxCookie(cookieHeader);
+  if (!txTokenRaw) return fail('tx_missing', 400);
+
+  const txResult = await verifyTxPayload(txTokenRaw, oidcConfig.sessionSecret);
+  if (!txResult.ok) return fail('tx_invalid', 400);
+
+  const tx = txResult.payload;
+  const url = new URL(request.url);
+  const queryState = url.searchParams.get('state');
+  if (!queryState) return fail('state_missing', 400);
+  if (queryState !== tx.state) return fail('state_mismatch', 400);
+
+  const configuration = await getDiscoveredConfiguration(oidcConfig);
+
+  let tokenResponse: Awaited<ReturnType<typeof authorizationCodeGrant>>;
+  try {
+    tokenResponse = await authorizationCodeGrant(configuration, url, {
+      pkceCodeVerifier: tx.codeVerifier,
+      expectedNonce: tx.nonce,
+      expectedState: tx.state,
+    });
+  } catch (err) {
+    logger.warn('token exchange failed', { error: err });
+    return fail('token_exchange_failed', 400);
+  }
+
+  const claims = tokenResponse.claims();
+  if (!claims) return fail('missing_claims', 400);
+
+  if (claims.tid !== oidcConfig.tenantId) {
+    logger.warn('tenant pin mismatch', { actualTid: claims.tid, expectedTid: oidcConfig.tenantId });
+    return fail('tenant_mismatch', 403);
+  }
+
+  const sub = readClaimString(claims as Record<string, unknown>, 'sub');
+  if (!sub) return fail('missing_claims', 400);
+
+  const email =
+    readClaimString(claims as Record<string, unknown>, 'email') ??
+    readClaimString(claims as Record<string, unknown>, 'preferred_username') ??
+    '';
+  const name =
+    readClaimString(claims as Record<string, unknown>, 'name') ??
+    email ??
+    sub;
+  const oid = readClaimString(claims as Record<string, unknown>, 'oid');
+
+  const ttlSeconds = oidcConfig.sessionTtlHours * 3600;
+  const sessionToken = await signSession({ sub, email, name }, oidcConfig.sessionSecret, ttlSeconds);
+  const sessionCookie = mintSessionCookie(sessionToken, ttlSeconds);
+  const txCookieClear = clearTxCookie();
+
+  const returnTo = validateReturnTo(tx.returnTo);
+
+  logger.info('callback success', { sub, returnTo });
+  return {
+    ok: true,
+    sessionToken,
+    sessionCookie,
+    txCookieClear,
+    returnTo,
+    user: { sub, email, name, oid },
+  };
 }

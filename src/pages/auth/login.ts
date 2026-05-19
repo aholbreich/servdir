@@ -28,6 +28,7 @@ export const GET: APIRoute = async ({ request }) => {
     clientSecret: config.auth.clientSecret,
     redirectUri: config.auth.redirectUri,
     sessionSecret: config.auth.sessionSecret,
+    sessionTtlHours: config.auth.sessionTtlHours,
   };
 
   const { txCookie, redirectUrl } = await buildLoginRedirect(oidcRuntimeConfig, returnTo);

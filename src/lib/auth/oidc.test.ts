@@ -2,6 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const FAKE_AUTH_ENDPOINT = 'https://login.microsoftonline.com/test-tenant/oauth2/v2.0/authorize';
 
+const { authorizationCodeGrantMock } = vi.hoisted(() => ({
+  authorizationCodeGrantMock: vi.fn(),
+}));
+
 vi.mock('openid-client', () => ({
   discovery: vi.fn(async () => ({ __fake: 'config' })),
   randomPKCECodeVerifier: vi.fn(() => 'fake-code-verifier'),
@@ -16,6 +20,7 @@ vi.mock('openid-client', () => ({
     }
     return url;
   }),
+  authorizationCodeGrant: authorizationCodeGrantMock,
 }));
 
 import {
@@ -23,12 +28,15 @@ import {
   TX_TTL_SECONDS,
   _resetDiscoveryCache,
   buildLoginRedirect,
+  handleCallback,
   signTxPayload,
   validateReturnTo,
   verifyTxPayload,
   type OidcRuntimeConfig,
   type TxPayload,
 } from './oidc';
+import { verifySession } from './session';
+import { TX_COOKIE_NAME } from './cookies';
 
 const SECRET = 'a'.repeat(44);
 
@@ -38,6 +46,7 @@ const RUNTIME_CONFIG: OidcRuntimeConfig = {
   clientSecret: 'test-client-secret',
   redirectUri: 'https://servdir.example.com/auth/callback',
   sessionSecret: SECRET,
+  sessionTtlHours: 8,
 };
 
 const TX: TxPayload = {
@@ -166,5 +175,153 @@ describe('buildLoginRedirect', () => {
     await buildLoginRedirect(RUNTIME_CONFIG, '/');
     await buildLoginRedirect(RUNTIME_CONFIG, '/');
     expect(oidc.discovery).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('handleCallback', () => {
+  async function makeRequest(opts: { state?: string; code?: string; cookie?: string }): Promise<Request> {
+    const url = new URL(RUNTIME_CONFIG.redirectUri);
+    if (opts.code !== undefined) url.searchParams.set('code', opts.code);
+    if (opts.state !== undefined) url.searchParams.set('state', opts.state);
+    const headers: Record<string, string> = {};
+    if (opts.cookie) headers['cookie'] = opts.cookie;
+    return new Request(url, { headers });
+  }
+
+  async function validTxCookie(): Promise<string> {
+    const token = await signTxPayload(TX, SECRET);
+    return `${TX_COOKIE_NAME}=${encodeURIComponent(token)}`;
+  }
+
+  function mockTokenResponse(claims: Record<string, unknown>): void {
+    authorizationCodeGrantMock.mockResolvedValueOnce({
+      access_token: 'fake-access',
+      id_token: 'fake.id.token',
+      token_type: 'Bearer',
+      claims: () => claims,
+    });
+  }
+
+  it('succeeds with a session cookie and validated returnTo on the happy path', async () => {
+    mockTokenResponse({
+      sub: 'user-1',
+      email: 'alice@example.com',
+      name: 'Alice Example',
+      oid: 'oid-1',
+      tid: 'test-tenant',
+    });
+    const request = await makeRequest({ code: 'fake-code', state: TX.state, cookie: await validTxCookie() });
+
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.returnTo).toBe(TX.returnTo);
+      expect(result.user).toEqual({
+        sub: 'user-1',
+        email: 'alice@example.com',
+        name: 'Alice Example',
+        oid: 'oid-1',
+      });
+      expect(result.sessionCookie).toContain('__servdir_session=');
+      expect(result.sessionCookie).toContain('HttpOnly');
+      expect(result.txCookieClear).toContain('Max-Age=0');
+
+      const sessionResult = await verifySession(result.sessionToken, SECRET);
+      expect(sessionResult.ok).toBe(true);
+      if (sessionResult.ok) {
+        expect(sessionResult.payload.sub).toBe('user-1');
+      }
+    }
+  });
+
+  it('rejects when the tx cookie is missing', async () => {
+    const request = await makeRequest({ code: 'fake-code', state: TX.state });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual({ ok: false, reason: 'tx_missing', status: 400 });
+  });
+
+  it('rejects when the tx cookie is tampered', async () => {
+    const token = await signTxPayload(TX, SECRET);
+    const tampered = token.slice(0, -2) + 'XX';
+    const request = await makeRequest({
+      code: 'fake-code',
+      state: TX.state,
+      cookie: `${TX_COOKIE_NAME}=${encodeURIComponent(tampered)}`,
+    });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual(expect.objectContaining({ ok: false, reason: 'tx_invalid', status: 400 }));
+  });
+
+  it('rejects when query state is missing', async () => {
+    const request = await makeRequest({ code: 'fake-code', cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual({ ok: false, reason: 'state_missing', status: 400 });
+  });
+
+  it('rejects when query state does not match tx cookie state', async () => {
+    const request = await makeRequest({ code: 'fake-code', state: 'wrong-state', cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual({ ok: false, reason: 'state_mismatch', status: 400 });
+  });
+
+  it('rejects when authorizationCodeGrant throws', async () => {
+    authorizationCodeGrantMock.mockRejectedValueOnce(new Error('boom'));
+    const request = await makeRequest({ code: 'fake-code', state: TX.state, cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual(expect.objectContaining({ ok: false, reason: 'token_exchange_failed', status: 400 }));
+  });
+
+  it('rejects when tenant pin (tid) does not match', async () => {
+    mockTokenResponse({
+      sub: 'user-1',
+      email: 'mallory@otherorg.com',
+      name: 'Mallory',
+      tid: 'attacker-tenant',
+    });
+    const request = await makeRequest({ code: 'fake-code', state: TX.state, cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual({ ok: false, reason: 'tenant_mismatch', status: 403 });
+  });
+
+  it('rejects when sub claim is missing', async () => {
+    mockTokenResponse({
+      email: 'a@b.com',
+      tid: 'test-tenant',
+    });
+    const request = await makeRequest({ code: 'fake-code', state: TX.state, cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result).toEqual({ ok: false, reason: 'missing_claims', status: 400 });
+  });
+
+  it('falls back to preferred_username when email claim is missing', async () => {
+    mockTokenResponse({
+      sub: 'user-1',
+      preferred_username: 'fallback@example.com',
+      name: 'Fallback',
+      tid: 'test-tenant',
+    });
+    const request = await makeRequest({ code: 'fake-code', state: TX.state, cookie: await validTxCookie() });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.user.email).toBe('fallback@example.com');
+    }
+  });
+
+  it('sanitizes a hostile returnTo from the tx cookie', async () => {
+    const hostileTx = { ...TX, returnTo: '//evil.com' };
+    const hostileToken = await signTxPayload(hostileTx, SECRET);
+    mockTokenResponse({ sub: 'user-1', email: 'a@b.com', name: 'A', tid: 'test-tenant' });
+    const request = await makeRequest({
+      code: 'fake-code',
+      state: hostileTx.state,
+      cookie: `${TX_COOKIE_NAME}=${encodeURIComponent(hostileToken)}`,
+    });
+    const result = await handleCallback(RUNTIME_CONFIG, request);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.returnTo).toBe('/');
+    }
   });
 });
