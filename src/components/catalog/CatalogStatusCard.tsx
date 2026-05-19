@@ -119,9 +119,7 @@ export function CatalogStatusCard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Catalog status</CardTitle>
-      </CardHeader>
+
       <CardContent>
         <Tabs defaultValue="configuration">
           <TabsList className="mb-4">
