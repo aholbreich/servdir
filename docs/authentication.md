@@ -7,7 +7,7 @@ Servdir authentication is an app-level feature of the default Node server runtim
 Select one mode with `AUTH_MODE`:
 
 | Mode | Required settings | Use when |
-|---|---|---|
+| --- | --- | --- |
 | `none` | none | Local dev, trusted networks, or a separate proxy already handles auth. |
 | `basic` | `BASIC_AUTH_USERNAME`, `BASIC_AUTH_PASSWORD` | Small installs without an identity provider. Shared credential only. |
 | `oidc` | Entra app settings plus `AUTH_SESSION_SECRET` | Microsoft Entra ID login with real per-user identity. |
@@ -108,7 +108,6 @@ Load both with `envFrom` in the Deployment. If you split secrets across multiple
 
 Secret updates do not change the environment of an already-running container. Roll the Deployment after changing `AUTH_OIDC_CLIENT_SECRET` or `AUTH_SESSION_SECRET`. Tools such as Reloader, Helm checksum annotations, or Flux image/config rollouts are fine.
 
-
 ## Health endpoints and unauthenticated behavior
 
 `/health/live` and `/health/ready` bypass auth in every mode so Kubernetes probes and load balancer health checks keep working.
@@ -147,7 +146,7 @@ kubectl -n <namespace> logs deploy/servdir --since=30m \
 ### Common failures
 
 | Symptom / log | Likely cause | Fix |
-|---|---|---|
+| --- | --- | --- |
 | `Missing required OIDC config: AUTH_SESSION_SECRET` | `AUTH_MODE=oidc` but no session secret is present. | Generate `openssl rand -base64 32`, store it as `AUTH_SESSION_SECRET`, and roll the pod. |
 | `AUTH_SESSION_SECRET must decode to at least 32 bytes` | The value is too short or not the generated base64 string. | Regenerate with `openssl rand -base64 32`. |
 | `Encrypted secret placeholder detected in runtime env` | The pod received `ENC[...]` from a SOPS-encrypted manifest instead of decrypted values. | Check Flux/SOPS decryption on the applying `Kustomization`, reconcile, and roll the pod. |

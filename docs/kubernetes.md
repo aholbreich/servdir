@@ -1,6 +1,7 @@
 # Kubernetes Deployment Guide
 
 ## Table of Contents
+
 - [Ops quick start](#ops-quick-start)
 - [What this setup expects](#what-this-setup-expects)
 - [SSH Access Key setup](#ssh-access-key-setup)
@@ -15,6 +16,7 @@ Start with the full example below, then adjust only the values you need.
 ## Ops quick start
 
 This example shows the common first deployment shape:
+
 - config in a `ConfigMap`
 - credentials in a `Secret`
 - SSH key mounted for Git access
@@ -162,6 +164,7 @@ spec:
 - the common Kubernetes case uses `emptyDir` for checkout cache
 
 Recommended default:
+
 - keep `replicas: 1` unless you intentionally want multiple pods doing Git sync work
 
 ## SSH Access Key setup
@@ -169,6 +172,7 @@ Recommended default:
 Use a repository-scoped SSH access key for each Git repository when possible.
 
 Typical setup:
+
 1. create an SSH key pair for servdir
 2. add the public key as a read-only repository access key in Bitbucket or your Git provider
 3. prepare a `known_hosts` file for the Git host
@@ -203,22 +207,26 @@ LOG_COLOR=false
 ```
 
 `GIT_SYNC_INTERVAL` accepts:
+
 - `30s`
 - `5m`
 - `1h`
 - plain numbers, treated as seconds
 
 `LOG_FORMAT` accepts:
+
 - `text` for human-readable logs during local development
 - `json` for structured one-line logs that work better with Kubernetes log collectors
 
 `LOG_LEVEL` accepts:
+
 - `debug` for detailed scan/build chatter
 - `info` for normal operations
 - `warn` for only warnings and errors
 - `error` for errors only
 
 `LOG_COLOR` accepts:
+
 - `auto` to enable color only when stdout is a TTY
 - `true` to always enable color in text mode
 - `false` to always disable color in text mode
@@ -246,6 +254,7 @@ GIT_SOURCE_MONOREPO=git@bitbucket.org:your-org/monorepo.git|main
 ```
 
 Rules:
+
 - `<NAME>` becomes the source name, for example `CATALOG_MAIN` → `catalog-main`
 - `branch` is required in the current format
 - `scanPaths` are optional
@@ -277,6 +286,7 @@ AUTH_SESSION_SECRET=<output-of-openssl-rand-base64-32>
 ```
 
 Notes:
+
 - Basic Auth realm is fixed to `servdir`
 - use HTTPS in front of the app
 - store credentials and OIDC secrets in Kubernetes `Secret` objects
@@ -287,6 +297,7 @@ Notes:
 ### SSH defaults
 
 If these files exist, servdir uses them automatically for Git SSH:
+
 - `/etc/servdir/ssh/id_ed25519`
 - `/etc/servdir/ssh/known_hosts`
 
@@ -295,22 +306,26 @@ That means the mounted secret path in the example is the normal happy path.
 ## Health checks
 
 Servdir exposes two probe-friendly endpoints:
+
 - `/health/live`
 - `/health/ready`
 
 These endpoints bypass app auth in every mode.
 
 Recommended usage:
+
 - `startupProbe` → `/health/ready`
 - `readinessProbe` → `/health/ready`
 - `livenessProbe` → `/health/live`
 
 Why:
+
 - `startupProbe` gives the pod time to come up cleanly
 - `readinessProbe` prevents traffic before config is valid
 - `livenessProbe` restarts only truly unhealthy processes
 
 Important Kubernetes note:
+
 - if credentials are injected as env vars, running pods usually do not see later Secret updates automatically
 - servdir now retries config resolution instead of caching a failure forever
 - but env-var based setups still usually need a restart or rollout when Secret values change
@@ -328,17 +343,20 @@ Equivalent rollout mechanisms from Helm or Flux are also fine.
 ### `emptyDir` vs PVC
 
 Use `emptyDir` when:
+
 - Git is the source of truth
 - checkout cache can be rebuilt
 - simpler operations matter more than cache persistence
 
 Use a PVC when:
+
 - you want checkout cache to survive pod restarts
 - you want to reduce re-cloning after restarts
 
 ### Local and Git sources can be mixed
 
 You can combine:
+
 - `LOCAL_CATALOG_PATH`
 - `GIT_SOURCE_<NAME>` variables
 
@@ -354,6 +372,7 @@ The Kubernetes example in this document is for the normal server runtime.
 This means the pod received a SOPS `ENC[...]` placeholder instead of a decrypted secret value.
 
 What to do:
+
 1. confirm the Secret really contains decrypted values
 2. make sure every Flux `Kustomization` path applying encrypted Secret manifests has SOPS decryption configured
 3. reconcile Flux after fixing decryption
@@ -363,6 +382,7 @@ What to do:
 ### OIDC login fails with `token_exchange_failed`
 
 Check the pod logs for the Entra error. Common causes:
+
 - `AADSTS500112`: `AUTH_OIDC_REDIRECT_URI` does not exactly match the Entra Web redirect URI, or an old image exchanged the code with an internal URL such as `http://localhost:4321/auth/callback`
 - `invalid_client`: wrong client ID/secret, expired secret, or the Entra Secret ID was used instead of the Secret Value
 - `tx_missing` or `state_mismatch`: stale callback URL, expired login transaction cookie, or multiple login attempts mixed together
@@ -372,6 +392,7 @@ Start a fresh login from `/auth/login` after changing config; do not reuse old c
 ### Git source not loading
 
 Check:
+
 - SSH key is valid for the repository
 - `known_hosts` is mounted correctly
 - repo URL is correct
@@ -381,6 +402,7 @@ Check:
 ### Too many restarts
 
 Common causes:
+
 - probe timings are too aggressive
 - Secret rollout timing is slow
 - Git SSH access is broken

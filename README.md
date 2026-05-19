@@ -193,7 +193,7 @@ The server runtime supports three auth modes, selected at startup via
 always unauthenticated at the app layer.
 
 | `AUTH_MODE` | When to use |
-|---|---|
+| --- | --- |
 | `none` (default) | Local dev, trusted networks, or fronted by a separate proxy that handles auth. |
 | `basic` | Single-tenant install without an identity provider. Shared credential, no per-user identity. See ADR 007. |
 | `oidc` | Internal deployments with a Microsoft Entra ID tenant. Real per-user login. See ADR 012. |
