@@ -20,6 +20,7 @@ describe('getConfig', () => {
     delete process.env.AUTH_OIDC_CLIENT_SECRET;
     delete process.env.AUTH_OIDC_REDIRECT_URI;
     delete process.env.AUTH_SESSION_SECRET;
+    delete process.env.AUTH_SESSION_TTL_HOURS;
   });
 
   it('uses a default build version, catalog title and git sync interval', async () => {
@@ -185,6 +186,7 @@ describe('getConfig', () => {
       clientSecret: 'super-secret',
       redirectUri: 'https://example.com/auth/callback',
       sessionSecret: 'a'.repeat(44),
+      sessionTtlHours: 8,
     });
   });
 
@@ -240,6 +242,32 @@ describe('getConfig', () => {
     process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
     const { getConfig } = await import('./config');
     expect(() => getConfig()).toThrow(/Encrypted secret placeholder detected/);
+  });
+
+  it('accepts a custom AUTH_SESSION_TTL_HOURS', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 's';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
+    process.env.AUTH_SESSION_TTL_HOURS = '2';
+    const { getConfig } = await import('./config');
+    expect((getConfig().auth as { sessionTtlHours: number }).sessionTtlHours).toBe(2);
+  });
+
+  it('rejects a non-positive AUTH_SESSION_TTL_HOURS', async () => {
+    process.env.LOCAL_CATALOG_PATH = './catalog';
+    process.env.AUTH_MODE = 'oidc';
+    process.env.AUTH_OIDC_TENANT_ID = 't';
+    process.env.AUTH_OIDC_CLIENT_ID = 'c';
+    process.env.AUTH_OIDC_CLIENT_SECRET = 's';
+    process.env.AUTH_OIDC_REDIRECT_URI = 'https://example.com/auth/callback';
+    process.env.AUTH_SESSION_SECRET = 'a'.repeat(44);
+    process.env.AUTH_SESSION_TTL_HOURS = '0';
+    const { getConfig } = await import('./config');
+    expect(() => getConfig()).toThrow(/AUTH_SESSION_TTL_HOURS must be a positive number/);
   });
 
   it('rejects unknown AUTH_MODE values', async () => {

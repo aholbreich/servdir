@@ -29,6 +29,7 @@ export type AuthConfig =
       clientSecret: string;
       redirectUri: string;
       sessionSecret: string;
+      sessionTtlHours: number;
     };
 
 export type AppConfig = {
@@ -228,7 +229,20 @@ function buildOidcAuth(): Extract<AuthConfig, { mode: 'oidc' }> {
     );
   }
 
+  config.sessionTtlHours = parseSessionTtlHours();
+
   return config;
+}
+
+function parseSessionTtlHours(): number {
+  const raw = readEnv('AUTH_SESSION_TTL_HOURS')?.trim();
+  if (!raw) return 8;
+
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0 || value > 24 * 7) {
+    throw new Error(`AUTH_SESSION_TTL_HOURS must be a positive number <= ${24 * 7}, got "${raw}"`);
+  }
+  return value;
 }
 
 function buildAuthConfig(mode: AuthMode): AuthConfig {
